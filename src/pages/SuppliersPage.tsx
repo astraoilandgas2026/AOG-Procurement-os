@@ -87,7 +87,7 @@ export function SuppliersPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this supplier and all related intelligence? This cannot be undone.')) return;
+    if (!confirm('¿Eliminar este proveedor y toda su inteligencia relacionada? Esta acción no se puede deshacer.')) return;
     await getStore().suppliers.remove(id);
     if (selectedSupplierId === id) selectSupplier(null);
     refresh();
@@ -113,8 +113,8 @@ export function SuppliersPage() {
   return (
     <div>
       <PageHeader
-        title="Suppliers"
-        subtitle="Supplier intelligence profiles"
+        title="Proveedores"
+        subtitle="Perfiles de inteligencia de proveedores"
         action={<Button onClick={openCreate}><Plus size={16} /> Add Supplier</Button>}
       />
 
@@ -122,7 +122,7 @@ export function SuppliersPage() {
         <Card>
           <EmptyState
             icon={<Building2 size={28} />}
-            title="No suppliers registered"
+            title="No hay proveedores registrados"
             message="Register your first supplier to begin building procurement intelligence. Each supplier profile captures identity, operations, products, commercial offers, certifications, and due diligence."
             action={<Button onClick={openCreate}><Plus size={16} /> Add Supplier</Button>}
           />
@@ -135,7 +135,7 @@ export function SuppliersPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0" onClick={() => selectSupplier(s.id)}>
                     <h3 className="text-sm font-semibold text-gray-900 truncate">
-                      {s.legal_name || 'Unnamed Supplier'}
+                      {s.legal_name || 'Proveedor sin nombre'}
                     </h3>
                     {s.trading_name && (
                       <p className="text-xs text-gray-500 truncate">{s.trading_name}</p>
@@ -173,12 +173,12 @@ export function SuppliersPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editing ? 'Edit Supplier' : 'Register New Supplier'}
+        title={editing ? 'Editar proveedor' : 'Registrar nuevo proveedor'}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
             <Button onClick={save} disabled={!form.legal_name}>
-              {editing ? 'Save Changes' : 'Create Supplier'}
+              {editing ? 'Guardar cambios' : 'Crear proveedor'}
             </Button>
           </>
         }
@@ -211,13 +211,13 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
     return () => { active = false; };
   }, [doc.file_url]);
   if (error) return <div className="p-3 text-xs text-red-600">{error}</div>;
-  if (!url) return <div className="p-3 text-xs text-gray-500">Loading preview…</div>;
+  if (!url) return <div className="p-3 text-xs text-gray-500">Cargando vista previa…</div>;
   const lower = url.toLowerCase();
   return <div className="border-t border-gray-200 bg-slate-50 p-3">
     {lower.match(/\.(png|jpg|jpeg|webp|gif)(\?|$)/) ? <img src={url} alt={doc.title} className="max-h-[520px] w-full object-contain" /> :
      lower.match(/\.pdf(\?|$)/) ? <iframe title={doc.title} src={url} className="h-[520px] w-full bg-white" /> :
      lower.match(/\.(mp4|webm|mov)(\?|$)/) ? <video src={url} controls className="max-h-[520px] w-full" /> :
-     <a href={url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Open document</a>}
+     <a href={url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Abrir documento</a>}
   </div>;
 }
 
@@ -277,7 +277,7 @@ function SupplierDetail({
           <DetailRow label="Administrator / Legal Representative" value={supplier.administrator} /><DetailRow label="Legal Status" value={supplier.legal_status} />
         </DetailSection>
         <DetailSection title="2. Operación y Capacidad">
-          <DetailRow label="Facility" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} />
+          <DetailRow label="Planta / instalación" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} />
           <DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} /><DetailRow label="Real Production" value={supplier.real_production} />
           <DetailRow label="Available Volume" value={supplier.available_volume} /><DetailRow label="Volume for Astra" value={supplier.volume_to_astra} />
           <DetailRow label="Trial Volume" value={supplier.trial_volume} /><DetailRow label="Recurring Volume" value={supplier.recurring_volume} /><DetailRow label="Infrastructure" value={supplier.infrastructure} />
@@ -286,18 +286,18 @@ function SupplierDetail({
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="3. Contactos">
-          {!data.contacts.length ? <EmptyLine text="No contact record." /> : data.contacts.map(c => (
+          {!data.contacts.length ? <EmptyLine text="Sin registro de contacto." /> : data.contacts.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Unnamed contact'}</div><div className="text-xs text-gray-500">{c.title || 'Role not specified'}</div></div>{c.is_primary && <Badge color="blue">Primary</Badge>}</div>
+              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Unnamed contact'}</div><div className="text-xs text-gray-500">{c.title || 'Cargo no especificado'}</div></div>{c.is_primary && <Badge color="blue">Principal</Badge>}</div>
               <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-gray-600 sm:grid-cols-2"><span>Email: {c.email || '—'}</span><span>Phone: {c.phone || '—'}</span><span>WhatsApp: {c.whatsapp || '—'}</span></div>
               {c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
             </div>
           ))}
         </DetailSection>
         <DetailSection title="4. Productos y Variantes del Proveedor">
-          {!data.products.length ? <EmptyLine text="No products registered." /> : data.products.map(p => (
+          {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
-              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
+              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span><span>Origin: {p.origin || '—'}</span><span>Volume: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verification: {p.verification_status}</span></div>
             </div>
           ))}
@@ -305,24 +305,24 @@ function SupplierDetail({
       </div>
 
       <DetailSection title="5. Técnico / Calidad — Ficha Técnica Ampliada">
-        {!data.specs.length ? <EmptyLine text="No technical parameters recorded. Expected evidence: COA, TDS, SDS/FDS, laboratory analysis and product-specific quality limits." /> : data.specs.map(({ product, specs }) => (
+        {!data.specs.length ? <EmptyLine text="No hay parámetros técnicos registrados. Evidencia esperada: COA, TDS, SDS/FDS, análisis de laboratorio y límites de calidad específicos del producto." /> : data.specs.map(({ product, specs }) => (
           <div key={product.id} className="mb-3 rounded-lg border border-gray-100 p-3 last:mb-0">
             <div className="mb-2 flex items-center gap-2"><FlaskConical size={15} className="text-gray-400" /><span className="text-sm font-semibold text-gray-900">{product.name}</span></div>
-            <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="border-b border-gray-100 text-left text-gray-500"><th className="py-2 pr-3">Parameter</th><th className="py-2 pr-3">Value</th><th className="py-2 pr-3">Unit</th><th className="py-2 pr-3">Method</th><th className="py-2">Evidence</th></tr></thead><tbody>{specs.map(s => <tr key={s.id} className="border-b border-gray-50"><td className="py-2 pr-3 font-medium text-gray-800">{s.parameter}</td><td className="py-2 pr-3">{s.value || '—'}</td><td className="py-2 pr-3">{s.unit || '—'}</td><td className="py-2 pr-3">{s.method || '—'}</td><td className="py-2"><Badge color={verificationColor(s.verification_status)}>{verificationLabel(s.verification_status)}</Badge></td></tr>)}</tbody></table></div>
+            <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="border-b border-gray-100 text-left text-gray-500"><th className="py-2 pr-3">Parameter</th><th className="py-2 pr-3">Value</th><th className="py-2 pr-3">Unidad</th><th className="py-2 pr-3">Method</th><th className="py-2">Evidence</th></tr></thead><tbody>{specs.map(s => <tr key={s.id} className="border-b border-gray-50"><td className="py-2 pr-3 font-medium text-gray-800">{s.parameter}</td><td className="py-2 pr-3">{s.value || '—'}</td><td className="py-2 pr-3">{s.unit || '—'}</td><td className="py-2 pr-3">{s.method || '—'}</td><td className="py-2"><Badge color={verificationColor(s.verification_status)}>{verificationLabel(s.verification_status)}</Badge></td></tr>)}</tbody></table></div>
           </div>
         ))}
       </DetailSection>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="6. Ofertas Comerciales">
-          {!data.offers.length ? <EmptyLine text="No commercial offer recorded." /> : data.offers.map(o => (
-            <div key={o.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><div className="text-sm font-semibold text-gray-900">{o.price || 'Price pending'} {o.currency}</div><Badge color={verificationColor(o.verification_status)}>{verificationLabel(o.verification_status)}</Badge></div>
+          {!data.offers.length ? <EmptyLine text="Sin oferta comercial registrada." /> : data.offers.map(o => (
+            <div key={o.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><div className="text-sm font-semibold text-gray-900">{o.price || 'Precio pendiente'} {o.currency}</div><Badge color={verificationColor(o.verification_status)}>{verificationLabel(o.verification_status)}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Basis: {o.price_basis || '—'}</span><span>Incoterm: {o.incoterm || '—'}</span><span>Loading: {o.loading_point || '—'}</span><span>Port: {o.port || '—'}</span><span>Destination: {o.destination || '—'}</span><span>Payment: {o.payment_terms || '—'}</span><span>Offered: {o.offered_volume || '—'}</span><span>Trial: {o.trial_quantity || '—'}</span><span>Recurring: {o.recurring_quantity || '—'}</span><span>ISCC premium: {o.certification_premium || '—'}</span></div>
             </div>
           ))}
         </DetailSection>
         <DetailSection title="7. Certificaciones">
-          {!data.certifications.length ? <EmptyLine text="No certification records. Claims such as ISCC remain unverified until documentary evidence is attached." /> : data.certifications.map(c => (
+          {!data.certifications.length ? <EmptyLine text="No hay registros de certificación. Las afirmaciones como ISCC permanecen sin verificar hasta adjuntar evidencia documental." /> : data.certifications.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">{c.cert_type}</span><Badge color={c.status === 'active' ? 'green' : c.status === 'revoked' ? 'red' : 'yellow'}>{c.status}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Number: {c.cert_number || '—'}</span><span>Issuer: {c.issuing_body || '—'}</span><span>Issue: {c.issue_date || '—'}</span><span>Expiry: {c.expiration_date || '—'}</span></div>{c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
             </div>
@@ -338,7 +338,7 @@ function SupplierDetail({
         </DetailSection>
         <DetailSection title="9. Logística / Preparación para Exportación">
           {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
-            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logistics record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origin: {l.origin_location || '—'}</span><span>Loading: {l.loading_location || '—'}</span><span>Transport: {l.transport_mode}</span><span>Container: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
+            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logística record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origin: {l.origin_location || '—'}</span><span>Loading: {l.loading_location || '—'}</span><span>Transport: {l.transport_mode}</span><span>Container: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
           ))}
         </DetailSection>
       </div>
@@ -458,7 +458,7 @@ function SupplierForm({
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Operation</h4>
         <div className="grid grid-cols-2 gap-3">
-          <Input label="Facility" value={form.facility} onChange={(v) => update('facility', v)} />
+          <Input label="Planta / instalación" value={form.facility} onChange={(v) => update('facility', v)} />
           <Input label="Operation Status" value={form.operation_status} onChange={(v) => update('operation_status', v)} />
           <Input label="Theoretical Capacity" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Real Production" value={form.real_production} onChange={(v) => update('real_production', v)} />
