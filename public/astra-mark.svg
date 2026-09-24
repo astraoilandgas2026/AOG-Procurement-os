@@ -1,9 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-<rect width="100" height="100" rx="18" fill="white"/>
-<g transform="translate(50 50)">
-<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#E40521"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
-<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#FA7408" transform="rotate(72)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(72)"/>
-<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#FDBE02" transform="rotate(144)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(144)"/>
-<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#00A155" transform="rotate(216)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(216)"/>
-<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#08B0F6" transform="rotate(288)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(288)"/>
-</g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">Astra</title>
+  <desc id="desc">Estrella abstracta de cinco pétalos en los colores corporativos de Astra.</desc>
+  <defs>
+    <linearGradient id="red" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#B80F1D"/><stop offset="1" stop-color="#E31E24"/></linearGradient>
+    <linearGradient id="orange" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#D96312"/><stop offset="1" stop-color="#F58220"/></linearGradient>
+    <linearGradient id="yellow" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#D59B00"/><stop offset="1" stop-color="#FDB913"/></linearGradient>
+    <linearGradient id="green" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#007E3E"/><stop offset="1" stop-color="#00A651"/></linearGradient>
+    <linearGradient id="cyan" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#008CC4"/><stop offset="1" stop-color="#00AEEF"/></linearGradient>
+  </defs>
+  <g transform="translate(50 50)">
+    <g>
+      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#red)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    </g>
+    <g transform="rotate(72)">
+      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#orange)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    </g>
+    <g transform="rotate(144)">
+      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#yellow)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    </g>
+    <g transform="rotate(216)">
+      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#green)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    </g>
+    <g transform="rotate(288)">
+      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#cyan)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    </g>
+  </g>
+</svg>
