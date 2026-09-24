@@ -62,7 +62,7 @@ export function VencimientoDiligencePage() {
     refresh();
   };
 
-  const openFlagCrear = () => {
+  const openFlagCreate = () => {
     setFlagForm(emptyFlagForm(suppliers?.[0]?.id ?? ''));
     setShowFlagForm(true);
   };
@@ -106,7 +106,7 @@ export function VencimientoDiligencePage() {
         action={
           hasSuppliers && (
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={openFlagCrear}><AlertTriangle size={16} /> Alerta de riesgo</Button>
+              <Button variant="secondary" onClick={openFlagCreate}><AlertTriangle size={16} /> Alerta de riesgo</Button>
               <Button onClick={openDDCrear}><Plus size={16} /> Agregar elemento de DD</Button>
             </div>
           )
