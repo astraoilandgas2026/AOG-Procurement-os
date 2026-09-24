@@ -54,7 +54,7 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
         src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-contain object-left brightness-0"
+        className="absolute inset-0 h-full w-full object-contain object-left grayscale contrast-[1000%]"
         style={{ clipPath: 'inset(0 0 0 43%)' }}
       />
     </div>
