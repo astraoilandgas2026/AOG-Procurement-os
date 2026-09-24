@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
+import { useNav } from '@/context/NavContext';
 import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
   Button, Input, Select, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
-import { Plus, DollarSign, Trash2 } from 'lucide-react';
+import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
 import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
@@ -30,11 +31,20 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
 export function CommercialPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const { procurementDomain } = useNav();
 
   const { data: offers, loading, error, refresh } = useAsync(
-    () => getStore().commercialOffers.getAll(), []
+    async () => {
+      const store = getStore();
+      const offers = await store.commercialOffers.getAll();
+      if (!procurementDomain) return offers;
+      const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
+      const ids = new Set(suppliers.map(s => s.id));
+      return offers.filter(o => ids.has(o.supplier_id));
+    }, [procurementDomain]
   );
-  const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
+  const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const { data: products } = useAsync(() => getStore().products.getAll(), []);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
@@ -47,9 +57,19 @@ export function CommercialPage() {
 
   const save = async () => {
     if (!form || !form.supplier_id || !form.price) return;
-    await getStore().commercialOffers.create(form);
+    if (editingId) await getStore().commercialOffers.update(editingId, form);
+    else await getStore().commercialOffers.create(form);
     setShowForm(false);
+    setEditingId(null);
     refresh();
+  };
+
+  const openEdit = (o: CommercialOffer) => {
+    const { id, created_at, updated_at, ...rest } = o;
+    void created_at; void updated_at;
+    setEditingId(id);
+    setForm(rest);
+    setShowForm(true);
   };
 
   const remove = async (id: string) => {
@@ -107,7 +127,7 @@ export function CommercialPage() {
                   <div>Validity: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
@@ -118,8 +138,8 @@ export function CommercialPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Add Commercial Offer"
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button><Button onClick={save} disabled={!form?.price}>Create</Button></>}
+        title={editingId ? 'Editar Oferta Comercial' : 'Agregar Oferta Comercial'}
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar Cambios' : 'Crear'}</Button></>}
       >
         {form && (
           <div className="space-y-3">
