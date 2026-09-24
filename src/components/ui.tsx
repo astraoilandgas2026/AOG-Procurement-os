@@ -233,8 +233,8 @@ export function LoadingSpinner() {
         <div className="absolute inset-5 rounded-full border-2 border-[var(--astra-blue)]/30 animate-[spin_1.6s_linear_infinite_reverse]" />
         <span
           aria-hidden="true"
-          className="h-28 w-28 bg-contain bg-left bg-no-repeat animate-pulse"
-          style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: '420px auto' }}
+          className="h-56 w-56 bg-contain bg-left bg-no-repeat animate-pulse"
+          style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: '840px auto' }}
         />
       </div>
     </div>
