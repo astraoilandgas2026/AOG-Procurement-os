@@ -4,7 +4,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Input, Select, Badge, Modal, PageHeader } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
-import { getProductFamilia, PRODUCT_FAMILY_LABELS, type ProductFamilia } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, type ProductFamily } from '@/utils/productFamilies';
 import { Plus, Package, Trash2 } from 'lucide-react';
 import type { Product, FeedstockType, VerificationStatus } from '@/types';
 import { FEEDSTOCK_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -24,8 +24,8 @@ export function ProductsPage() {
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const families = useMemo(() => {
-    const map = new Map<ProductFamilia, Product[]>();
-    for (const product of products ?? []) { const family = getProductFamilia(product); map.set(family, [...(map.get(family) ?? []), product]); }
+    const map = new Map<ProductFamily, Product[]>();
+    for (const product of products ?? []) { const family = getProductFamily(product); map.set(family, [...(map.get(family) ?? []), product]); }
     return Array.from(map.entries());
   }, [products]);
   const openCrear = () => { setForm(emptyForm('')); setShowForm(true); };
