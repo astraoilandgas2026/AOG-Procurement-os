@@ -138,7 +138,7 @@ export function ComercialPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editingId ? 'Editarar Oferta Comercial' : 'Agregar Oferta Comercial'}
+        title={editingId ? 'Editarar Oferta Comercial' : 'Agregar oferta comercial'}
         footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}
       >
         {form && (
