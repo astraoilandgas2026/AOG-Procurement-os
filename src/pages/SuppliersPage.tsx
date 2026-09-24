@@ -190,56 +190,26 @@ function SupplierDetail({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { data: products } = useAsync(() => getStore().products.getBySupplier(supplier.id), [supplier.id]);
+  const { data: documents } = useAsync(() => getStore().documents.getBySupplier(supplier.id), [supplier.id]);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Back</Button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1>
-            {supplier.trading_name && (
-              <p className="text-sm text-gray-500">{supplier.trading_name}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge>
-          <Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Edit</Button>
-          <Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button>
-        </div>
+        <div className="flex items-center gap-3"><Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Back</Button><div><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1>{supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}</div></div>
+        <div className="flex items-center gap-2"><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Edit</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <DetailSection title="Identity">
-          <DetailRow label="Legal Name" value={supplier.legal_name} />
-          <DetailRow label="Trading Name" value={supplier.trading_name} />
-          <DetailRow label="Country" value={supplier.country} />
-          <DetailRow label="City" value={supplier.city} />
-          <DetailRow label="Address" value={supplier.address} />
-          <DetailRow label="Tax ID (CNPJ/RUT)" value={supplier.tax_id} />
-          <DetailRow label="CNAE / Activity" value={supplier.cnae} />
-          <DetailRow label="Administrator" value={supplier.administrator} />
-          <DetailRow label="Legal Status" value={supplier.legal_status} />
-        </DetailSection>
-
-        <DetailSection title="Operation">
-          <DetailRow label="Facility" value={supplier.facility} />
-          <DetailRow label="Operation Status" value={supplier.operation_status} />
-          <DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} />
-          <DetailRow label="Real Production" value={supplier.real_production} />
-          <DetailRow label="Available Volume" value={supplier.available_volume} />
-          <DetailRow label="Volume to Astra" value={supplier.volume_to_astra} />
-          <DetailRow label="Trial Volume" value={supplier.trial_volume} />
-          <DetailRow label="Recurring Volume" value={supplier.recurring_volume} />
-          <DetailRow label="Infrastructure" value={supplier.infrastructure} />
-        </DetailSection>
-
-        <DetailSection title="Lifecycle & Timeline">
-          <DetailRow label="Lifecycle" value={lifecycleLabel(supplier.lifecycle)} />
-          <DetailRow label="Registered" value={formatDate(supplier.created_at)} />
-          <DetailRow label="Last Updated" value={formatDate(supplier.updated_at)} />
-        </DetailSection>
+        <DetailSection title="Identity"><DetailRow label="Legal Name" value={supplier.legal_name} /><DetailRow label="Trading Name" value={supplier.trading_name} /><DetailRow label="Country" value={supplier.country} /><DetailRow label="City" value={supplier.city} /><DetailRow label="Address" value={supplier.address} /><DetailRow label="Tax ID (CNPJ/RUT)" value={supplier.tax_id} /><DetailRow label="CNAE / Activity" value={supplier.cnae} /><DetailRow label="Administrator" value={supplier.administrator} /><DetailRow label="Legal Status" value={supplier.legal_status} /></DetailSection>
+        <DetailSection title="Operation"><DetailRow label="Facility" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} /><DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} /><DetailRow label="Real Production" value={supplier.real_production} /><DetailRow label="Available Volume" value={supplier.available_volume} /><DetailRow label="Volume to Astra" value={supplier.volume_to_astra} /><DetailRow label="Trial Volume" value={supplier.trial_volume} /><DetailRow label="Recurring Volume" value={supplier.recurring_volume} /><DetailRow label="Infrastructure" value={supplier.infrastructure} /></DetailSection>
+        <DetailSection title="Lifecycle & Timeline"><DetailRow label="Lifecycle" value={lifecycleLabel(supplier.lifecycle)} /><DetailRow label="Registered" value={formatDate(supplier.created_at)} /><DetailRow label="Last Updated" value={formatDate(supplier.updated_at)} /></DetailSection>
       </div>
+      <div className="mt-4"><DetailSection title="Products & Technical Evidence">
+        {!products?.length ? <p className="text-sm text-gray-500">No products linked yet.</p> : <div className="space-y-3">{products.map((product) => <div key={product.id} className="rounded-lg border border-gray-200 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-semibold text-gray-900">{product.name}</div><div className="text-xs text-gray-500">{product.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(product.verification_status)}>{verificationLabel(product.verification_status)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {product.feedstock_type}</span><span>Volume: {product.available_volume ? product.available_volume + ' ' + product.unit : '—'}</span></div></div>)}</div>}
+      </DetailSection></div>
+      <div className="mt-4"><DetailSection title="Documents & Evidence">
+        {!documents?.length ? <p className="text-sm text-gray-500">No documents linked yet. Documents uploaded for this supplier will appear here.</p> : <div className="space-y-4">{documents.map((doc) => <div key={doc.id} className="rounded-lg border border-gray-200 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {formatDate(doc.created_at)}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <div className="border-t border-gray-200 bg-slate-50 p-3">{doc.file_url.match(/\.(png|jpg|jpeg|webp|gif)(\?|$)/i) ? <img src={doc.file_url} alt={doc.title} className="max-h-[520px] w-full object-contain" /> : doc.file_url.match(/\.pdf(\?|$)/i) ? <iframe title={doc.title} src={doc.file_url} className="h-[520px] w-full bg-white" /> : doc.file_url.match(/\.(mp4|webm|mov)(\?|$)/i) ? <video src={doc.file_url} controls className="max-h-[520px] w-full" /> : <a href={doc.file_url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Open document</a>}</div> : <div className="border-t border-gray-200 p-3 text-xs text-gray-500">Metadata registered; file preview will appear once the storage file is linked.</div>}</div>)}</div>}
+      </DetailSection></div>
     </div>
   );
 }
