@@ -19,3 +19,37 @@ export function getProductFamily(product: Pick<Product, 'feedstock_type' | 'name
   if (type === 'oilseed_residues' || /residue|residues|açaí|andiroba|murumuru|patauá|extraction/.test(name)) return 'secondary_residues';
   return 'vegetable_oils';
 }
+
+export function displayProductName(name: string): string {
+  const raw = name.trim();
+  if (!raw) return 'Producto sin nombre';
+
+  let value = raw;
+  const replacements: Array<[RegExp, string]> = [
+    [/used cooking oil/gi, 'Aceite de cocina usado'],
+    [/used frying oil/gi, 'Aceite de fritura usado'],
+    [/recovered cooking oil/gi, 'Aceite de cocina recuperado'],
+    [/vegetable oils?/gi, 'Aceites vegetales'],
+    [/mixed vegetable feedstock/gi, 'Materia prima vegetal mixta'],
+    [/mixed vegetable/gi, 'Vegetal mixto'],
+    [/mixed cotton/gi, 'Mixto de algodón'],
+    [/cotton/gi, 'Algodón'],
+    [/soybean/gi, 'Soya'],
+    [/soy/gi, 'Soya'],
+    [/fatty acids?/gi, 'Ácidos grasos'],
+    [/acid oils?/gi, 'Aceites ácidos'],
+    [/soapstock/gi, 'Borra'],
+    [/off[- ]spec(?:ification)?/gi, 'Fuera de especificación'],
+    [/degummed oil/gi, 'Aceite desgomado'],
+    [/oleins?/gi, 'Oleínas'],
+    [/oilseed residues?/gi, 'Residuos oleaginosos'],
+    [/industrial returns/gi, 'Retornos industriales'],
+    [/residues?/gi, 'Residuos'],
+    [/extraction/gi, 'Extracción'],
+  ];
+
+  for (const [pattern, replacement] of replacements) value = value.replace(pattern, replacement);
+  value = value.replace(/\bUCO\b/gi, 'UCO / AVU');
+  value = value.replace(/\bAVU\b/gi, 'UCO / AVU');
+  return value.replace(/\s{2,}/g, ' ').trim();
+}
