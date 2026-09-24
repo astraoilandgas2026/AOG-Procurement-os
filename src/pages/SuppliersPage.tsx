@@ -36,6 +36,7 @@ export function SuppliersPage() {
   const { selectedSupplierId, selectSupplier, procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
   const [form, setForm] = useState(emptySupplierForm());
 
   const { data: suppliers, loading, error, refresh } = useAsync(
@@ -52,6 +53,7 @@ export function SuppliersPage() {
   const openCreate = () => {
     setForm(emptySupplierForm());
     setEditing(false);
+    setEditingSupplierId(null);
     setShowForm(true);
   };
 
@@ -60,17 +62,19 @@ export function SuppliersPage() {
     void id; void created_at; void updated_at;
     setForm(rest);
     setEditing(true);
+    setEditingSupplierId(s.id);
     setShowForm(true);
   };
 
   const save = async () => {
-    if (editing && selectedSupplierId) {
-      await getStore().suppliers.update(selectedSupplierId, form);
+    if (editing && editingSupplierId) {
+      await getStore().suppliers.update(editingSupplierId, form);
     } else {
       if (!procurementDomain) throw new Error('Select a procurement domain before creating a supplier.');
       await getStore().suppliers.createForDomain(procurementDomain, form);
     }
     setShowForm(false);
+    setEditingSupplierId(null);
     refresh();
   };
 
