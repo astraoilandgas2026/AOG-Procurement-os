@@ -43,6 +43,16 @@ export function CertificationsPage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
+  const prioritizedCertifications = [...(certs ?? [])].sort((a, b) => {
+    const supplierA = supplierMap.get(a.supplier_id)?.toLowerCase() ?? '';
+    const supplierB = supplierMap.get(b.supplier_id)?.toLowerCase() ?? '';
+    const isOlamISCC = (supplier: string, certType: string) =>
+      supplier.includes('olam agro') && certType.toLowerCase().includes('iscc');
+    const rankA = isOlamISCC(supplierA, a.cert_type) ? 0 : 100;
+    const rankB = isOlamISCC(supplierB, b.cert_type) ? 0 : 100;
+    return rankA - rankB || supplierA.localeCompare(supplierB) || a.cert_type.localeCompare(b.cert_type);
+  });
+
   const openCrear = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
     setShowForm(true);
@@ -85,7 +95,7 @@ export function CertificationsPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {certs.map((c) => (
+          {prioritizedCertifications.map((c) => (
             <Card key={c.id}>
               <CardBody>
                 <div className="flex items-start justify-between mb-2">
