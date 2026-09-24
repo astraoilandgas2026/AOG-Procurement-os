@@ -210,6 +210,15 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapSupplier);
     },
+    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
+      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data, error } = await client.from('suppliers').select('*').eq('domain_id', domain.id as string).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapSupplier);
+    },
     create: async (data) => {
       const payload = strip(data as unknown as Record<string, unknown>, ['id', 'created_at', 'updated_at']);
       const { data: row, error } = await client.from('suppliers').insert(payload).select().single();
