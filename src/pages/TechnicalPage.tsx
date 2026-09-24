@@ -25,7 +25,7 @@ export function TécnicoPage() {
         <EmptyState
           icon={<FlaskConical size={28} />}
           title="No hay especificaciones técnicas"
-          message="Products must be registered before technical specifications can be added. Register a product first, then capture quality parameters, COA, TDS, and SDS/FDS data."
+          message="Primero debes registrar un producto; luego podrás capturar parámetros de calidad, COA, TDS y SDS/FDS."
         />
       </Card>
     );
@@ -43,7 +43,7 @@ export function TécnicoPage() {
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">{product.name}</h3>
-                <p className="text-xs text-gray-500">{product.composition || 'No composition data'}</p>
+                <p className="text-xs text-gray-500">{product.composition || 'Sin datos de composición'}</p>
               </div>
               <Badge color={verificationColor(product.verification_status)}>
                 {verificationLabel(product.verification_status)}
