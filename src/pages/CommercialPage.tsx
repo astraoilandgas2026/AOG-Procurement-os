@@ -8,7 +8,7 @@ import {
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
-import { Plus, DollarSign, Trash2, Editar3 } from 'lucide-react';
+import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
 import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
@@ -64,7 +64,7 @@ export function ComercialPage() {
     refresh();
   };
 
-  const openEditar = (o: CommercialOffer) => {
+  const openEdit = (o: CommercialOffer) => {
     const { id, created_at, updated_at, ...rest } = o;
     void created_at; void updated_at;
     setEditaringId(id);
@@ -127,7 +127,7 @@ export function ComercialPage() {
                   <div>Vigencia: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => openEditar(o)}><Editar3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
