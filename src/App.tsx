@@ -4,7 +4,6 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { SuppliersPage } from '@/pages/SuppliersPage';
 import { ContactsPage } from '@/pages/ContactsPage';
 import { ProductsPage } from '@/pages/ProductsPage';
-import { TechnicalPage } from '@/pages/TechnicalPage';
 import { CommercialPage } from '@/pages/CommercialPage';
 import { CertificationsPage } from '@/pages/CertificationsPage';
 import { DocumentsPage } from '@/pages/DocumentsPage';
@@ -21,7 +20,6 @@ const PAGES: Record<PageKey, ComponentType> = {
   suppliers: SuppliersPage,
   contacts: ContactsPage,
   products: ProductsPage,
-  technical: TechnicalPage,
   commercial: CommercialPage,
   certifications: CertificationsPage,
   documents: DocumentsPage,
