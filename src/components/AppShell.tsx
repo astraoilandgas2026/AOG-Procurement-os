@@ -3,7 +3,7 @@ import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import {
   Building2, Users, Package, DollarSign, Award, FileText,
-  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, ChevronLeft,
+  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel,
 } from 'lucide-react';
 
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
@@ -77,13 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={() => navigate('dashboard')}
               className={`mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider ${currentPage === 'dashboard' ? 'text-[var(--astra-red)]' : 'text-[var(--astra-muted)] hover:text-[var(--astra-dark)]'}`}
             >
-              <ChevronLeft size={15} /> Resumen
-            </button>
-            <button
-              onClick={goToOverview}
-              className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]"
-            >
-              <ChevronLeft size={15} /> Dominios
+              <span className="h-px w-3 bg-current" /> Resumen
             </button>
             {groups.map((group) => (
               <div key={group} className="mb-3">
@@ -128,7 +122,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav className="flex md:hidden min-w-0 overflow-x-auto border-b border-[var(--astra-border)] bg-white px-3 py-2">
             <div className="flex min-w-max items-center gap-1">
               <button onClick={() => navigate('dashboard')} className={`mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold ${currentPage === 'dashboard' ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)]'}`}>Resumen</button>
-              <button onClick={goToOverview} className="mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold text-[var(--astra-muted)]">Dominios</button>
               {NAV_ITEMS.map((item) => (
                 <button key={item.key} onClick={() => navigate(item.key)}
                   className={`shrink-0 rounded-md px-2.5 py-2 text-xs font-medium ${currentPage === item.key ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)] hover:bg-slate-50'}`}>
