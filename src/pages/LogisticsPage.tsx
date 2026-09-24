@@ -47,7 +47,7 @@ export function LogísticaPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this logistics record?')) return;
+    if (!confirm('¿Eliminar este registro logístico?')) return;
     await getStore().logistics.remove(id);
     refresh();
   };
@@ -59,7 +59,7 @@ export function LogísticaPage() {
     <div>
       <PageHeader
         title="Logística"
-        subtitle="Export and logistics readiness"
+        subtitle="Preparación logística y exportación"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Logística</Button> : undefined}
       />
 
@@ -69,8 +69,8 @@ export function LogísticaPage() {
             icon={<Truck size={28} />}
             title="No hay registros logísticos"
             message={suppliers && suppliers.length > 0
-              ? "Track loading points, ports, transport modes, container types, shipment sizes, lead times, and export readiness."
-              : "Register a supplier first, then add logistics information."}
+              ? "Registra puntos de carga, puertos, modos de transporte, tipos de contenedor, tamaños de embarque, tiempos de tránsito y preparación para exportación."
+              : "Registra primero un proveedor y luego agrega la información logística."}
             action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Logística</Button> : undefined}
           />
         </Card>
