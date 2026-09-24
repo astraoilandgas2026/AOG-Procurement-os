@@ -36,7 +36,16 @@ export function NavProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <NavContext.Provider value={{ currentPage, selectedSupplierId, procurementDomain, navigate, selectSupplier }}>
+    <NavContext.Provider
+      value={{
+        currentPage,
+        selectedSupplierId,
+        procurementDomain,
+        navigate,
+        selectSupplier,
+        selectDomain,
+      }}
+    >
       {children}
     </NavContext.Provider>
   );
