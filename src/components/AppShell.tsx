@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex h-screen bg-[var(--astra-surface)]">
       <aside className="flex w-64 flex-shrink-0 flex-col bg-[var(--astra-navy)] text-slate-300">
         <div className="border-b border-white/10 px-5 py-5">
-          <button onClick={() => { selectDomain(procurementDomain ?? 'feedstock'); navigate('dashboard'); }} className="flex items-center gap-3 text-left">
+          <button onClick={() => { navigate('dashboard'); }} className="flex items-center gap-3 text-left">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--astra-orange)] text-white shadow-sm">
               <span className="text-lg font-black">A</span>
             </div>
