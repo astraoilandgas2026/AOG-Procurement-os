@@ -44,46 +44,22 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
 };
 
-function AstraMark({ size = 80 }: { size?: number }) {
-  const petals = [
-    ['red', '#E31E24', '#A6191D'],
-    ['orange', '#F58220', '#D95B10'],
-    ['yellow', '#FDB913', '#E5A00D'],
-    ['green', '#00A651', '#007A3D'],
-    ['blue', '#00AEEF', '#0072BC'],
-  ];
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="shrink-0">
-      <defs>
-        {petals.map(([id, a, b]) => (
-          <linearGradient key={id} id={`astra-mark-${id}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={a} /><stop offset="100%" stopColor={b} />
-          </linearGradient>
-        ))}
-      </defs>
-      <g transform="translate(50 50)">
-        {[0, 72, 144, 216, 288].map((rotation, i) => (
-          <g key={rotation} transform={`rotate(${rotation})`}>
-            <path d="M0 0 C-7 -7 -15 -17 -14 -29 C-13 -39 -6 -46 0 -50 C6 -46 13 -39 14 -29 C15 -17 7 -7 0 0Z" fill={`url(#astra-mark-${petals[i][0]})`} />
-            <path d="M0 -7 C-4 -15 -7 -24 -4 -35" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" />
-          </g>
-        ))}
-      </g>
-    </svg>
-  );
-}
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-3.5'}>
-      <AstraMark size={compact ? 38 : 50} />
+    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-3'}>
+      <img
+        src="/AOG-Procurement-os/astra-mark.svg"
+        alt="Astra Oil and Gas"
+        className={compact ? 'h-9 w-9 shrink-0' : 'h-11 w-11 shrink-0'}
+      />
       <span className="leading-none whitespace-nowrap">
         <span className={compact
-          ? 'block text-[16px] font-medium tracking-[0.12em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Arial,sans-serif]'
-          : 'block text-[19px] font-medium tracking-[0.12em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Arial,sans-serif]'
+          ? 'block text-[16px] font-normal tracking-[0.08em] text-black'
+          : 'block text-[19px] font-normal tracking-[0.08em] text-black'
         }>ASTRA</span>
         <span className={compact
-          ? 'block mt-0.5 text-[8px] font-serif font-normal tracking-[0.02em] text-black'
-          : 'block mt-0.5 text-[9px] font-serif font-normal tracking-[0.02em] text-black'
+          ? 'block mt-1 text-[9px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
+          : 'block mt-1 text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
         }>Oil and Gas</span>
       </span>
     </div>
@@ -96,7 +72,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <aside className={`flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? '' : 'hidden'}`}>
+      <aside className={`hidden md:flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? '' : 'hidden'}`}>
         <div className="border-b border-[var(--astra-border)] px-5 py-5">
           <button onClick={goToOverview} className="text-left" aria-label="Volver a dominios">
             <AstraLogo compact />
@@ -149,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
         </header>
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <main className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
