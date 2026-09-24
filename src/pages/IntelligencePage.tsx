@@ -24,8 +24,8 @@ export function IntelligencePage() {
       <Card>
         <EmptyState
           icon={<Network size={28} />}
-          title="No intelligence to map yet"
-          message="The intelligence map visualizes the relationships between suppliers, products, certifications, due diligence, and red flags. Register suppliers and related entities to see the map populate."
+          title="Aún no hay inteligencia para mapear"
+          message="El mapa de inteligencia visualiza relaciones entre proveedores, productos, certificaciones, DD y alertas de riesgo. Registra entidades para poblarlo."
         />
       </Card>
     );
@@ -34,7 +34,7 @@ export function IntelligencePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Intelligence Map</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Mapa de Inteligencia</h1>
         <p className="text-sm text-gray-500 mt-1">Mental map and relationship overview</p>
       </div>
 
@@ -104,7 +104,7 @@ export function IntelligencePage() {
                     <div className="flex flex-wrap gap-2">
                       {logistics.map((l) => (
                         <div key={l.id} className="flex items-center gap-2 px-2.5 py-1 bg-gray-50 rounded text-xs text-gray-700">
-                          {l.port || l.origin_location || 'No location'}
+                          {l.port || l.origin_location || 'Sin ubicación'}
                           <Badge color={verificationColor(l.export_readiness)}>
                             {verificationLabel(l.export_readiness)}
                           </Badge>
