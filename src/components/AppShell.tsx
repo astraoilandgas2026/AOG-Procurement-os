@@ -48,14 +48,14 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
       <img
         src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
         alt="Astra Oil and Gas"
-        className="absolute inset-0 h-full w-full object-contain object-left"
+        className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left"
       />
       <img
         src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-contain object-left brightness-0"
-        style={{ clipPath: 'inset(0 0 0 43%)' }}
+        className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left brightness-0"
+        style={{ clipPath: 'inset(0 0 0 31%)' }}
       />
     </div>
   );
