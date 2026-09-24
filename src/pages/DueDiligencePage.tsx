@@ -92,7 +92,7 @@ export function DueDiligencePage() {
         <EmptyState
           icon={<ShieldCheck size={28} />}
           title="No hay registros de debida diligencia"
-          message="Register a supplier first, then create due diligence items to track legal, operational, product, export, commercial risk, and compliance verification."
+          message="Registra primero un proveedor y luego crea elementos de DD para verificar existencia legal, operación, producto, exportación, riesgo comercial y cumplimiento."
         />
       </Card>
     );
@@ -121,7 +121,7 @@ export function DueDiligencePage() {
             <EmptyState
               icon={<ShieldCheck size={28} />}
               title="Aún no hay elementos de DD"
-              message="Create due diligence items to track verification across legal existence, operation/capacity, product/quality, export history, commercial risk, and compliance."
+              message="Crea elementos de DD para seguir la verificación de existencia legal, operación/capacidad, producto/calidad, historial exportador, riesgo comercial y cumplimiento."
               action={hasSuppliers ? <Button onClick={openDDCreate}><Plus size={16} /> Add DD Item</Button> : undefined}
             />
           </Card>
@@ -158,7 +158,7 @@ export function DueDiligencePage() {
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Alertas de riesgo</h2>
         <Card>
           <CardBody>
-            <p className="text-sm text-gray-500">No red flags recorded. Record risks such as unrealistic prices, perfect specs without evidence, excessive intermediaries, pressure for advance payment, or inconsistent documentation.</p>
+            <p className="text-sm text-gray-500">No hay alertas de riesgo registradas. Registra precios irreales, especificaciones perfectas sin evidencia, exceso de intermediarios, presión por anticipos o documentación inconsistente.</p>
           </CardBody>
         </Card>
       </div>
@@ -205,7 +205,7 @@ export function DueDiligencePage() {
               <Input label="Revisor" value={flagForm.reviewer} onChange={(v) => setFlagForm({ ...flagForm, reviewer: v })} />
               <Input label="Fecha de alerta" type="date" value={flagForm.flag_date} onChange={(v) => setFlagForm({ ...flagForm, flag_date: v })} />
             </div>
-            <p className="text-xs text-gray-400">The system records evidence and source. It does not automatically classify a supplier as fraudulent.</p>
+            <p className="text-xs text-gray-400">El sistema registra evidencia y fuente. No clasifica automáticamente a un proveedor como fraudulento.</p>
           </div>
         )}
       </Modal>
