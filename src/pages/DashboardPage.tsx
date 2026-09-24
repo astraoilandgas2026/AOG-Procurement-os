@@ -26,15 +26,15 @@ const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
 }> = {
   feedstock: {
     title: 'Feedstock',
-    description: 'Sourcing intelligence for biodiesel and biofuel feedstocks across LATAM.',
+    description: 'Inteligencia de abastecimiento de materias primas para biodiésel y biocombustibles en LATAM.',
     icon: Droplets,
-    products: 'UCO / AVU · vegetable oils · degummed · off-spec · oleins · fatty acids · acid oils · soapstock · industrial returns · oilseed residues',
+    products: 'UCO / AVU · aceites vegetales · desgomados · off-spec · oleínas · ácidos grasos · acid oils · soapstock · retornos industriales · residuos oleaginosos',
   },
   energy_commodities: {
     title: 'Energy Commodities',
-    description: 'Trading intelligence for conventional energy commodities and physical supply.',
+    description: 'Inteligencia comercial para commodities energéticos convencionales y suministro físico.',
     icon: Fuel,
-    products: 'Gas · fuel oil · petcoke · diesel · crude oil · other energy commodities',
+    products: 'Gas · fuel oil · petcoke · diésel · crudo · otros commodities energéticos',
   },
 };
 
@@ -71,7 +71,7 @@ export function DashboardPage() {
       <div className="space-y-8">
         <div className="max-w-3xl">
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Overview</h2>
-          <p className="mt-2 text-sm text-slate-500">Choose the sourcing universe you want to work with. The intelligence workspace will adapt to the selected domain.</p>
+          <p className="mt-2 text-sm text-slate-500">Selecciona el universo de abastecimiento con el que quieres trabajar. El espacio de inteligencia se adaptará al dominio seleccionado.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-5xl">
@@ -119,18 +119,18 @@ export function DashboardPage() {
   const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
 
   const metrics = [
-    { label: 'Total Suppliers', value: totalSuppliers, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Active', value: activeSuppliers, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'DD Pending', value: ddPending, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Qualified', value: qualified, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Trial', value: trial, icon: <Package size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Recurring', value: recurring, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Paused / Rejected / Archived', value: pausedRejectedArchived, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Follow-ups Due', value: followUpsDue, icon: <CheckSquare size={20} />, onClick: () => navigate('follow_ups') },
-    { label: 'Open Red Flags', value: openRedFlags, icon: <AlertTriangle size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Product Families', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
+    { label: 'Total de Proveedores', value: totalSuppliers, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'Activos', value: activeSuppliers, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'DD Pendiente', value: ddPending, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
+    { label: 'Calificado', value: qualified, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
+    { label: 'Prueba', value: trial, icon: <Package size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'Recurrente', value: recurring, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'Pausados / Rechazados / Archivados', value: pausedRejectedArchived, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'Seguimientos Pendientes', value: followUpsDue, icon: <CheckSquare size={20} />, onClick: () => navigate('follow_ups') },
+    { label: 'Alertas Abiertas', value: openRedFlags, icon: <AlertTriangle size={20} />, onClick: () => navigate('due_diligence') },
+    { label: 'Familias de Productos', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
     { label: 'Documents', value: totalDocuments, icon: <FileText size={20} />, onClick: () => navigate('documents') },
-    { label: 'Timeline Events', value: data.timeline.length, icon: <Clock size={20} />, onClick: () => navigate('timeline') },
+    { label: 'Eventos de Cronología', value: data.timeline.length, icon: <Clock size={20} />, onClick: () => navigate('timeline') },
   ];
 
   if (isEmpty) {
@@ -138,8 +138,8 @@ export function DashboardPage() {
       <Card>
         <EmptyState
           icon={<Building2 size={28} />}
-          title="No procurement intelligence yet"
-          message="Start by registering your first supplier. The dashboard will populate with metrics as you add suppliers, products, commercial offers, and due diligence records."
+          title="Aún no hay inteligencia de procurement"
+          message="Registra el primer proveedor. El resumen se completará a medida que incorpores proveedores, productos, ofertas comerciales y debida diligencia."
         />
       </Card>
     );
@@ -173,9 +173,9 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Action Required</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Acciones Requeridas</h3>
             {followUpsDue === 0 && openRedFlags === 0 ? (
-              <p className="text-sm text-slate-500">No outstanding actions or open red flags.</p>
+              <p className="text-sm text-slate-500">No hay acciones pendientes ni alertas abiertas.</p>
             ) : (
               <ul className="space-y-2">
                 {followUpsDue > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><CheckSquare size={16} className="text-[var(--astra-orange)]" />{followUpsDue} follow-up(s) require attention</li>}
@@ -187,13 +187,13 @@ export function DashboardPage() {
 
         <Card>
           <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Supplier Lifecycle Breakdown</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Desglose del Ciclo de Vida de Proveedores</h3>
             {totalSuppliers === 0 ? (
-              <p className="text-sm text-slate-500">No suppliers registered.</p>
+              <p className="text-sm text-slate-500">No hay proveedores registrados.</p>
             ) : (
               <div className="space-y-1.5">
                 {[
-                  { label: 'Prospect', count: data.suppliers.filter((s) => s.lifecycle === 'prospect').length },
+                  { label: 'Prospecto', count: data.suppliers.filter((s) => s.lifecycle === 'prospect').length },
                   { label: 'Active', count: activeSuppliers },
                   { label: 'DD Pending', count: ddPending },
                   { label: 'Qualified', count: qualified },
