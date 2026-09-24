@@ -61,7 +61,7 @@ export function FollowUpsPage() {
       <PageHeader
         title="Seguimientos"
         subtitle="Acciones pendientes y próximos pasos"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Follow-up</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar seguimiento</Button> : undefined}
       />
 
       {!followUps || followUps.length === 0 ? (
@@ -72,7 +72,7 @@ export function FollowUpsPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra próximas acciones, responsables, fechas límite y prioridades para mantener el procurement en movimiento."
               : "Registra primero un proveedor y luego agrega seguimientos."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Follow-up</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar seguimiento</Button> : undefined}
           />
         </Card>
       ) : (
@@ -91,8 +91,8 @@ export function FollowUpsPage() {
                       <p className="text-xs text-gray-500 mb-2">{supplierMap.get(f.supplier_id) ?? '—'}</p>
                       {f.description && <p className="text-sm text-gray-600 mb-2">{f.description}</p>}
                       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                        {f.responsible_person && <span>Responsible: {f.responsible_person}</span>}
-                        <span>Due: {formatRelative(f.due_date)}</span>
+                        {f.responsible_person && <span>Responsable: {f.responsible_person}</span>}
+                        <span>Vencimiento: {formatRelative(f.due_date)}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
