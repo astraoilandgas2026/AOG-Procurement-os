@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
+import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -285,7 +286,7 @@ function SupplierDetail({
           {!data.products.length ? <EmptyLine text="No products registered." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {p.feedstock_type}</span><span>Origin: {p.origin || '—'}</span><span>Volume: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verification: {p.verification_status}</span></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span><span>Origin: {p.origin || '—'}</span><span>Volume: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verification: {p.verification_status}</span></div>
             </div>
           ))}
         </DetailSection>
