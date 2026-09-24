@@ -213,18 +213,18 @@ function SupplierDetail({
 }: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
   const { data, loading, error } = useAsync(async () => {
     const store = getStore();
-    const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags] =
+    const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts] =
       await Promise.all([
         store.contacts.getBySupplier(supplier.id), store.products.getBySupplier(supplier.id),
         store.documents.getBySupplier(supplier.id), store.commercialOffers.getBySupplier(supplier.id),
         store.certifications.getBySupplier(supplier.id), store.dueDiligence.getBySupplier(supplier.id),
         store.logistics.getBySupplier(supplier.id), store.timeline.getBySupplier(supplier.id),
-        store.followUps.getBySupplier(supplier.id), store.redFlags.getBySupplier(supplier.id),
+        store.followUps.getBySupplier(supplier.id), store.redFlags.getBySupplier(supplier.id), store.intelligenceFacts.getByEntity('supplier', supplier.id),
       ]);
     const specs = (await Promise.all(products.map(async product => ({
       product, specs: await store.technicalSpecs.getByProduct(product.id),
     })))).filter(entry => entry.specs.length > 0);
-    return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, specs };
+    return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts, specs };
   }, [supplier.id]);
 
   if (loading) return <LoadingSpinner />;
@@ -329,6 +329,24 @@ function SupplierDetail({
           ))}
         </DetailSection>
       </div>
+
+      <DetailSection title="10. Historical Procurement Intelligence">
+        {!data.intelligenceFacts.length ? <EmptyLine text="No historical intelligence facts recorded." /> : (
+          <div className="space-y-2">
+            {data.intelligenceFacts.map(f => (
+              <div key={f.id} className={`rounded-lg border p-3 ${f.is_contradiction ? 'border-amber-200 bg-amber-50' : 'border-gray-100'}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div><div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{f.field_name}</div><div className="mt-1 text-sm text-gray-900">{f.value_text}{f.unit ? ` ${f.unit}` : ''}</div></div>
+                  <Badge color={verificationColor(f.verification_status)}>{verificationLabel(f.verification_status)}</Badge>
+                </div>
+                {f.is_contradiction && <div className="mt-2 text-xs font-semibold text-amber-800">Contradiction requires clarification before commercial reliance.</div>}
+                {f.notes && <p className="mt-1 text-xs text-gray-500">{f.notes}</p>}
+                {f.source_ref && <a href={f.source_ref} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[11px] text-[var(--astra-blue)]">Source evidence</a>}
+              </div>
+            ))}
+          </div>
+        )}
+      </DetailSection>
 
       <DetailSection title="10. Evidence & Documents">
         {!data.documents.length ? <EmptyLine text="No documentary evidence attached." /> : data.documents.map(doc => (
