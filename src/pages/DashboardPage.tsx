@@ -194,8 +194,8 @@ export function DashboardPage() {
               <div className="space-y-1.5">
                 {[
                   { label: 'Prospecto', count: data.suppliers.filter((s) => s.lifecycle === 'prospect').length },
-                  { label: 'Active', count: activeSuppliers },
-                  { label: 'DD Pending', count: ddPending },
+                  { label: 'Activo', count: activeSuppliers },
+                  { label: 'DD pendiente', count: ddPending },
                   { label: 'Calificado', count: qualified },
                   { label: 'Prueba', count: trial },
                   { label: 'Recurrente', count: recurring },
