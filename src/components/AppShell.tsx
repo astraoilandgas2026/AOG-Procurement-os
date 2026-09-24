@@ -45,12 +45,16 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`flex items-center ${compact ? 'h-10' : 'h-11 sm:h-12'}`}>
-      <img
-        src="/AOG-Procurement-os/astra-mark.svg"
-        alt=""
+      <div
+        className={`relative shrink-0 overflow-hidden ${compact ? 'h-10 w-10' : 'h-11 w-11 sm:h-12 sm:w-12'}`}
         aria-hidden="true"
-        className={compact ? 'h-10 w-10 shrink-0' : 'h-11 w-11 shrink-0 sm:h-12 sm:w-12'}
-      />
+      >
+        <img
+          src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+          alt=""
+          className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left"
+        />
+      </div>
       <div className="ml-2 flex min-w-0 flex-col justify-center leading-none">
         <span
           style={{ color: '#000000', fontWeight: 400 }}
