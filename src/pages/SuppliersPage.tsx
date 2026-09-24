@@ -245,7 +245,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
       if (!doc.file_url) return;
       if (doc.file_url.startsWith('http')) { if (active) setUrl(doc.file_url); return; }
       const client = getSupabaseClient();
-      if (!client) { if (active) setError('Supabase unavailable'); return; }
+      if (!client) { if (active) setError('Supabase no disponible'); return; }
       const result = await client.storage.from('documents').createSignedUrl(doc.file_url, 3600);
       if (!active) return;
       if (result.error) setError(result.error.message); else setUrl(result.data.signedUrl);
@@ -295,7 +295,7 @@ function SupplierDetail({
           <div>
             <div className="flex flex-wrap items-center gap-2"><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge></div>
             {supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}
-            <p className="mt-1 text-xs text-gray-400">Ficha ampliada de inteligencia de procurement</p>
+            <p className="mt-1 text-xs text-gray-400">Perfil ampliado de inteligencia de procurement</p>
           </div>
         </div>
         <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEditar}><Editar3 size={16} /> Editarar</Button><Button variant="danger" onClick={onEliminar}><Trash2 size={16} /></Button></div>
@@ -322,8 +322,8 @@ function SupplierDetail({
         <DetailSection title="2. Operación y Capacidad">
           <DetailRow label="Planta / instalación" value={supplier.facility} /><DetailRow label="Estado operativo" value={supplier.operation_status} />
           <DetailRow label="Capacidad teórica" value={supplier.theoretical_capacity} /><DetailRow label="Producción real" value={supplier.real_production} />
-          <DetailRow label="Volumenn disponible" value={supplier.available_volume} /><DetailRow label="Volumenn para Astra" value={supplier.volume_to_astra} />
-          <DetailRow label="Volumenn de prueba" value={supplier.trial_volume} /><DetailRow label="Volumenn recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
+          <DetailRow label="Volumennn disponible" value={supplier.available_volume} /><DetailRow label="Volumennn para Astra" value={supplier.volume_to_astra} />
+          <DetailRow label="Volumennn de prueba" value={supplier.trial_volume} /><DetailRow label="Volumennn recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
         </DetailSection>
       </div>
 
@@ -341,7 +341,7 @@ function SupplierDetail({
           {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumenn: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumennn: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
             </div>
           ))}
         </DetailSection>
@@ -376,7 +376,7 @@ function SupplierDetail({
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="8. Debida Diligencia">
           {!data.dueDiligence.length ? <EmptyLine text="No DD registros yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
-            <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidencia: {d.evidence_ref || '—'} · Reviewer: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
+            <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidencia: {d.evidence_ref || '—'} · Revisor: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
           ))}
         </DetailSection>
         <DetailSection title="9. Logística / Preparación para Exportación">
@@ -505,10 +505,10 @@ function SupplierForm({
           <Input label="Estado operativo" value={form.operation_status} onChange={(v) => update('operation_status', v)} />
           <Input label="Capacidad teórica" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Producción real" value={form.real_production} onChange={(v) => update('real_production', v)} />
-          <Input label="Volumenn disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
-          <Input label="Volumen to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
-          <Input label="Volumenn de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
-          <Input label="Volumenn recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
+          <Input label="Volumennn disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
+          <Input label="Volumenn to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
+          <Input label="Volumennn de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
+          <Input label="Volumennn recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
         </div>
         <div className="mt-3">
           <TextArea label="Infraestructura" value={form.infrastructure} onChange={(v) => update('infrastructure', v)} />
