@@ -3,8 +3,8 @@ import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, TextArea, Badge, Modal, PageHeader, Seleccionar,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, TextArea, Badge, Modal, PageHeader, Select,
 } from '@/components/ui';
 import { Plus, Users, Trash2, Star, Mail, Phone, MessageCircle } from 'lucide-react';
 import type { Contact } from '@/types';
@@ -48,7 +48,7 @@ export function ContactsPage() {
     refresh();
   };
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -111,7 +111,7 @@ export function ContactsPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Seleccionar
+            <Select
               label="Proveedor"
               value={form.supplier_id}
               onChange={(v) => setForm({ ...form, supplier_id: v })}
