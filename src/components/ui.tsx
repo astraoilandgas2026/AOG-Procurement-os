@@ -244,8 +244,8 @@ function AstraLoadingMark({ size = 112 }: { size?: number }) {
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <g key={rotation} transform={`rotate(${rotation})`}>
-            <path d="M0 0 C-11 -7 -21 -18 -20 -29 C-19 -38 -10 -43 0 -42 C10 -43 19 -38 20 -29 C21 -18 11 -7 0 0Z" fill={`url(#astra-loading-${petals[i][0]})`} />
-            <path d="M0 -8 C-7 -17 -10 -27 -6 -37" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
+            <path d="M0 0 C-8 -7 -17 -18 -16 -29 C-15 -38 -7 -44 0 -50 C7 -44 15 -38 16 -29 C17 -18 8 -7 0 0Z" fill={`url(#astra-loading-${petals[i][0]})`} />
+            <path d="M0 -8 C-5 -16 -8 -25 -5 -35" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
           </g>
         ))}
       </g>
