@@ -25,8 +25,8 @@ export function TimelinePage() {
       <Card>
         <EmptyState
           icon={<Clock size={28} />}
-          title="No timeline events"
-          message="Register a supplier first, then timeline events will appear here as you record calls, emails, meetings, visits, offers, and due diligence updates."
+          title="No hay eventos en la cronología"
+          message="Registra primero un proveedor; aquí aparecerán llamadas, correos, reuniones, visitas, ofertas y actualizaciones de DD."
         />
       </Card>
     );
@@ -35,8 +35,8 @@ export function TimelinePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
-        <p className="text-sm text-gray-500 mt-1">Supplier interaction history</p>
+        <h1 className="text-2xl font-bold text-gray-900">Cronología</h1>
+        <p className="text-sm text-gray-500 mt-1">Historial de interacciones con proveedores</p>
       </div>
 
       <Card>
