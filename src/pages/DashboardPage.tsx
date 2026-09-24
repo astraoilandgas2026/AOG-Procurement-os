@@ -70,15 +70,6 @@ export function DashboardPage() {
     return (
       <div className="space-y-8">
         <div className="max-w-3xl">
-          <div className="mb-6 flex items-center">
-            <div className="flex items-center gap-3">
-              <img src="/AOG-Procurement-os/astra-mark.svg" alt="Astra Oil and Gas" className="h-12 w-12 shrink-0" />
-              <div className="leading-none whitespace-nowrap">
-                <div className="text-[19px] font-normal tracking-[0.08em] text-black">ASTRA</div>
-                <div className="mt-1 text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]">Oil and Gas</div>
-              </div>
-            </div>
-          </div>
           <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
           <p className="mt-2 text-sm text-slate-500">Selecciona el universo de abastecimiento con el que quieres trabajar. El espacio de inteligencia se adaptará al dominio seleccionado.</p>
         </div>
