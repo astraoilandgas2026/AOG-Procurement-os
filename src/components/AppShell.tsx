@@ -56,11 +56,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className={`flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? "" : "hidden"}`}>
         <div className="border-b border-[var(--astra-border)] px-5 py-5">
           <button onClick={() => { navigate('dashboard'); }} className="flex items-center gap-3 text-left">
-            <div className="h-8 w-1 rounded-full bg-[var(--astra-red)]" />
-            <div>
-              <div className="text-sm font-bold tracking-wide text-[var(--astra-dark)]">ASTRA</div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--astra-gray)]">Oil and Gas · Procurement OS</div>
-            </div>
+            <img
+              src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+              alt="Astra Oil and Gas"
+              className="h-10 w-auto object-contain"
+            />
           </button>
         </div>
 
@@ -97,8 +97,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div>
             {!procurementDomain ? (
               <button onClick={() => navigate('dashboard')} className="text-left" aria-label="Astra home">
-                <div className="text-xl font-black tracking-wide text-[var(--astra-dark)]">ASTRA</div>
-                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--astra-gray)]">Oil and Gas</div>
+                <img
+                  src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+                  alt="Astra Oil and Gas"
+                  className="h-12 w-auto object-contain"
+                />
               </button>
             ) : (
               <>
