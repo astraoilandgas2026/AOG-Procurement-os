@@ -151,7 +151,7 @@ export function SuppliersPage() {
       <PageHeader
         title="Proveedores"
         subtitle="Perfiles de inteligencia de proveedores"
-        action={<Button onClick={openCreate}><Plus size={16} /> Add Supplier</Button>}
+        action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
       />
 
       {!suppliers || suppliers.length === 0 ? (
@@ -159,8 +159,8 @@ export function SuppliersPage() {
           <EmptyState
             icon={<Building2 size={28} />}
             title="No hay proveedores registrados"
-            message="Register your first supplier to begin building procurement intelligence. Each supplier profile captures identity, operations, products, commercial offers, certifications, and due diligence."
-            action={<Button onClick={openCreate}><Plus size={16} /> Add Supplier</Button>}
+            message="Registra tu primer proveedor para construir inteligencia de procurement: identidad, operación, productos, ofertas, certificaciones y DD."
+            action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
           />
         </Card>
       ) : (
@@ -190,15 +190,15 @@ export function SuppliersPage() {
                       {isPriority && <Badge color="green">Verificado</Badge>}
                     </div>
                   )}
-                  {s.tax_id && <div>Tax ID: {s.tax_id}</div>}
-                  {s.facility && <div>Facility: {s.facility}</div>}
+                  {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
+                  {s.facility && <div>Instalación: {s.facility}</div>}
                 </div>
                 <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
                   <Button size="sm" variant="ghost" onClick={() => selectSupplier(s.id)}>
-                    <FileText size={14} /> View Profile
+                    <FileText size={14} /> Ver perfil
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => openEdit(s)}>
-                    <Edit3 size={14} /> Edit
+                    <Edit3 size={14} /> Editar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(s.id)}>
                     <Trash2 size={14} />
@@ -225,6 +225,7 @@ export function SuppliersPage() {
           </>
         }
       >
+        {formError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{formError}</div>}
         <SupplierForm form={form} setForm={setForm} />
       </Modal>
     </div>
