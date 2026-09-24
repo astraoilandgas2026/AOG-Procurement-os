@@ -516,8 +516,6 @@ function SupplierDetail({
         ))}
       </DetailSection>
 
-    </div>
-
       <Modal
         open={showContactForm}
         onClose={() => setShowContactForm(false)}
@@ -547,6 +545,7 @@ function SupplierDetail({
           </div>
         )}
       </Modal>
+    </div>
   );
 }
 
