@@ -38,6 +38,7 @@ export function SuppliersPage() {
   const [editing, setEditing] = useState(false);
   const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
   const [form, setForm] = useState(emptySupplierForm());
+  const [formError, setFormError] = useState('');
 
   const { data: suppliers, loading, error, refresh } = useAsync(
     () => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(),
@@ -52,6 +53,7 @@ export function SuppliersPage() {
   // ---- Form helpers ----
   const openCreate = () => {
     setForm(emptySupplierForm());
+    setFormError('');
     setEditing(false);
     setEditingSupplierId(null);
     setShowForm(true);
@@ -61,21 +63,27 @@ export function SuppliersPage() {
     const { id, created_at, updated_at, ...rest } = s;
     void id; void created_at; void updated_at;
     setForm(rest);
+    setFormError('');
     setEditing(true);
     setEditingSupplierId(s.id);
     setShowForm(true);
   };
 
   const save = async () => {
-    if (editing && editingSupplierId) {
-      await getStore().suppliers.update(editingSupplierId, form);
-    } else {
-      if (!procurementDomain) throw new Error('Select a procurement domain before creating a supplier.');
-      await getStore().suppliers.createForDomain(procurementDomain, form);
+    setFormError('');
+    try {
+      if (editing && editingSupplierId) {
+        await getStore().suppliers.update(editingSupplierId, form);
+      } else {
+        if (!procurementDomain) throw new Error('Selecciona un dominio antes de crear un proveedor.');
+        await getStore().suppliers.createForDomain(procurementDomain, form);
+      }
+      setShowForm(false);
+      setEditingSupplierId(null);
+      refresh();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'No fue posible guardar los cambios.');
     }
-    setShowForm(false);
-    setEditingSupplierId(null);
-    refresh();
   };
 
   const remove = async (id: string) => {
