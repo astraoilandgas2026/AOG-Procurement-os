@@ -74,6 +74,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-white">
       {procurementDomain && (
         <aside className="hidden md:flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)]">
+          <div className="border-b border-[var(--astra-border)] px-5 py-5">
+            <button onClick={goToOverview} className="text-left" aria-label="Astra home">
+              <AstraLogo compact />
+            </button>
+          </div>
           <nav className="flex-1 overflow-y-auto py-4">
             <button
               onClick={goToOverview}
