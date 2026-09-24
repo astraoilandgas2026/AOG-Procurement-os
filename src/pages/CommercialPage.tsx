@@ -8,7 +8,8 @@ import {
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
-import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
+import { displayProductName } from '@/utils/productFamilies';
+import { Plus, DollarSign, Trash2, Edit3, FileText } from 'lucide-react';
 import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
@@ -30,9 +31,11 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
 
 export function CommercialPage() {
   const [showForm, setShowForm] = useState(false);
+  const [showSheet, setShowSheet] = useState(false);
+  const [sheetOffer, setSheetOffer] = useState<CommercialOffer | null>(null);
   const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const [editingId, setEditaringId] = useState<string | null>(null);
-  const { procurementDomain } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
 
   const { data: offers, loading, error, refresh } = useAsync(
     async () => {
@@ -48,7 +51,9 @@ export function CommercialPage() {
   const { data: products } = useAsync(() => getStore().products.getAll(), []);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
-  const productMap = new Map((products ?? []).map((p) => [p.id, p.name]));
+  const productMap = new Map((products ?? []).map((p) => [p.id, displayProductName(p.name)]));
+
+  const openSheet = (offer: CommercialOffer) => { setSheetOffer(offer); setShowSheet(true); };
 
   const openCrear = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
@@ -108,9 +113,9 @@ export function CommercialPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900">
-                      {o.price} {o.currency} {o.price_basis && `/ ${o.price_basis}`}
+                      {o.price} {o.currency} {o.price_basis && `/ ${o.price_basis === 'historical supplier quoted price' ? 'Precio histórico cotizado por el proveedor' : o.price_basis}`}
                     </h3>
-                    <p className="text-xs text-gray-500">{supplierMap.get(o.supplier_id) ?? '—'}</p>
+                    <button type="button" onClick={() => selectSupplier(o.supplier_id)} className="text-left text-xs font-medium text-[var(--astra-blue)] hover:underline">{supplierMap.get(o.supplier_id) ?? '—'}</button>
                   </div>
                   <Badge color={verificationColor(o.verification_status)}>
                     {verificationLabel(o.verification_status)}
@@ -127,7 +132,7 @@ export function CommercialPage() {
                   <div>Vigencia: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => openSheet(o)}><FileText size={14} /> Ficha comercial</Button><Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /> Editar</Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
@@ -136,16 +141,41 @@ export function CommercialPage() {
       )}
 
       <Modal
+        open={showSheet}
+        onClose={() => setShowSheet(false)}
+        title="Ficha comercial de la oferta"
+        footer={<><Button variant="secondary" onClick={() => setShowSheet(false)}>Cerrar</Button><Button onClick={() => { setShowSheet(false); if (sheetOffer?.supplier_id) selectSupplier(sheetOffer.supplier_id); }}>Ver ficha del proveedor</Button></>}
+      >
+        {sheetOffer && (
+          <div className="space-y-4 text-sm">
+            <div><p className="text-xs text-gray-400">Proveedor</p><p className="font-semibold text-gray-900">{supplierMap.get(sheetOffer.supplier_id) ?? 'Proveedor sin nombre'}</p></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><p className="text-xs text-gray-400">Precio</p><p className="font-semibold">{sheetOffer.price} {sheetOffer.currency}</p></div>
+              <div><p className="text-xs text-gray-400">Base</p><p>{sheetOffer.price_basis === 'historical supplier quoted price' ? 'Precio histórico cotizado por el proveedor' : (sheetOffer.price_basis || '—')}</p></div>
+              <div><p className="text-xs text-gray-400">Incoterm</p><p>{sheetOffer.incoterm || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Puerto</p><p>{sheetOffer.port || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Volumen ofertado</p><p>{sheetOffer.offered_volume || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Volumen de prueba</p><p>{sheetOffer.trial_quantity || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Suministro recurrente</p><p>{sheetOffer.recurring_quantity || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Condiciones de pago</p><p>{sheetOffer.payment_terms || '—'}</p></div>
+            </div>
+            {sheetOffer.product_id && <div className="rounded-md border border-gray-200 bg-gray-50 p-3"><p className="text-xs text-gray-400">Producto</p><p className="font-medium text-gray-900">{productMap.get(sheetOffer.product_id) ?? '—'}</p></div>}
+            <div className="rounded-md border border-gray-200 bg-white p-3"><p className="text-xs text-gray-400">Verificación</p><p className="font-medium text-gray-900">{verificationLabel(sheetOffer.verification_status)}</p></div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editingId ? 'Editarar Oferta Comercial' : 'Agregar oferta comercial'}
+        title={editingId ? 'Editar oferta comercial' : 'Agregar oferta comercial'}
         footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}
       >
         {form && (
           <div className="space-y-3">
             <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Select label="Product" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
+            <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
               options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
@@ -165,7 +195,7 @@ export function CommercialPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Cantidad recurrente" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} />
-              <Input label="Cert. Premium" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
+              <Input label="Prima de certificación" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
             </div>
             <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
             <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
