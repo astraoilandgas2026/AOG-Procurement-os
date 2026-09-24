@@ -6,7 +6,7 @@ import {
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { FlaskConical } from 'lucide-react';
 
-export function TécnicoPage() {
+export function TechnicalPage() {
   const { data: products, loading, error } = useAsync(
     () => getStore().products.getAll(), []
   );
