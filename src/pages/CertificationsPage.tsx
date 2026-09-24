@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
-  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
+  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { formatDate } from '@/utils/date';
 import { Plus, Award, Trash2 } from 'lucide-react';
@@ -11,9 +11,9 @@ import type { Certification } from '@/types';
 
 const CERT_STATUS_OPTIONS = [
   { value: 'active', label: 'Activo' },
-  { value: 'expired', label: 'Expired' },
+  { value: 'expired', label: 'Vencido' },
   { value: 'pending', label: 'Pendiente' },
-  { value: 'revoked', label: 'Revoked' },
+  { value: 'revoked', label: 'Revocado' },
 ];
 
 function certStatusColor(status: string): 'green' | 'red' | 'amber' | 'gray' {
@@ -43,7 +43,7 @@ export function CertificationsPage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
-  const openCreate = () => {
+  const openCrear = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
     setShowForm(true);
   };
@@ -61,7 +61,7 @@ export function CertificationsPage() {
     refresh();
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -69,7 +69,7 @@ export function CertificationsPage() {
       <PageHeader
         title="Certificaciones"
         subtitle="Seguimiento de certificaciones y evidencia"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar certificación</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar certificación</Button> : undefined}
       />
 
       {!certs || certs.length === 0 ? (
@@ -80,7 +80,7 @@ export function CertificationsPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra ISCC y otras certificaciones, incluyendo estado, vencimiento y evidencia de respaldo."
               : "Registra primero un proveedor y luego agrega certificaciones."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar certificación</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar certificación</Button> : undefined}
           />
         </Card>
       ) : (
@@ -97,9 +97,9 @@ export function CertificationsPage() {
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
                   {c.cert_number && <div>Cert #: {c.cert_number}</div>}
-                  {c.issuing_body && <div>Issued by: {c.issuing_body}</div>}
-                  <div>Issued: {formatDate(c.issue_date)}</div>
-                  <div>Expires: {formatDate(c.expiration_date)}</div>
+                  {c.issuing_body && <div>Emitido por: {c.issuing_body}</div>}
+                  <div>Emitido: {formatDate(c.issue_date)}</div>
+                  <div>Vence: {formatDate(c.expiration_date)}</div>
                   {c.notes && <p className="mt-2 text-gray-500">{c.notes}</p>}
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
@@ -119,16 +119,16 @@ export function CertificationsPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Input label="Tipo de certificación" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISCC, RSB, etc." />
             <Input label="Número de certificado" value={form.cert_number} onChange={(v) => setForm({ ...form, cert_number: v })} />
-            <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
+            <Seleccionar label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Fecha de emisión" type="date" value={form.issue_date} onChange={(v) => setForm({ ...form, issue_date: v })} />
               <Input label="Fecha de vencimiento" type="date" value={form.expiration_date} onChange={(v) => setForm({ ...form, expiration_date: v })} />
             </div>
-            <Input label="Issuing Body" value={form.issuing_body} onChange={(v) => setForm({ ...form, issuing_body: v })} />
+            <Input label="Entidad emisora" value={form.issuing_body} onChange={(v) => setForm({ ...form, issuing_body: v })} />
             <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
           </div>
         )}
