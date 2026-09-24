@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { formatDate } from '@/utils/date';
 import { Plus, Award, Trash2 } from 'lucide-react';
@@ -61,7 +61,7 @@ export function CertificationsPage() {
     refresh();
   };
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -119,11 +119,11 @@ export function CertificationsPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Input label="Tipo de certificación" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISCC, RSB, etc." />
             <Input label="Número de certificado" value={form.cert_number} onChange={(v) => setForm({ ...form, cert_number: v })} />
-            <Seleccionar label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
+            <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Fecha de emisión" type="date" value={form.issue_date} onChange={(v) => setForm({ ...form, issue_date: v })} />
               <Input label="Fecha de vencimiento" type="date" value={form.expiration_date} onChange={(v) => setForm({ ...form, expiration_date: v })} />
