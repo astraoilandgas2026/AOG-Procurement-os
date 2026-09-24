@@ -69,7 +69,7 @@ export function CertificationsPage() {
       <PageHeader
         title="Certificaciones"
         subtitle="Seguimiento de certificaciones y evidencia"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Certification</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar certificación</Button> : undefined}
       />
 
       {!certs || certs.length === 0 ? (
@@ -80,7 +80,7 @@ export function CertificationsPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra ISCC y otras certificaciones, incluyendo estado, vencimiento y evidencia de respaldo."
               : "Registra primero un proveedor y luego agrega certificaciones."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Certification</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar certificación</Button> : undefined}
           />
         </Card>
       ) : (
