@@ -23,7 +23,7 @@ function emptyForm(supplierId: string): Omit<LogisticsInfo, 'id' | 'created_at' 
   };
 }
 
-export function LogísticaPage() {
+export function LogisticsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<LogisticsInfo, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
