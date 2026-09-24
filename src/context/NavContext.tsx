@@ -10,6 +10,7 @@ interface NavContextValue {
   navigate: (page: PageKey) => void;
   selectSupplier: (id: string | null) => void;
   selectDomain: (domain: ProcurementDomain) => void;
+  goToOverview: () => void;
 }
 
 const NavContext = createContext<NavContextValue | null>(null);
@@ -35,17 +36,14 @@ export function NavProvider({ children }: { children: ReactNode }) {
     setSelectedSupplierId(null);
   };
 
+  const goToOverview = () => {
+    setProcurementDomain(null);
+    setCurrentPage('dashboard');
+    setSelectedSupplierId(null);
+  };
+
   return (
-    <NavContext.Provider
-      value={{
-        currentPage,
-        selectedSupplierId,
-        procurementDomain,
-        navigate,
-        selectSupplier,
-        selectDomain,
-      }}
-    >
+    <NavContext.Provider value={{ currentPage, selectedSupplierId, procurementDomain, navigate, selectSupplier, selectDomain, goToOverview }}>
       {children}
     </NavContext.Provider>
   );
