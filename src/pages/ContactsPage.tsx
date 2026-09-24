@@ -3,8 +3,8 @@ import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
-  Button, Input, TextArea, Badge, Modal, PageHeader, Select,
+  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
+  Button, Input, TextArea, Badge, Modal, PageHeader, Seleccionar,
 } from '@/components/ui';
 import { Plus, Users, Trash2, Star, Mail, Phone, MessageCircle } from 'lucide-react';
 import type { Contact } from '@/types';
@@ -30,7 +30,7 @@ export function ContactsPage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
-  const openCreate = () => {
+  const openCrear = () => {
     setForm(emptyForm(''));
     setShowForm(true);
   };
@@ -48,7 +48,7 @@ export function ContactsPage() {
     refresh();
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -56,7 +56,7 @@ export function ContactsPage() {
       <PageHeader
         title="Contactos"
         subtitle="Directorio de contactos de proveedores"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar contacto</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar contacto</Button> : undefined}
       />
 
       {!contacts || contacts.length === 0 ? (
@@ -67,7 +67,7 @@ export function ContactsPage() {
             message={suppliers && suppliers.length > 0
               ? "Agrega el primer contacto de proveedor para registrar canales de comunicación."
               : "Registra primero un proveedor y luego agrega sus contactos."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar contacto</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar contacto</Button> : undefined}
           />
         </Card>
       ) : (
@@ -111,7 +111,7 @@ export function ContactsPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Select
+            <Seleccionar
               label="Proveedor"
               value={form.supplier_id}
               onChange={(v) => setForm({ ...form, supplier_id: v })}
@@ -128,7 +128,7 @@ export function ContactsPage() {
             <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" checked={form.is_primary} onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} />
-              Principal contact
+              Contacto principal
             </label>
           </div>
         )}
