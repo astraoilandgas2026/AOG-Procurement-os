@@ -31,14 +31,14 @@ function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'>
 }
 
 export function SuppliersPage() {
-  const { selectedSupplierId, selectSupplier } = useNav();
+  const { selectedSupplierId, selectSupplier, procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(emptySupplierForm());
 
   const { data: suppliers, loading, error, refresh } = useAsync(
-    () => getStore().suppliers.getAll(),
-    []
+    () => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(),
+    [procurementDomain]
   );
 
   const { data: selected } = useAsync(
@@ -65,7 +65,8 @@ export function SuppliersPage() {
     if (editing && selectedSupplierId) {
       await getStore().suppliers.update(selectedSupplierId, form);
     } else {
-      await getStore().suppliers.create(form);
+      if (!procurementDomain) throw new Error('Select a procurement domain before creating a supplier.');
+      await getStore().suppliers.createForDomain(procurementDomain, form);
     }
     setShowForm(false);
     refresh();
