@@ -46,15 +46,15 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-2' : 'flex items-center gap-3'}>
+    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-4'}>
       <span
         aria-hidden="true"
-        className={compact ? 'h-9 w-9 shrink-0 bg-contain bg-left bg-no-repeat' : 'h-14 w-14 shrink-0 bg-contain bg-left bg-no-repeat'}
-        style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: compact ? '180px auto' : '280px auto' }}
+        className={compact ? 'h-12 w-12 shrink-0 bg-contain bg-left bg-no-repeat' : 'h-20 w-20 shrink-0 bg-contain bg-left bg-no-repeat'}
+        style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: compact ? '240px auto' : '380px auto' }}
       />
       <span className="leading-none">
-        <span className={compact ? 'block text-lg font-black tracking-[0.08em] text-black' : 'block text-2xl font-black tracking-[0.08em] text-black'}>ASTRA</span>
-        <span className={compact ? 'block mt-0.5 text-[10px] font-serif font-semibold tracking-[0.08em] text-black' : 'block mt-0.5 text-sm font-serif font-semibold tracking-[0.08em] text-black'}>Oil and Gas</span>
+        <span className={compact ? 'block text-xl font-black tracking-[0.08em] text-black' : 'block text-4xl font-black tracking-[0.08em] text-black'}>ASTRA</span>
+        <span className={compact ? 'block mt-1 text-xs font-serif font-semibold tracking-[0.08em] text-black' : 'block mt-1 text-lg font-serif font-semibold tracking-[0.08em] text-black'}>Oil and Gas</span>
       </span>
     </div>
   );
@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={goToOverview}
               className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]"
             >
-              <ChevronLeft size={15} /> Inicio
+              <ChevronLeft size={15} /> Dominios
             </button>
             {groups.map((group) => (
               <div key={group} className="mb-3">
@@ -112,6 +112,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <>
                 <h1 className="text-xl font-bold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
                 <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
+                <button onClick={goToOverview} className="mt-1 text-xs font-semibold text-[var(--astra-blue)] hover:underline">
+                  Volver a Feedstock / Energy Commodities
+                </button>
               </>
             )}
           </div>
