@@ -31,7 +31,7 @@ function emptyFlagForm(supplierId: string): Omit<RedFlag, 'id' | 'created_at'> {
   };
 }
 
-export function VencimientoDiligencePage() {
+export function DueDiligencePage() {
   const [showDDForm, setShowDDForm] = useState(false);
   const [showFlagForm, setShowFlagForm] = useState(false);
   const [ddForm, setDDForm] = useState<Omit<VencimientoDiligenceItem, 'id' | 'created_at' | 'updated_at'> | null>(null);
