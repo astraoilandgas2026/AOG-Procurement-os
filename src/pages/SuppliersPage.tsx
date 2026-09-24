@@ -303,7 +303,7 @@ function SupplierDetail({
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Products" value={data.products.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Productos" value={data.products.length} />
         <SummaryChip icon={<FlaskConical size={15} />} label="Especificaciones" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
         <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
         <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
@@ -376,11 +376,11 @@ function SupplierDetail({
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="8. Debida Diligencia">
           {!data.dueDiligence.length ? <EmptyLine text="No DD registros yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
-            <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidencia: {d.evidence_ref || '—'} · Revisor: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
+            <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'Sin hallazgos registrados.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidencia: {d.evidence_ref || '—'} · Revisor: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
           ))}
         </DetailSection>
         <DetailSection title="9. Logística / Preparación para Exportación">
-          {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
+          {!data.logistics.length ? <EmptyLine text="No hay registro logístico. Estructura objetivo: origen, punto de carga, puerto, flexitank/ISO tank, tamaño de embarque, tiempo de tránsito y preparación para exportación." /> : data.logistics.map(l => (
             <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Registro logístico'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transporte: {l.transport_mode}</span><span>Contenedor: {l.container_type}</span><span>Embarque: {l.estimated_shipment_size || '—'}</span><span>Tiempo de tránsito: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
           ))}
         </DetailSection>
@@ -405,15 +405,15 @@ function SupplierDetail({
       </DetailSection>
 
       <DetailSection title="10. Evidencia y Documentos">
-        {!data.documents.length ? <EmptyLine text="No documentary evidence attached." /> : data.documents.map(doc => (
-          <div key={doc.id} className="rounded-lg border border-gray-100 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title || doc.file_name || 'Document'}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {doc.doc_type}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-100 p-3 text-xs text-gray-500">{doc.description || 'Metadata registered; no storage file linked.'}</div>}</div>
+        {!data.documents.length ? <EmptyLine text="No hay evidencia documental adjunta." /> : data.documents.map(doc => (
+          <div key={doc.id} className="rounded-lg border border-gray-100 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title || doc.file_name || 'Documento'}</div><div className="text-xs text-gray-500">{doc.file_name || 'Sin nombre de archivo'} · {doc.doc_type}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-100 p-3 text-xs text-gray-500">{doc.description || 'Metadatos registrados; no hay archivo de almacenamiento vinculado.'}</div>}</div>
         ))}
       </DetailSection>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="11. Riesgos / Alertas">
           {!data.redFlags.length ? <EmptyLine text="No red flags recorded." /> : data.redFlags.map(r => (
-            <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Red flag'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidencia: {r.evidence || '—'} · Fuente: {r.source || '—'}</div></div>
+            <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Alerta de riesgo'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidencia: {r.evidence || '—'} · Fuente: {r.source || '—'}</div></div>
           ))}
         </DetailSection>
         <DetailSection title="12. Próximas Acciones / Seguimientos">
@@ -431,7 +431,7 @@ function SupplierDetail({
 
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-900"><Globe2 size={15} /> Verificación discipline</div>
-        <p className="mt-1 text-xs leading-5 text-gray-600">Every claim must remain classified as CLAIMED, DOCUMENTED, INDEPENDENTLY VERIFIED or PHYSICALLY VERIFIED. Public registry data shown here is independent public evidence; product quality, current capacity, availability, export history and current certificates still require their own evidence.</p>
+        <p className="mt-1 text-xs leading-5 text-gray-600">Toda afirmación debe conservar su estado CLAIMED, DOCUMENTED, INDEPENDENTLY VERIFIED o PHYSICALLY VERIFIED. Los registros públicos mostrados aquí son evidencia pública independiente; calidad del producto, capacidad actual, disponibilidad, historial exportador y certificados vigentes requieren evidencia propia.</p>
       </div>
     </div>
   );
@@ -506,7 +506,7 @@ function SupplierForm({
           <Input label="Capacidad teórica" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Producción real" value={form.real_production} onChange={(v) => update('real_production', v)} />
           <Input label="Volumen disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
-          <Input label="Volumen to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
+          <Input label="Volumen para Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
           <Input label="Volumen de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
           <Input label="Volumen recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
         </div>
