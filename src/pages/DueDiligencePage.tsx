@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import {
   ddStatusColor, ddStatusLabel,
@@ -80,7 +80,7 @@ export function VencimientoDiligencePage() {
     refresh();
   };
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   const hasSuppliers = suppliers && suppliers.length > 0;
@@ -172,10 +172,10 @@ export function VencimientoDiligencePage() {
       >
         {ddForm && (
           <div className="space-y-3">
-            <Seleccionar label="Proveedor" value={ddForm.supplier_id} onChange={(v) => setDDForm({ ...ddForm, supplier_id: v })}
+            <Select label="Proveedor" value={ddForm.supplier_id} onChange={(v) => setDDForm({ ...ddForm, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Seleccionar label="Categoría de DD" value={ddForm.category} onChange={(v) => setDDForm({ ...ddForm, category: v as DDCategory })} options={DD_CATEGORY_OPTIONS} />
-            <Seleccionar label="Estado" value={ddForm.status} onChange={(v) => setDDForm({ ...ddForm, status: v as DDStatus })} options={DD_STATUS_OPTIONS} />
+            <Select label="Categoría de DD" value={ddForm.category} onChange={(v) => setDDForm({ ...ddForm, category: v as DDCategory })} options={DD_CATEGORY_OPTIONS} />
+            <Select label="Estado" value={ddForm.status} onChange={(v) => setDDForm({ ...ddForm, status: v as DDStatus })} options={DD_STATUS_OPTIONS} />
             <TextArea label="Hallazgos" value={ddForm.findings} onChange={(v) => setDDForm({ ...ddForm, findings: v })} />
             <Input label="Referencia de evidencia" value={ddForm.evidence_ref} onChange={(v) => setDDForm({ ...ddForm, evidence_ref: v })} />
             <div className="grid grid-cols-2 gap-3">
@@ -195,7 +195,7 @@ export function VencimientoDiligencePage() {
       >
         {flagForm && (
           <div className="space-y-3">
-            <Seleccionar label="Proveedor" value={flagForm.supplier_id} onChange={(v) => setFlagForm({ ...flagForm, supplier_id: v })}
+            <Select label="Proveedor" value={flagForm.supplier_id} onChange={(v) => setFlagForm({ ...flagForm, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Input label="Tipo de alerta" value={flagForm.flag_type} onChange={(v) => setFlagForm({ ...flagForm, flag_type: v })} placeholder="ej. Precio irreal" />
             <TextArea label="Descripción" required value={flagForm.description} onChange={(v) => setFlagForm({ ...flagForm, description: v })} />
