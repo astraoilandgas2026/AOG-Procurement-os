@@ -1,12 +1,15 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { PageKey } from '@/types';
 
 export type ProcurementDomain = 'feedstock' | 'energy_commodities';
 
-interface NavContextValue {
+interface NavigationState {
   currentPage: PageKey;
   selectedSupplierId: string | null;
   procurementDomain: ProcurementDomain | null;
+}
+
+interface NavContextValue extends NavigationState {
   navigate: (page: PageKey) => void;
   selectSupplier: (id: string | null) => void;
   selectDomain: (domain: ProcurementDomain) => void;
@@ -15,35 +18,71 @@ interface NavContextValue {
 
 const NavContext = createContext<NavContextValue | null>(null);
 
+const INITIAL_STATE: NavigationState = {
+  currentPage: 'dashboard',
+  selectedSupplierId: null,
+  procurementDomain: null,
+};
+
+function readHistoryState(): NavigationState {
+  const state = window.history.state?.astraProcurement as NavigationState | undefined;
+  return state ?? INITIAL_STATE;
+}
+
 export function NavProvider({ children }: { children: ReactNode }) {
-  const [currentPage, setCurrentPage] = useState<PageKey>('dashboard');
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
-  const [procurementDomain, setProcurementDomain] = useState<ProcurementDomain | null>(null);
+  const [navigation, setNavigation] = useState<NavigationState>(() => {
+    if (typeof window === 'undefined') return INITIAL_STATE;
+    return readHistoryState();
+  });
+
+  useEffect(() => {
+    if (!window.history.state?.astraProcurement) {
+      window.history.replaceState({ astraProcurement: navigation }, '');
+    }
+
+    const handlePopState = () => {
+      setNavigation(readHistoryState());
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const commitNavigation = (next: NavigationState) => {
+    setNavigation(next);
+    window.history.pushState({ astraProcurement: next }, '');
+  };
 
   const navigate = (page: PageKey) => {
-    setCurrentPage(page);
-    if (page === 'suppliers') setSelectedSupplierId(null);
+    commitNavigation({
+      ...navigation,
+      currentPage: page,
+      selectedSupplierId: page === 'suppliers' ? null : navigation.selectedSupplierId,
+    });
   };
 
   const selectSupplier = (id: string | null) => {
-    setSelectedSupplierId(id);
-    if (id) setCurrentPage('suppliers');
+    commitNavigation({
+      ...navigation,
+      selectedSupplierId: id,
+      currentPage: id ? 'suppliers' : navigation.currentPage,
+    });
   };
 
   const selectDomain = (domain: ProcurementDomain) => {
-    setProcurementDomain(domain);
-    setCurrentPage('dashboard');
-    setSelectedSupplierId(null);
+    commitNavigation({
+      currentPage: 'dashboard',
+      selectedSupplierId: null,
+      procurementDomain: domain,
+    });
   };
 
   const goToOverview = () => {
-    setProcurementDomain(null);
-    setCurrentPage('dashboard');
-    setSelectedSupplierId(null);
+    commitNavigation(INITIAL_STATE);
   };
 
   return (
-    <NavContext.Provider value={{ currentPage, selectedSupplierId, procurementDomain, navigate, selectSupplier, selectDomain, goToOverview }}>
+    <NavContext.Provider value={{ ...navigation, navigate, selectSupplier, selectDomain, goToOverview }}>
       {children}
     </NavContext.Provider>
   );
