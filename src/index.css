@@ -2,24 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --astra-navy: #0b1f33;
+  --astra-navy-2: #12304a;
+  --astra-orange: #f28c28;
+  --astra-orange-dark: #c96b0d;
+  --astra-orange-soft: #fff2e3;
+  --astra-surface: #f5f7fa;
+}
+
+html, body, #root { min-height: 100%; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  margin: 0;
+  background: var(--astra-surface);
+  color: #0f172a;
+  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+button, input, select, textarea { font: inherit; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
