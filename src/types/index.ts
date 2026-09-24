@@ -251,6 +251,7 @@ export const TIMELINE_EVENT_LABELS: Record<TimelineEventType, string> = {
 
 export interface Supplier {
   id: string;
+  domain_id?: string;
   // Identity
   legal_name: string;
   trading_name: string;
@@ -293,6 +294,7 @@ export interface Contact {
 
 export interface Product {
   id: string;
+  domain_id?: string;
   supplier_id: string;
   name: string;
   feedstock_type: FeedstockType;
@@ -318,6 +320,7 @@ export interface TechnicalSpec {
 
 export interface CommercialOffer {
   id: string;
+  domain_id?: string;
   supplier_id: string;
   product_id: string;
   price: string;
