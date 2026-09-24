@@ -107,7 +107,7 @@ export function DueDiligencePage() {
           hasSuppliers && (
             <div className="flex gap-2">
               <Button variant="secondary" onClick={openFlagCreate}><AlertTriangle size={16} /> Red Flag</Button>
-              <Button onClick={openDDCreate}><Plus size={16} /> Add DD Item</Button>
+              <Button onClick={openDDCreate}><Plus size={16} /> Agregar elemento de DD</Button>
             </div>
           )
         }
@@ -122,7 +122,7 @@ export function DueDiligencePage() {
               icon={<ShieldCheck size={28} />}
               title="Aún no hay elementos de DD"
               message="Crea elementos de DD para seguir la verificación de existencia legal, operación/capacidad, producto/calidad, historial exportador, riesgo comercial y cumplimiento."
-              action={hasSuppliers ? <Button onClick={openDDCreate}><Plus size={16} /> Add DD Item</Button> : undefined}
+              action={hasSuppliers ? <Button onClick={openDDCreate}><Plus size={16} /> Agregar elemento de DD</Button> : undefined}
             />
           </Card>
         ) : (
@@ -139,9 +139,9 @@ export function DueDiligencePage() {
                   </div>
                   {d.findings && <p className="text-xs text-gray-600 mb-2">{d.findings}</p>}
                   <div className="space-y-0.5 text-xs text-gray-500">
-                    {d.reviewer && <div>Reviewer: {d.reviewer}</div>}
+                    {d.reviewer && <div>Revisor: {d.reviewer}</div>}
                     {d.review_date && <div>Reviewed: {formatDate(d.review_date)}</div>}
-                    {d.evidence_ref && <div>Evidence: {d.evidence_ref}</div>}
+                    {d.evidence_ref && <div>Evidencia: {d.evidence_ref}</div>}
                   </div>
                   <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
                     <Button size="sm" variant="ghost" onClick={() => removeDD(d.id)}><Trash2 size={14} /></Button>
