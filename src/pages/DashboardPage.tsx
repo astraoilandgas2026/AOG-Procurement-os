@@ -106,33 +106,19 @@ export function DashboardPage() {
   if (!data) return null;
 
   const totalSuppliers = data.suppliers.length;
-  const activeSuppliers = data.suppliers.filter((s) => s.lifecycle === 'active').length;
-  const ddPending = data.suppliers.filter((s) => s.lifecycle === 'dd_pending').length;
-  const qualified = data.suppliers.filter((s) => s.lifecycle === 'qualified').length;
-  const trial = data.suppliers.filter((s) => s.lifecycle === 'trial').length;
-  const recurring = data.suppliers.filter((s) => s.lifecycle === 'recurring').length;
-  const pausedRejectedArchived = data.suppliers.filter((s) => ['paused', 'rejected', 'archived'].includes(s.lifecycle)).length;
-  const followUpsDue = data.follow_ups.filter((f) => f.status === 'open' || f.status === 'in_progress').length;
-  const openRedFlags = data.red_flags.filter((r) => r.status === 'open' || r.status === 'investigating').length;
+  const totalContacts = data.contacts.length;
   const totalProducts = new Set(data.products.map((p) => getProductFamily(p))).size;
   const totalDocuments = data.documents.length;
+  const totalDueDiligence = data.due_diligence.length;
   const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
 
   const metrics = [
-    { label: 'Total de Proveedores', value: totalSuppliers, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Activos', value: activeSuppliers, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'DD Pendiente', value: ddPending, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Calificado', value: qualified, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Prueba', value: trial, icon: <Package size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Recurrente', value: recurring, icon: <TrendingUp size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Pausados / Rechazados / Archivados', value: pausedRejectedArchived, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
-    { label: 'Seguimientos Pendientes', value: followUpsDue, icon: <CheckSquare size={20} />, onClick: () => navigate('follow_ups') },
-    { label: 'Alertas Abiertas', value: openRedFlags, icon: <AlertTriangle size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Familias de Productos', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
+    { label: 'Proveedores', value: totalSuppliers, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
+    { label: 'Contactos', value: totalContacts, icon: <CheckSquare size={20} />, onClick: () => navigate('contacts') },
+    { label: 'Productos', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
     { label: 'Documentos', value: totalDocuments, icon: <FileText size={20} />, onClick: () => navigate('documents') },
-    { label: 'Eventos de Cronología', value: data.timeline.length, icon: <Clock size={20} />, onClick: () => navigate('timeline') },
+    { label: 'Debida diligencia', value: totalDueDiligence, icon: <ShieldCheck size={20} />, onClick: () => navigate('due_diligence') },
   ];
-
   if (isEmpty) {
     return (
       <Card>
@@ -170,42 +156,6 @@ export function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
-          <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Acciones Requeridas</h3>
-            {followUpsDue === 0 && openRedFlags === 0 ? (
-              <p className="text-sm text-slate-500">No hay acciones pendientes ni alertas abiertas.</p>
-            ) : (
-              <ul className="space-y-2">
-                {followUpsDue > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><CheckSquare size={16} className="text-[var(--astra-orange)]" />{followUpsDue} seguimiento(s) requieren atención</li>}
-                {openRedFlags > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><AlertTriangle size={16} className="text-red-600" />{openRedFlags} alerta(s) de riesgo abiertas requieren investigación</li>}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Desglose del Ciclo de Vida de Proveedores</h3>
-            {totalSuppliers === 0 ? (
-              <p className="text-sm text-slate-500">No hay proveedores registrados.</p>
-            ) : (
-              <div className="space-y-1.5">
-                {[
-                  { label: 'Prospecto', count: data.suppliers.filter((s) => s.lifecycle === 'prospect').length },
-                  { label: 'Activo', count: activeSuppliers },
-                  { label: 'DD pendiente', count: ddPending },
-                  { label: 'Calificado', count: qualified },
-                  { label: 'Prueba', count: trial },
-                  { label: 'Recurrente', count: recurring },
-                  { label: 'Pausados / Rechazados / Archivados', count: pausedRejectedArchived },
-                ].map((row) => <div key={row.label} className="flex items-center justify-between text-sm"><span className="text-slate-600">{row.label}</span><span className="font-medium text-[var(--astra-dark)]">{row.count}</span></div>)}
-              </div>
-            )}
-          </CardBody>
-        </Card>
-      </div>
     </div>
   );
 }
