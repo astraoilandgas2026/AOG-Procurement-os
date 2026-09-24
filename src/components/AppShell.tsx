@@ -64,8 +64,8 @@ function AstraMark({ size = 80 }: { size?: number }) {
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <g key={rotation} transform={`rotate(${rotation})`}>
-            <path d="M0 0 C-8 -7 -17 -18 -16 -29 C-15 -38 -7 -44 0 -50 C7 -44 15 -38 16 -29 C17 -18 8 -7 0 0Z" fill={`url(#astra-mark-${petals[i][0]})`} />
-            <path d="M0 -8 C-5 -16 -8 -25 -5 -35" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
+            <path d="M0 0 C-7 -7 -15 -17 -14 -29 C-13 -39 -6 -46 0 -50 C6 -46 13 -39 14 -29 C15 -17 7 -7 0 0Z" fill={`url(#astra-mark-${petals[i][0]})`} />
+            <path d="M0 -7 C-4 -15 -7 -24 -4 -35" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" />
           </g>
         ))}
       </g>
@@ -74,11 +74,17 @@ function AstraMark({ size = 80 }: { size?: number }) {
 }
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-6'}>
-      <AstraMark size={compact ? 42 : 72} />
-      <span className="leading-none">
-        <span className={compact ? 'block text-[17px] font-medium tracking-[0.18em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Helvetica_Neue,Arial,sans-serif]' : 'block text-[30px] font-medium tracking-[0.18em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Helvetica_Neue,Arial,sans-serif]'}>ASTRA</span>
-        <span className={compact ? 'block mt-0.5 text-[9px] font-serif font-normal tracking-[0.03em] text-black' : 'block mt-1 text-[12px] font-serif font-normal tracking-[0.03em] text-black'}>Oil and Gas</span>
+    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-3.5'}>
+      <AstraMark size={compact ? 38 : 50} />
+      <span className="leading-none whitespace-nowrap">
+        <span className={compact
+          ? 'block text-[16px] font-medium tracking-[0.12em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Arial,sans-serif]'
+          : 'block text-[19px] font-medium tracking-[0.12em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Arial,sans-serif]'
+        }>ASTRA</span>
+        <span className={compact
+          ? 'block mt-0.5 text-[8px] font-serif font-normal tracking-[0.02em] text-black'
+          : 'block mt-0.5 text-[9px] font-serif font-normal tracking-[0.02em] text-black'
+        }>Oil and Gas</span>
       </span>
     </div>
   );
