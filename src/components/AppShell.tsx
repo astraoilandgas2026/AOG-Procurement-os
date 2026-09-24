@@ -44,16 +44,15 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-2.5 sm:gap-3'}>
+    <div className={compact ? 'flex items-center' : 'flex items-center'}>
       <img
-        src="/AOG-Procurement-os/astra-mark.svg"
+        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
         alt="Astra Oil and Gas"
-        className={compact ? 'h-9 w-9 shrink-0' : 'h-9 w-9 sm:h-11 sm:w-11 shrink-0'}
+        onError={(event) => {
+          event.currentTarget.src = '/AOG-Procurement-os/astra-mark.svg';
+        }}
+        className={compact ? 'h-10 w-auto max-w-[155px] object-contain' : 'h-11 w-auto max-w-[185px] object-contain sm:h-12 sm:max-w-[200px]'}
       />
-      <span className="leading-none whitespace-nowrap">
-        <span className={compact ? 'block text-[16px] font-normal tracking-[0.08em] text-black' : 'block text-[17px] sm:text-[19px] font-normal tracking-[0.08em] text-black'}>ASTRA</span>
-        <span className={compact ? 'block mt-1 text-[9px] font-normal tracking-[0.01em] text-[var(--astra-gray)]' : 'block mt-1 text-[9px] sm:text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'}>Oil and Gas</span>
-      </span>
     </div>
   );
 }
@@ -77,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={() => navigate('dashboard')}
               className={`mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider ${currentPage === 'dashboard' ? 'text-[var(--astra-red)]' : 'text-[var(--astra-muted)] hover:text-[var(--astra-dark)]'}`}
             >
-              <span className="h-px w-3 bg-current" /> Resumen
+              Resumen
             </button>
             {groups.map((group) => (
               <div key={group} className="mb-3">
