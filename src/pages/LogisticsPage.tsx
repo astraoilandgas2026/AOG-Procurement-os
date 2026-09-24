@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
-  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
+  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { Plus, Truck, Trash2 } from 'lucide-react';
-import type { LogisticsInfo, TransportMode, ContainerType, VerificationStatus } from '@/types';
+import type { LogisticsInfo, TransporteMode, ContenedorType, VerificaciónStatus } from '@/types';
 import { TRANSPORT_MODE_LABELS, CONTAINER_TYPE_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const TRANSPORT_OPTIONS = Object.entries(TRANSPORT_MODE_LABELS).map(([value, label]) => ({ value, label }));
@@ -34,7 +34,7 @@ export function LogísticaPage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
-  const openCreate = () => {
+  const openCrear = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
     setShowForm(true);
   };
@@ -52,7 +52,7 @@ export function LogísticaPage() {
     refresh();
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -60,7 +60,7 @@ export function LogísticaPage() {
       <PageHeader
         title="Logística"
         subtitle="Preparación logística y exportación"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar logística</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar logística</Button> : undefined}
       />
 
       {!logistics || logistics.length === 0 ? (
@@ -71,7 +71,7 @@ export function LogísticaPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra puntos de carga, puertos, modos de transporte, tipos de contenedor, tamaños de embarque, tiempos de tránsito y preparación para exportación."
               : "Registra primero un proveedor y luego agrega la información logística."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar logística</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar logística</Button> : undefined}
           />
         </Card>
       ) : (
@@ -87,11 +87,11 @@ export function LogísticaPage() {
                   <Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                  <div>Transport: <span className="font-medium text-gray-900">{TRANSPORT_MODE_LABELS[l.transport_mode]}</span></div>
-                  <div>Container: <span className="font-medium text-gray-900">{CONTAINER_TYPE_LABELS[l.container_type]}</span></div>
-                  <div>Port: <span className="font-medium text-gray-900">{l.port || '—'}</span></div>
-                  <div>Lead Time: <span className="font-medium text-gray-900">{l.lead_time || '—'}</span></div>
-                  <div>Shipment Size: <span className="font-medium text-gray-900">{l.estimated_shipment_size || '—'}</span></div>
+                  <div>Transporte: <span className="font-medium text-gray-900">{TRANSPORT_MODE_LABELS[l.transport_mode]}</span></div>
+                  <div>Contenedor: <span className="font-medium text-gray-900">{CONTAINER_TYPE_LABELS[l.container_type]}</span></div>
+                  <div>Puerto: <span className="font-medium text-gray-900">{l.port || '—'}</span></div>
+                  <div>Tiempo de tránsito: <span className="font-medium text-gray-900">{l.lead_time || '—'}</span></div>
+                  <div>Tamaño de embarque: <span className="font-medium text-gray-900">{l.estimated_shipment_size || '—'}</span></div>
                   <div>Carga: <span className="font-medium text-gray-900">{l.loading_location || '—'}</span></div>
                 </div>
                 {l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}
@@ -112,20 +112,20 @@ export function LogísticaPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Input label="Ubicación de origen" value={form.origin_location} onChange={(v) => setForm({ ...form, origin_location: v })} />
             <Input label="Ubicación de carga" value={form.loading_location} onChange={(v) => setForm({ ...form, loading_location: v })} />
             <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Select label="Modo de transporte" value={form.transport_mode} onChange={(v) => setForm({ ...form, transport_mode: v as TransportMode })} options={TRANSPORT_OPTIONS} />
-              <Select label="Tipo de contenedor" value={form.container_type} onChange={(v) => setForm({ ...form, container_type: v as ContainerType })} options={CONTAINER_OPTIONS} />
+              <Seleccionar label="Modo de transporte" value={form.transport_mode} onChange={(v) => setForm({ ...form, transport_mode: v as TransporteMode })} options={TRANSPORT_OPTIONS} />
+              <Seleccionar label="Tipo de contenedor" value={form.container_type} onChange={(v) => setForm({ ...form, container_type: v as ContenedorType })} options={CONTAINER_OPTIONS} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Tamaño estimado del embarque" value={form.estimated_shipment_size} onChange={(v) => setForm({ ...form, estimated_shipment_size: v })} />
               <Input label="Tiempo de tránsito" value={form.lead_time} onChange={(v) => setForm({ ...form, lead_time: v })} />
             </div>
-            <Select label="Preparación para exportación" value={form.export_readiness} onChange={(v) => setForm({ ...form, export_readiness: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
+            <Seleccionar label="Preparación para exportación" value={form.export_readiness} onChange={(v) => setForm({ ...form, export_readiness: v as VerificaciónStatus })} options={VERIFICATION_OPTIONS} />
             <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
           </div>
         )}
