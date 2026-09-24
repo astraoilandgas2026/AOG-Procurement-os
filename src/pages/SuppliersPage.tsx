@@ -21,6 +21,42 @@ import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
+const VERIFIED_PRIORITY = ['Olam Agro', 'Renovar Oleos', 'FL Óleos'];
+const geographyStyle = (supplier: Supplier) => {
+  const city = `${supplier.city} ${supplier.country}`.toLowerCase();
+  if (city.includes('são paulo') || city.includes('sao paulo') || city.includes(', sp') || city.includes('sp')) {
+    return { border: 'border-l-amber-400', badge: 'bg-amber-50 text-amber-800 border-amber-200', label: 'São Paulo' };
+  }
+  if (city.includes('rio de janeiro') || city.includes('duque de caxias')) {
+    return { border: 'border-l-red-500', badge: 'bg-red-50 text-red-800 border-red-200', label: 'Rio de Janeiro' };
+  }
+  if (city.includes('paraná') || city.includes('santa catarina') || city.includes('goiás') || city.includes('minas gerais') || city.includes('bahia') || city.includes('pará')) {
+    return { border: 'border-l-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', label: 'Interior / Sur de Brasil' };
+  }
+  if (city.includes('colombia')) {
+    return { border: 'border-l-violet-500', badge: 'bg-violet-50 text-violet-800 border-violet-200', label: 'Colombia' };
+  }
+  if (city.includes('chile')) {
+    return { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200', label: 'Chile' };
+  }
+  return { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200', label: supplier.country || 'Ubicación pendiente' };
+};
+
+const supplierSort = (a: Supplier, b: Supplier) => {
+  const ai = VERIFIED_PRIORITY.findIndex((name) => (a.trading_name || a.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+  const bi = VERIFIED_PRIORITY.findIndex((name) => (b.trading_name || b.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+  if (ai !== -1 || bi !== -1) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  const group = (s: Supplier) => {
+    const city = `${s.city} ${s.country}`.toLowerCase();
+    if (city.includes('são paulo') || city.includes('sao paulo') || city.includes(', sp') || city.includes('sp')) return 1;
+    if (city.includes('rio de janeiro') || city.includes('duque de caxias')) return 2;
+    if (city.includes('chile')) return 5;
+    if (city.includes('colombia')) return 4;
+    return 3;
+  };
+  return group(a) - group(b) || (a.trading_name || a.legal_name).localeCompare(b.trading_name || b.legal_name);
+};
+
 function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'> {
   return {
     legal_name: '', trading_name: '', country: '', city: '', address: '',
@@ -129,8 +165,11 @@ export function SuppliersPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suppliers.map((s) => (
-            <Card key={s.id} className="hover:shadow-md transition-shadow cursor-pointer">
+          {[...(suppliers ?? [])].sort(supplierSort).map((s) => {
+            const geo = geographyStyle(s);
+            const isPriority = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+            return (
+            <Card key={s.id} className={`border-l-4 ${geo.border} hover:shadow-md transition-shadow cursor-pointer`}>
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0" onClick={() => selectSupplier(s.id)}>
@@ -145,8 +184,10 @@ export function SuppliersPage() {
                 </div>
                 <div className="space-y-1 text-xs text-gray-500" onClick={() => selectSupplier(s.id)}>
                   {s.country && (
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
+                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
+                      {isPriority && <Badge color="green">Verificado</Badge>}
                     </div>
                   )}
                   {s.tax_id && <div>Tax ID: {s.tax_id}</div>}
@@ -165,7 +206,8 @@ export function SuppliersPage() {
                 </div>
               </CardBody>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
