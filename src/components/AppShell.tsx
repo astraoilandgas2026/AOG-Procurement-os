@@ -6,12 +6,7 @@ import {
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, ChevronLeft,
 } from 'lucide-react';
 
-interface NavItem {
-  key: PageKey;
-  label: string;
-  icon: ReactNode;
-  group: string;
-}
+interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Inteligencia' },
@@ -49,8 +44,24 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
 };
 
+function AstraLogo({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={compact ? 'flex items-center gap-2' : 'flex items-center gap-3'}>
+      <span
+        aria-hidden="true"
+        className={compact ? 'h-9 w-9 shrink-0 bg-contain bg-left bg-no-repeat' : 'h-14 w-14 shrink-0 bg-contain bg-left bg-no-repeat'}
+        style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: compact ? '180px auto' : '280px auto' }}
+      />
+      <span className="leading-none">
+        <span className={compact ? 'block text-lg font-black tracking-[0.08em] text-black' : 'block text-2xl font-black tracking-[0.08em] text-black'}>ASTRA</span>
+        <span className={compact ? 'block mt-0.5 text-[10px] font-serif font-semibold tracking-[0.08em] text-black' : 'block mt-0.5 text-sm font-serif font-semibold tracking-[0.08em] text-black'}>Oil and Gas</span>
+      </span>
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
-  const { currentPage, navigate, procurementDomain, selectDomain } = useNav();
+  const { currentPage, navigate, procurementDomain, selectDomain, goToOverview } = useNav();
   const pageInfo = PAGE_TITLES[currentPage];
   const groups = ['Inteligencia', 'Actividad'];
 
@@ -58,32 +69,25 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-white">
       <aside className={`flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? '' : 'hidden'}`}>
         <div className="border-b border-[var(--astra-border)] px-5 py-5">
-          <button onClick={() => navigate('dashboard')} className="flex items-center gap-3 text-left">
-            <img
-              src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-              alt="Astra Oil and Gas"
-              className="h-14 w-auto max-w-[210px] object-contain"
-            />
+          <button onClick={goToOverview} className="text-left" aria-label="Volver a dominios">
+            <AstraLogo compact />
           </button>
         </div>
 
         {procurementDomain && (
           <nav className="flex-1 overflow-y-auto py-4">
             <button
-              onClick={() => { selectDomain(procurementDomain); navigate('dashboard'); }}
+              onClick={goToOverview}
               className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]"
             >
-              <ChevronLeft size={15} /> Resumen
+              <ChevronLeft size={15} /> Inicio
             </button>
             {groups.map((group) => (
               <div key={group} className="mb-3">
                 <div className="px-5 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--astra-gray)]">{group}</div>
                 {NAV_ITEMS.filter((item) => item.group === group).map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => navigate(item.key)}
-                    className={`w-full flex items-center gap-3 border-l-2 px-5 py-2.5 text-sm transition-colors ${currentPage === item.key ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-transparent text-[var(--astra-muted)] hover:bg-slate-50 hover:text-[var(--astra-dark)]'}`}
-                  >
+                  <button key={item.key} onClick={() => navigate(item.key)}
+                    className={`w-full flex items-center gap-3 border-l-2 px-5 py-2.5 text-sm transition-colors ${currentPage === item.key ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-transparent text-[var(--astra-muted)] hover:bg-slate-50 hover:text-[var(--astra-dark)]'}`}>
                     {item.icon}{item.label}
                   </button>
                 ))}
@@ -93,12 +97,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         <div className={`border-t border-[var(--astra-border)] px-5 py-4 ${procurementDomain ? '' : 'hidden'}`}>
-          {procurementDomain && (
-            <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
-              {DOMAIN_META[procurementDomain].icon}
-              <span>{DOMAIN_META[procurementDomain].label}</span>
-            </div>
-          )}
+          {procurementDomain && <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">{DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span></div>}
         </div>
       </aside>
 
@@ -106,12 +105,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="flex flex-shrink-0 items-center justify-between border-b border-[var(--astra-border)] bg-white px-5 py-4 sm:px-8">
           <div>
             {!procurementDomain ? (
-              <button onClick={() => navigate('dashboard')} className="text-left" aria-label="Astra home">
-                <img
-                  src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-                  alt="Astra Oil and Gas"
-                  className="h-16 w-auto max-w-[230px] object-contain"
-                />
+              <button onClick={goToOverview} className="text-left" aria-label="Astra home">
+                <AstraLogo />
               </button>
             ) : (
               <>
@@ -120,11 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </>
             )}
           </div>
-          {procurementDomain && (
-            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">
-              {DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}
-            </div>
-          )}
+          {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
         </header>
         <main className="flex-1 overflow-y-auto p-8">{children}</main>
       </div>
