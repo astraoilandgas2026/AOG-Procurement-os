@@ -71,8 +71,8 @@ function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'>
 export function SuppliersPage() {
   const { selectedSupplierId, selectSupplier, procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditaring] = useState(false);
-  const [editingSupplierId, setEditaringSupplierId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
   const [form, setForm] = useState(emptySupplierForm());
   const [formError, setFormError] = useState('');
 
@@ -87,21 +87,21 @@ export function SuppliersPage() {
   );
 
   // ---- Form helpers ----
-  const openCrear = () => {
+  const openCreate = () => {
     setForm(emptySupplierForm());
     setFormError('');
-    setEditaring(false);
-    setEditaringSupplierId(null);
+    setEditing(false);
+    setEditingSupplierId(null);
     setShowForm(true);
   };
 
-  const openEditar = (s: Supplier) => {
+  const openEdit = (s: Supplier) => {
     const { id, created_at, updated_at, ...rest } = s;
     void id; void created_at; void updated_at;
     setForm(rest);
     setFormError('');
-    setEditaring(true);
-    setEditaringSupplierId(s.id);
+    setEditing(true);
+    setEditingSupplierId(s.id);
     setShowForm(true);
   };
 
@@ -115,7 +115,7 @@ export function SuppliersPage() {
         await getStore().suppliers.createForDomain(procurementDomain, form);
       }
       setShowForm(false);
-      setEditaringSupplierId(null);
+      setEditingSupplierId(null);
       refresh();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'No fue posible guardar los cambios.');
@@ -139,8 +139,8 @@ export function SuppliersPage() {
       <SupplierDetail
         supplier={selected}
         onBack={() => selectSupplier(null)}
-        onEditar={() => openEditar(selected)}
-        onEliminar={() => remove(selected.id)}
+        onEdit={() => openEdit(selected)}
+        onDelete={() => remove(selected.id)}
       />
     );
   }
@@ -151,7 +151,7 @@ export function SuppliersPage() {
       <PageHeader
         title="Proveedores"
         subtitle="Perfiles de inteligencia de proveedores"
-        action={<Button onClick={openCrear}><Plus size={16} /> Agregar proveedor</Button>}
+        action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
       />
 
       {!suppliers || suppliers.length === 0 ? (
@@ -160,14 +160,14 @@ export function SuppliersPage() {
             icon={<Building2 size={28} />}
             title="No hay proveedores registrados"
             message="Registra tu primer proveedor para construir inteligencia de procurement: identidad, operación, productos, ofertas, certificaciones y DD."
-            action={<Button onClick={openCrear}><Plus size={16} /> Agregar proveedor</Button>}
+            action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
           />
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...(suppliers ?? [])].sort(supplierSort).map((s) => {
             const geo = geographyStyle(s);
-            const isPrioridad = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+            const isPriority = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
             return (
             <Card key={s.id} className={`border-l-4 ${geo.border} hover:shadow-md transition-shadow cursor-pointer`}>
               <CardBody>
@@ -187,7 +187,7 @@ export function SuppliersPage() {
                     <div className="flex flex-wrap items-center gap-1.5">
                       <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
                       <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
-                      {isPrioridad && <Badge color="green">Verificado</Badge>}
+                      {isPriority && <Badge color="green">Verificado</Badge>}
                     </div>
                   )}
                   {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
@@ -197,7 +197,7 @@ export function SuppliersPage() {
                   <Button size="sm" variant="ghost" onClick={() => selectSupplier(s.id)}>
                     <FileText size={14} /> Ver perfil
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEditar(s)}>
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(s)}>
                     <Edit3 size={14} /> Editar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(s.id)}>
@@ -265,8 +265,8 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 }
 
 function SupplierDetail({
-  supplier, onBack, onEditar, onEliminar,
-}: { supplier: Supplier; onBack: () => void; onEditar: () => void; onEliminar: () => void; }) {
+  supplier, onBack, onEdit, onDelete,
+}: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
   const { data, loading, error } = useAsync(async () => {
     const store = getStore();
     const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts] =
@@ -278,7 +278,7 @@ function SupplierDetail({
         store.followUps.getBySupplier(supplier.id), store.redFlags.getBySupplier(supplier.id), store.intelligenceFacts.getByEntity('supplier', supplier.id),
       ]);
     const specs = (await Promise.all(products.map(async product => ({
-      product, specs: await store.technicalSpecs.getByProducto(product.id),
+      product, specs: await store.technicalSpecs.getByProduct(product.id),
     })))).filter(entry => entry.specs.length > 0);
     return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts, specs };
   }, [supplier.id]);
@@ -298,7 +298,7 @@ function SupplierDetail({
             <p className="mt-1 text-xs text-gray-400">Perfil ampliado de inteligencia de procurement</p>
           </div>
         </div>
-        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEditar}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onEliminar}><Trash2 size={16} /></Button></div>
+        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
