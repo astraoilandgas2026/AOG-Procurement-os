@@ -10,17 +10,17 @@ interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string;
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Inteligencia' },
-  { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Intelligence' },
-  { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Intelligence' },
-  { key: 'technical', label: 'Técnico', icon: <FlaskConical size={17} />, group: 'Intelligence' },
-  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Intelligence' },
-  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Intelligence' },
-  { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Intelligence' },
-  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Intelligence' },
-  { key: 'logistics', label: 'Logística', icon: <Truck size={17} />, group: 'Intelligence' },
+  { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Inteligencia' },
+  { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Inteligencia' },
+  { key: 'technical', label: 'Técnico', icon: <FlaskConical size={17} />, group: 'Inteligencia' },
+  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Inteligencia' },
+  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Inteligencia' },
+  { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Inteligencia' },
+  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Inteligencia' },
+  { key: 'logistics', label: 'Logística', icon: <Truck size={17} />, group: 'Inteligencia' },
   { key: 'timeline', label: 'Cronología', icon: <Clock size={17} />, group: 'Actividad' },
-  { key: 'follow_ups', label: 'Seguimientos', icon: <CheckSquare size={17} />, group: 'Activity' },
-  { key: 'intelligence', label: 'Mapa de Inteligencia', icon: <Network size={17} />, group: 'Activity' },
+  { key: 'follow_ups', label: 'Seguimientos', icon: <CheckSquare size={17} />, group: 'Actividad' },
+  { key: 'intelligence', label: 'Mapa de Inteligencia', icon: <Network size={17} />, group: 'Actividad' },
 ];
 
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {procurementDomain && (
           <nav className="flex-1 overflow-y-auto py-4">
             <button onClick={() => { selectDomain(procurementDomain); navigate('dashboard'); }} className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]">
-              <ChevronLeft size={15} /> Overview
+              <ChevronLeft size={15} /> Resumen
             </button>
             {groups.map((group) => (
               <div key={group} className="mb-3">
