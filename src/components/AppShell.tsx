@@ -72,8 +72,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <aside className={`hidden md:flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? '' : 'hidden'}`}>
-        {procurementDomain && (
+      {procurementDomain && (
+        <aside className="hidden md:flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)]">
           <nav className="flex-1 overflow-y-auto py-4">
             <button
               onClick={goToOverview}
@@ -93,12 +93,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             ))}
           </nav>
-        )}
-
-        <div className={`border-t border-[var(--astra-border)] px-5 py-4 ${procurementDomain ? '' : 'hidden'}`}>
-          {procurementDomain && <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">{DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span></div>}
-        </div>
-      </aside>
+          <div className="border-t border-[var(--astra-border)] px-5 py-4">
+            <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
+              {DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span>
+            </div>
+          </div>
+        </aside>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--astra-border)] bg-white px-4 py-3 sm:px-8 sm:py-4">
