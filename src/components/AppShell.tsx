@@ -84,7 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="border-t border-[var(--astra-border)] px-5 py-4">
           {procurementDomain && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-[var(--astra-muted)]">
+            <div className="mb-3 flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
               {DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span>
             </div>
           )}
@@ -93,10 +93,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8 py-4">
+        <header className="flex flex-shrink-0 items-center justify-between border-b border-[var(--astra-border)] bg-white px-8 py-4">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
-            <p className="text-sm text-slate-500">{pageInfo.subtitle}</p>
+            <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
           </div>
           {procurementDomain && (
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">
