@@ -16,7 +16,7 @@ export function TécnicoPage() {
 
   const productsWithSpecs = (products ?? []).map((p) => ({
     product: p,
-    specs: getStore().technicalSpecs.getByProduct(p.id),
+    specs: getStore().technicalSpecs.getByProducto(p.id),
   }));
 
   if (!products || products.length === 0) {
