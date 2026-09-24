@@ -46,7 +46,7 @@ export function DashboardPage() {
       <div className="space-y-8">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--astra-orange)]">Procurement Intelligence OS</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-navy)]">Select your business domain</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Select your business domain</h2>
           <p className="mt-2 text-sm text-slate-500">Choose the sourcing universe you want to work with. The intelligence workspace will adapt to the selected domain.</p>
         </div>
 
@@ -59,12 +59,12 @@ export function DashboardPage() {
                 <Card className="h-full border-slate-200 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[var(--astra-orange)] group-hover:shadow-lg">
                   <CardBody className="p-7">
                     <div className="flex items-start justify-between gap-5">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--astra-orange-soft)] text-[var(--astra-orange-dark)]">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]">
                         <Icon size={25} />
                       </div>
                       <ArrowRight size={20} className="mt-1 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[var(--astra-orange)]" />
                     </div>
-                    <h3 className="mt-6 text-xl font-bold text-[var(--astra-navy)]">{domain.title}</h3>
+                    <h3 className="mt-6 text-xl font-bold text-[var(--astra-dark)]">{domain.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-500">{domain.description}</p>
                     <div className="mt-5 rounded-lg bg-slate-50 p-4 text-xs leading-5 text-slate-600">{domain.products}</div>
                   </CardBody>
@@ -135,10 +135,10 @@ export function DashboardPage() {
               <CardBody>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold text-[var(--astra-navy)]">{m.value}</div>
+                    <div className="text-2xl font-bold text-[var(--astra-dark)]">{m.value}</div>
                     <div className="mt-1 text-xs text-slate-500">{m.label}</div>
                   </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange-dark)]">{m.icon}</div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]">{m.icon}</div>
                 </div>
               </CardBody>
             </Card>
@@ -149,7 +149,7 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-navy)]">Action Required</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Action Required</h3>
             {followUpsDue === 0 && openRedFlags === 0 ? (
               <p className="text-sm text-slate-500">No outstanding actions or open red flags.</p>
             ) : (
@@ -163,7 +163,7 @@ export function DashboardPage() {
 
         <Card>
           <CardBody>
-            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-navy)]">Supplier Lifecycle Breakdown</h3>
+            <h3 className="mb-3 text-sm font-semibold text-[var(--astra-dark)]">Supplier Lifecycle Breakdown</h3>
             {totalSuppliers === 0 ? (
               <p className="text-sm text-slate-500">No suppliers registered.</p>
             ) : (
@@ -176,7 +176,7 @@ export function DashboardPage() {
                   { label: 'Trial', count: trial },
                   { label: 'Recurring', count: recurring },
                   { label: 'Paused / Rejected / Archived', count: pausedRejectedArchived },
-                ].map((row) => <div key={row.label} className="flex items-center justify-between text-sm"><span className="text-slate-600">{row.label}</span><span className="font-medium text-[var(--astra-navy)]">{row.count}</span></div>)}
+                ].map((row) => <div key={row.label} className="flex items-center justify-between text-sm"><span className="text-slate-600">{row.label}</span><span className="font-medium text-[var(--astra-dark)]">{row.count}</span></div>)}
               </div>
             )}
           </CardBody>
