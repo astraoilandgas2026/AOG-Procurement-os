@@ -9,7 +9,7 @@ import {
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
-import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
+import type { ComercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
 const INCOTERM_OPTIONS: { value: string; label: string }[] = [
@@ -18,7 +18,7 @@ const INCOTERM_OPTIONS: { value: string; label: string }[] = [
 
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
-function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> {
+function emptyForm(supplierId: string): Omit<ComercialOffer, 'id' | 'created_at' | 'updated_at'> {
   return {
     supplier_id: supplierId, product_id: '', price: '', currency: 'USD',
     price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
@@ -28,9 +28,9 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
   };
 }
 
-export function CommercialPage() {
+export function ComercialPage() {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
+  const [form, setForm] = useState<Omit<ComercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const { procurementDomain } = useNav();
 
@@ -47,7 +47,7 @@ export function CommercialPage() {
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const { data: products } = useAsync(() => getStore().products.getAll(), []);
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
+  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const productMap = new Map((products ?? []).map((p) => [p.id, p.name]));
 
   const openCreate = () => {
@@ -64,7 +64,7 @@ export function CommercialPage() {
     refresh();
   };
 
-  const openEdit = (o: CommercialOffer) => {
+  const openEdit = (o: ComercialOffer) => {
     const { id, created_at, updated_at, ...rest } = o;
     void created_at; void updated_at;
     setEditingId(id);
@@ -84,8 +84,8 @@ export function CommercialPage() {
   return (
     <div>
       <PageHeader
-        title="Commercial"
-        subtitle="Commercial offers and pricing"
+        title="Comercial"
+        subtitle="Comercial offers and pricing"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Offer</Button> : undefined}
       />
 
@@ -139,35 +139,35 @@ export function CommercialPage() {
         open={showForm}
         onClose={() => setShowForm(false)}
         title={editingId ? 'Editar Oferta Comercial' : 'Agregar Oferta Comercial'}
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar Cambios' : 'Crear'}</Button></>}
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar Cambios' : 'Crear'}</Button></>}
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Supplier" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))} required />
-            <Select label="Product" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
               options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Price" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
+              <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
               <Input label="Currency" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
             </div>
-            <Input label="Price Basis" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
+            <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
             <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Loading Point" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} />
-              <Input label="Port" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
+              <Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} />
+              <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
             </div>
-            <Input label="Destination" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
-            <Input label="Payment Terms" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
+            <Input label="Destino" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
+            <Input label="Condiciones de pago" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Offered Volume" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
-              <Input label="Trial Quantity" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} />
+              <Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
+              <Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Recurring Quantity" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} />
+              <Input label="Cantidad recurrente" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} />
               <Input label="Cert. Premium" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
             </div>
-            <Input label="Commercial Validity" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
+            <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
             <Select label="Verification Status" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
           </div>
         )}
