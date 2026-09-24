@@ -55,7 +55,7 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
         alt=""
         aria-hidden="true"
         className="absolute inset-0 h-full w-full object-contain object-left brightness-0"
-        style={{ clipPath: 'inset(0 0 0 31%)' }}
+        style={{ clipPath: 'inset(0 0 0 43%)' }}
       />
     </div>
   );
