@@ -64,8 +64,8 @@ function AstraMark({ size = 80 }: { size?: number }) {
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <g key={rotation} transform={`rotate(${rotation})`}>
-            <path d="M0 0 C-11 -7 -21 -18 -20 -29 C-19 -38 -10 -43 0 -42 C10 -43 19 -38 20 -29 C21 -18 11 -7 0 0Z" fill={`url(#astra-mark-${petals[i][0]})`} />
-            <path d="M0 -8 C-7 -17 -10 -27 -6 -37" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
+            <path d="M0 0 C-8 -7 -17 -18 -16 -29 C-15 -38 -7 -44 0 -50 C7 -44 15 -38 16 -29 C17 -18 8 -7 0 0Z" fill={`url(#astra-mark-${petals[i][0]})`} />
+            <path d="M0 -8 C-5 -16 -8 -25 -5 -35" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
           </g>
         ))}
       </g>
@@ -75,10 +75,10 @@ function AstraMark({ size = 80 }: { size?: number }) {
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
     <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-6'}>
-      <AstraMark size={compact ? 64 : 118} />
+      <AstraMark size={compact ? 42 : 72} />
       <span className="leading-none">
-        <span className={compact ? 'block text-xl font-normal tracking-[0.12em] text-black' : 'block text-5xl font-normal tracking-[0.12em] text-black'}>ASTRA</span>
-        <span className={compact ? 'block mt-1 text-xs font-serif font-normal tracking-[0.04em] text-black' : 'block mt-2 text-lg font-serif font-normal tracking-[0.04em] text-black'}>Oil and Gas</span>
+        <span className={compact ? 'block text-[17px] font-medium tracking-[0.18em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Helvetica_Neue,Arial,sans-serif]' : 'block text-[30px] font-medium tracking-[0.18em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Helvetica_Neue,Arial,sans-serif]'}>ASTRA</span>
+        <span className={compact ? 'block mt-0.5 text-[9px] font-serif font-normal tracking-[0.03em] text-black' : 'block mt-1 text-[12px] font-serif font-normal tracking-[0.03em] text-black'}>Oil and Gas</span>
       </span>
     </div>
   );
