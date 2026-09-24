@@ -7,14 +7,14 @@ import {
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { Plus, Truck, Trash2 } from 'lucide-react';
-import type { LogísticaInfo, TransportMode, ContainerType, VerificationStatus } from '@/types';
+import type { LogisticsInfo, TransportMode, ContainerType, VerificationStatus } from '@/types';
 import { TRANSPORT_MODE_LABELS, CONTAINER_TYPE_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const TRANSPORT_OPTIONS = Object.entries(TRANSPORT_MODE_LABELS).map(([value, label]) => ({ value, label }));
 const CONTAINER_OPTIONS = Object.entries(CONTAINER_TYPE_LABELS).map(([value, label]) => ({ value, label }));
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
-function emptyForm(supplierId: string): Omit<LogísticaInfo, 'id' | 'created_at' | 'updated_at'> {
+function emptyForm(supplierId: string): Omit<LogisticsInfo, 'id' | 'created_at' | 'updated_at'> {
   return {
     supplier_id: supplierId, origin_location: '', loading_location: '',
     port: '', transport_mode: 'sea', container_type: 'flexitank',
@@ -25,7 +25,7 @@ function emptyForm(supplierId: string): Omit<LogísticaInfo, 'id' | 'created_at'
 
 export function LogísticaPage() {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Omit<LogísticaInfo, 'id' | 'created_at' | 'updated_at'> | null>(null);
+  const [form, setForm] = useState<Omit<LogisticsInfo, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
   const { data: logistics, loading, error, refresh } = useAsync(
     () => getStore().logistics.getAll(), []
@@ -60,7 +60,7 @@ export function LogísticaPage() {
       <PageHeader
         title="Logística"
         subtitle="Preparación logística y exportación"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Logística</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar logística</Button> : undefined}
       />
 
       {!logistics || logistics.length === 0 ? (
@@ -71,7 +71,7 @@ export function LogísticaPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra puntos de carga, puertos, modos de transporte, tipos de contenedor, tamaños de embarque, tiempos de tránsito y preparación para exportación."
               : "Registra primero un proveedor y luego agrega la información logística."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Logística</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar logística</Button> : undefined}
           />
         </Card>
       ) : (
@@ -92,7 +92,7 @@ export function LogísticaPage() {
                   <div>Port: <span className="font-medium text-gray-900">{l.port || '—'}</span></div>
                   <div>Lead Time: <span className="font-medium text-gray-900">{l.lead_time || '—'}</span></div>
                   <div>Shipment Size: <span className="font-medium text-gray-900">{l.estimated_shipment_size || '—'}</span></div>
-                  <div>Loading: <span className="font-medium text-gray-900">{l.loading_location || '—'}</span></div>
+                  <div>Carga: <span className="font-medium text-gray-900">{l.loading_location || '—'}</span></div>
                 </div>
                 {l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
