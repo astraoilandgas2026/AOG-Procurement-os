@@ -53,6 +53,19 @@ export function CommercialPage() {
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const productMap = new Map((products ?? []).map((p) => [p.id, displayProductName(p.name)]));
 
+  const prioritizedOffers = [...(offers ?? [])].sort((a, b) => {
+    const rank = (supplier: string) => {
+      const value = supplier.toLowerCase();
+      if (value.includes('olam agro')) return 0;
+      if (value.includes('fl óleos') || value.includes('fl oleos')) return 1;
+      if (value.includes('renovar')) return 2;
+      return 100;
+    };
+    const rankA = rank(supplierMap.get(a.supplier_id) ?? '');
+    const rankB = rank(supplierMap.get(b.supplier_id) ?? '');
+    return rankA - rankB || (supplierMap.get(a.supplier_id) ?? '').localeCompare(supplierMap.get(b.supplier_id) ?? '');
+  });
+
   const openSheet = (offer: CommercialOffer) => { setSheetOffer(offer); setShowSheet(true); };
 
   const openCrear = () => {
@@ -107,7 +120,7 @@ export function CommercialPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {offers.map((o) => (
+          {prioritizedOffers.map((o) => (
             <Card key={o.id}>
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
