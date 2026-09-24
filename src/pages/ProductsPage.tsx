@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
@@ -22,20 +23,21 @@ function emptyForm(supplierId: string): Omit<Product, 'id' | 'created_at' | 'upd
 }
 
 export function ProductsPage() {
+  const { procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
   const { data: products, loading, error, refresh } = useAsync(
-    () => getStore().products.getAll(), []
+    () => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]
   );
   const { data: suppliers } = useAsync(
-    () => getStore().suppliers.getAll(), []
+    () => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]
   );
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
 
   const openCreate = () => {
-    setForm(emptyForm(suppliers?.[0]?.id ?? ''));
+    setForm(emptyForm(''));
     setShowForm(true);
   };
 
