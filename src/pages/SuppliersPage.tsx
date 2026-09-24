@@ -13,7 +13,7 @@ import {
 } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import {
-  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3,
+  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -209,38 +209,166 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 }
 
 function SupplierDetail({
-  supplier,
-  onBack,
-  onEdit,
-  onDelete,
-}: {
-  supplier: Supplier;
-  onBack: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  const { data: products } = useAsync(() => getStore().products.getBySupplier(supplier.id), [supplier.id]);
-  const { data: documents } = useAsync(() => getStore().documents.getBySupplier(supplier.id), [supplier.id]);
+  supplier, onBack, onEdit, onDelete,
+}: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
+  const { data, loading, error } = useAsync(async () => {
+    const store = getStore();
+    const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags] =
+      await Promise.all([
+        store.contacts.getBySupplier(supplier.id), store.products.getBySupplier(supplier.id),
+        store.documents.getBySupplier(supplier.id), store.commercialOffers.getBySupplier(supplier.id),
+        store.certifications.getBySupplier(supplier.id), store.dueDiligence.getBySupplier(supplier.id),
+        store.logistics.getBySupplier(supplier.id), store.timeline.getBySupplier(supplier.id),
+        store.followUps.getBySupplier(supplier.id), store.redFlags.getBySupplier(supplier.id),
+      ]);
+    const specs = (await Promise.all(products.map(async product => ({
+      product, specs: await store.technicalSpecs.getByProduct(product.id),
+    })))).filter(entry => entry.specs.length > 0);
+    return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, specs };
+  }, [supplier.id]);
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorState message={error} />;
+  if (!data) return null;
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3"><Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Back</Button><div><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1>{supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}</div></div>
-        <div className="flex items-center gap-2"><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Edit</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3">
+          <Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Back</Button>
+          <div>
+            <div className="flex flex-wrap items-center gap-2"><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge></div>
+            {supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}
+            <p className="mt-1 text-xs text-gray-400">Expanded Procurement Intelligence Profile</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Edit</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <DetailSection title="Identity"><DetailRow label="Legal Name" value={supplier.legal_name} /><DetailRow label="Trading Name" value={supplier.trading_name} /><DetailRow label="Country" value={supplier.country} /><DetailRow label="City" value={supplier.city} /><DetailRow label="Address" value={supplier.address} /><DetailRow label="Tax ID (CNPJ/RUT)" value={supplier.tax_id} /><DetailRow label="CNAE / Activity" value={supplier.cnae} /><DetailRow label="Administrator" value={supplier.administrator} /><DetailRow label="Legal Status" value={supplier.legal_status} /></DetailSection>
-        <DetailSection title="Operation"><DetailRow label="Facility" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} /><DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} /><DetailRow label="Real Production" value={supplier.real_production} /><DetailRow label="Available Volume" value={supplier.available_volume} /><DetailRow label="Volume to Astra" value={supplier.volume_to_astra} /><DetailRow label="Trial Volume" value={supplier.trial_volume} /><DetailRow label="Recurring Volume" value={supplier.recurring_volume} /><DetailRow label="Infrastructure" value={supplier.infrastructure} /></DetailSection>
-        <DetailSection title="Lifecycle & Timeline"><DetailRow label="Lifecycle" value={lifecycleLabel(supplier.lifecycle)} /><DetailRow label="Registered" value={formatDate(supplier.created_at)} /><DetailRow label="Last Updated" value={formatDate(supplier.updated_at)} /></DetailSection>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+        <SummaryChip icon={<Users size={15} />} label="Contacts" value={data.contacts.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Products" value={data.products.length} />
+        <SummaryChip icon={<FlaskConical size={15} />} label="Specs" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
+        <SummaryChip icon={<DollarSign size={15} />} label="Offers" value={data.offers.length} />
+        <SummaryChip icon={<Award size={15} />} label="Certs" value={data.certifications.length} />
+        <SummaryChip icon={<ShieldCheck size={15} />} label="DD" value={data.dueDiligence.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Evidence" value={data.documents.length} />
+        <SummaryChip icon={<AlertTriangle size={15} />} label="Red Flags" value={data.redFlags.length} danger={data.redFlags.length > 0} />
       </div>
-      <div className="mt-4"><DetailSection title="Products & Technical Evidence">
-        {!products?.length ? <p className="text-sm text-gray-500">No products linked yet.</p> : <div className="space-y-3">{products.map((product) => <div key={product.id} className="rounded-lg border border-gray-200 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-semibold text-gray-900">{product.name}</div><div className="text-xs text-gray-500">{product.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(product.verification_status)}>{verificationLabel(product.verification_status)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {product.feedstock_type}</span><span>Volume: {product.available_volume ? product.available_volume + ' ' + product.unit : '—'}</span></div></div>)}</div>}
-      </DetailSection></div>
-      <div className="mt-4"><DetailSection title="Documents & Evidence">
-        {!documents?.length ? <p className="text-sm text-gray-500">No documents linked yet. Documents uploaded for this supplier will appear here.</p> : <div className="space-y-4">{documents.map((doc) => <div key={doc.id} className="rounded-lg border border-gray-200 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {formatDate(doc.created_at)}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-200 p-3 text-xs text-gray-500">Metadata registered; file preview will appear once the storage file is linked.</div>}</div>)}</div>}
-      </DetailSection></div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DetailSection title="1. Legal & Corporate Identity">
+          <DetailRow label="Legal Name" value={supplier.legal_name} /><DetailRow label="Trading Name" value={supplier.trading_name} />
+          <DetailRow label="Country" value={supplier.country} /><DetailRow label="City" value={supplier.city} /><DetailRow label="Address" value={supplier.address} />
+          <DetailRow label="CNPJ / RUT" value={supplier.tax_id} /><DetailRow label="CNAE / Declared Activity" value={supplier.cnae} />
+          <DetailRow label="Administrator / Legal Representative" value={supplier.administrator} /><DetailRow label="Legal Status" value={supplier.legal_status} />
+        </DetailSection>
+        <DetailSection title="2. Operation & Capacity">
+          <DetailRow label="Facility" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} />
+          <DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} /><DetailRow label="Real Production" value={supplier.real_production} />
+          <DetailRow label="Available Volume" value={supplier.available_volume} /><DetailRow label="Volume for Astra" value={supplier.volume_to_astra} />
+          <DetailRow label="Trial Volume" value={supplier.trial_volume} /><DetailRow label="Recurring Volume" value={supplier.recurring_volume} /><DetailRow label="Infrastructure" value={supplier.infrastructure} />
+        </DetailSection>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DetailSection title="3. Contacts">
+          {!data.contacts.length ? <EmptyLine text="No contact record." /> : data.contacts.map(c => (
+            <div key={c.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
+              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Unnamed contact'}</div><div className="text-xs text-gray-500">{c.title || 'Role not specified'}</div></div>{c.is_primary && <Badge color="blue">Primary</Badge>}</div>
+              <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-gray-600 sm:grid-cols-2"><span>Email: {c.email || '—'}</span><span>Phone: {c.phone || '—'}</span><span>WhatsApp: {c.whatsapp || '—'}</span></div>
+              {c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
+            </div>
+          ))}
+        </DetailSection>
+        <DetailSection title="4. Products & Supplier Variants">
+          {!data.products.length ? <EmptyLine text="No products registered." /> : data.products.map(p => (
+            <div key={p.id} className="rounded-lg border border-gray-100 p-3">
+              <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {p.feedstock_type}</span><span>Origin: {p.origin || '—'}</span><span>Volume: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verification: {p.verification_status}</span></div>
+            </div>
+          ))}
+        </DetailSection>
+      </div>
+
+      <DetailSection title="5. Technical / Quality — Expanded Technical Sheet">
+        {!data.specs.length ? <EmptyLine text="No technical parameters recorded. Expected evidence: COA, TDS, SDS/FDS, laboratory analysis and product-specific quality limits." /> : data.specs.map(({ product, specs }) => (
+          <div key={product.id} className="mb-3 rounded-lg border border-gray-100 p-3 last:mb-0">
+            <div className="mb-2 flex items-center gap-2"><FlaskConical size={15} className="text-gray-400" /><span className="text-sm font-semibold text-gray-900">{product.name}</span></div>
+            <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="border-b border-gray-100 text-left text-gray-500"><th className="py-2 pr-3">Parameter</th><th className="py-2 pr-3">Value</th><th className="py-2 pr-3">Unit</th><th className="py-2 pr-3">Method</th><th className="py-2">Evidence</th></tr></thead><tbody>{specs.map(s => <tr key={s.id} className="border-b border-gray-50"><td className="py-2 pr-3 font-medium text-gray-800">{s.parameter}</td><td className="py-2 pr-3">{s.value || '—'}</td><td className="py-2 pr-3">{s.unit || '—'}</td><td className="py-2 pr-3">{s.method || '—'}</td><td className="py-2"><Badge color={verificationColor(s.verification_status)}>{verificationLabel(s.verification_status)}</Badge></td></tr>)}</tbody></table></div>
+          </div>
+        ))}
+      </DetailSection>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DetailSection title="6. Commercial Offers">
+          {!data.offers.length ? <EmptyLine text="No commercial offer recorded." /> : data.offers.map(o => (
+            <div key={o.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><div className="text-sm font-semibold text-gray-900">{o.price || 'Price pending'} {o.currency}</div><Badge color={verificationColor(o.verification_status)}>{verificationLabel(o.verification_status)}</Badge></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Basis: {o.price_basis || '—'}</span><span>Incoterm: {o.incoterm || '—'}</span><span>Loading: {o.loading_point || '—'}</span><span>Port: {o.port || '—'}</span><span>Destination: {o.destination || '—'}</span><span>Payment: {o.payment_terms || '—'}</span><span>Offered: {o.offered_volume || '—'}</span><span>Trial: {o.trial_quantity || '—'}</span><span>Recurring: {o.recurring_quantity || '—'}</span><span>ISCC premium: {o.certification_premium || '—'}</span></div>
+            </div>
+          ))}
+        </DetailSection>
+        <DetailSection title="7. Certifications">
+          {!data.certifications.length ? <EmptyLine text="No certification records. Claims such as ISCC remain unverified until documentary evidence is attached." /> : data.certifications.map(c => (
+            <div key={c.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">{c.cert_type}</span><Badge color={c.status === 'active' ? 'green' : c.status === 'revoked' ? 'red' : 'yellow'}>{c.status}</Badge></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Number: {c.cert_number || '—'}</span><span>Issuer: {c.issuing_body || '—'}</span><span>Issue: {c.issue_date || '—'}</span><span>Expiry: {c.expiration_date || '—'}</span></div>{c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
+            </div>
+          ))}
+        </DetailSection>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DetailSection title="8. Due Diligence">
+          {!data.dueDiligence.length ? <EmptyLine text="No DD records yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
+            <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidence: {d.evidence_ref || '—'} · Reviewer: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
+          ))}
+        </DetailSection>
+        <DetailSection title="9. Logistics / Export Readiness">
+          {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
+            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logistics record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origin: {l.origin_location || '—'}</span><span>Loading: {l.loading_location || '—'}</span><span>Transport: {l.transport_mode}</span><span>Container: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
+          ))}
+        </DetailSection>
+      </div>
+
+      <DetailSection title="10. Evidence & Documents">
+        {!data.documents.length ? <EmptyLine text="No documentary evidence attached." /> : data.documents.map(doc => (
+          <div key={doc.id} className="rounded-lg border border-gray-100 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title || doc.file_name || 'Document'}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {doc.doc_type}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-100 p-3 text-xs text-gray-500">{doc.description || 'Metadata registered; no storage file linked.'}</div>}</div>
+        ))}
+      </DetailSection>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <DetailSection title="11. Risk / Red Flags">
+          {!data.redFlags.length ? <EmptyLine text="No red flags recorded." /> : data.redFlags.map(r => (
+            <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Red flag'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidence: {r.evidence || '—'} · Source: {r.source || '—'}</div></div>
+          ))}
+        </DetailSection>
+        <DetailSection title="12. Next Actions / Follow-ups">
+          {!data.followUps.length ? <EmptyLine text="No follow-ups recorded." /> : data.followUps.map(f => (
+            <div key={f.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{f.title}</span><Badge color={f.status === 'completed' ? 'green' : f.priority === 'urgent' ? 'red' : 'yellow'}>{f.status}</Badge></div>{f.description && <p className="mt-2 text-xs text-gray-600">{f.description}</p>}<div className="mt-1 text-[11px] text-gray-400">Responsible: {f.responsible_person || '—'} · Due: {f.due_date || '—'} · Priority: {f.priority}</div></div>
+          ))}
+        </DetailSection>
+      </div>
+
+      <DetailSection title="13. Timeline / Interaction History">
+        {!data.timeline.length ? <EmptyLine text="No timeline events recorded." /> : data.timeline.map(t => (
+          <div key={t.id} className="flex gap-3 rounded-lg border border-gray-100 p-3"><Clock size={15} className="mt-0.5 shrink-0 text-gray-400" /><div><div className="text-sm font-semibold text-gray-900">{t.title || t.event_type}</div><div className="text-xs text-gray-500">{t.event_date || '—'} · {t.actor || '—'}</div>{t.description && <p className="mt-1 text-xs text-gray-600">{t.description}</p>}</div></div>
+        ))}
+      </DetailSection>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900"><Globe2 size={15} /> Verification discipline</div>
+        <p className="mt-1 text-xs leading-5 text-gray-600">Every claim must remain classified as CLAIMED, DOCUMENTED, INDEPENDENTLY VERIFIED or PHYSICALLY VERIFIED. Public registry data shown here is independent public evidence; product quality, current capacity, availability, export history and current certificates still require their own evidence.</p>
+      </div>
     </div>
   );
+}
+
+function SummaryChip({ icon, label, value, danger = false }: { icon: ReactNode; label: string; value: number; danger?: boolean }) {
+  return <div className={`rounded-lg border p-3 ${danger ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'}`}><div className="flex items-center gap-2 text-xs text-gray-500">{icon}{label}</div><div className={`mt-1 text-xl font-bold ${danger ? 'text-red-700' : 'text-gray-900'}`}>{value}</div></div>;
+}
+
+function EmptyLine({ text }: { text: string }) {
+  return <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500">{text}</p>;
 }
 
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
