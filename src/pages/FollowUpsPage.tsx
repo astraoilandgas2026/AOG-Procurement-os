@@ -11,7 +11,7 @@ import {
 } from '@/utils/statusHelpers';
 import { formatRelative, isOverdue } from '@/utils/date';
 import { Plus, CheckSquare, Trash2 } from 'lucide-react';
-import type { FollowUp, Prioridad, FollowUpStatus } from '@/types';
+import type { FollowUp, Priority, FollowUpStatus } from '@/types';
 import { PRIORITY_LABELS, FOLLOWUP_STATUS_LABELS } from '@/types';
 
 const PRIORITY_OPTIONS = Object.entries(PRIORITY_LABELS).map(([value, label]) => ({ value, label }));
@@ -123,7 +123,7 @@ export function FollowUpsPage() {
             <Input label="Responsable" value={form.responsible_person} onChange={(v) => setForm({ ...form, responsible_person: v })} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Fecha de vencimiento" type="date" value={form.due_date} onChange={(v) => setForm({ ...form, due_date: v })} />
-              <Select label="Prioridad" value={form.priority} onChange={(v) => setForm({ ...form, priority: v as Prioridad })} options={PRIORITY_OPTIONS} />
+              <Select label="Priority" value={form.priority} onChange={(v) => setForm({ ...form, priority: v as Priority })} options={PRIORITY_OPTIONS} />
             </div>
             <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as FollowUpStatus })} options={STATUS_OPTIONS} />
           </div>
