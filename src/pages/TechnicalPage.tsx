@@ -6,7 +6,7 @@ import {
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { FlaskConical } from 'lucide-react';
 
-export function TechnicalPage() {
+export function TécnicoPage() {
   const { data: products, loading, error } = useAsync(
     () => getStore().products.getAll(), []
   );
@@ -24,7 +24,7 @@ export function TechnicalPage() {
       <Card>
         <EmptyState
           icon={<FlaskConical size={28} />}
-          title="No technical specifications"
+          title="No hay especificaciones técnicas"
           message="Products must be registered before technical specifications can be added. Register a product first, then capture quality parameters, COA, TDS, and SDS/FDS data."
         />
       </Card>
@@ -34,8 +34,8 @@ export function TechnicalPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Technical</h1>
-        <p className="text-sm text-gray-500 mt-1">Technical specifications and quality parameters</p>
+        <h1 className="text-2xl font-bold text-gray-900">Técnico</h1>
+        <p className="text-sm text-gray-500 mt-1">Especificaciones técnicas y parámetros de calidad</p>
       </div>
       {productsWithSpecs.map(({ product }) => (
         <Card key={product.id}>
@@ -49,7 +49,7 @@ export function TechnicalPage() {
                 {verificationLabel(product.verification_status)}
               </Badge>
             </div>
-            <p className="text-sm text-gray-400">No technical specifications recorded yet. Add COA, TDS, SDS/FDS parameters and quality data.</p>
+            <p className="text-sm text-gray-400">Aún no hay especificaciones técnicas. Agrega parámetros de COA, TDS, SDS/FDS y datos de calidad.</p>
           </CardBody>
         </Card>
       ))}
