@@ -236,35 +236,35 @@ function SupplierDetail({
     <div className="space-y-4">
       <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
-          <Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Back</Button>
+          <Button variant="ghost" onClick={onBack}><ArrowLeft size={16} /> Volver</Button>
           <div>
             <div className="flex flex-wrap items-center gap-2"><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge></div>
             {supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}
-            <p className="mt-1 text-xs text-gray-400">Expanded Procurement Intelligence Profile</p>
+            <p className="mt-1 text-xs text-gray-400">Ficha ampliada de inteligencia de procurement</p>
           </div>
         </div>
-        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Edit</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
+        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-        <SummaryChip icon={<Users size={15} />} label="Contacts" value={data.contacts.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Products" value={data.products.length} />
-        <SummaryChip icon={<FlaskConical size={15} />} label="Specs" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
-        <SummaryChip icon={<DollarSign size={15} />} label="Offers" value={data.offers.length} />
-        <SummaryChip icon={<Award size={15} />} label="Certs" value={data.certifications.length} />
+        <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Productos" value={data.products.length} />
+        <SummaryChip icon={<FlaskConical size={15} />} label="Especificaciones" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
+        <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
+        <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
         <SummaryChip icon={<ShieldCheck size={15} />} label="DD" value={data.dueDiligence.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Evidence" value={data.documents.length} />
-        <SummaryChip icon={<AlertTriangle size={15} />} label="Red Flags" value={data.redFlags.length} danger={data.redFlags.length > 0} />
+        <SummaryChip icon={<FileText size={15} />} label="Evidencia" value={data.documents.length} />
+        <SummaryChip icon={<AlertTriangle size={15} />} label="Alertas" value={data.redFlags.length} danger={data.redFlags.length > 0} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="1. Legal & Corporate Identity">
+        <DetailSection title="1. Identidad Legal y Corporativa">
           <DetailRow label="Legal Name" value={supplier.legal_name} /><DetailRow label="Trading Name" value={supplier.trading_name} />
           <DetailRow label="Country" value={supplier.country} /><DetailRow label="City" value={supplier.city} /><DetailRow label="Address" value={supplier.address} />
           <DetailRow label="CNPJ / RUT" value={supplier.tax_id} /><DetailRow label="CNAE / Declared Activity" value={supplier.cnae} />
           <DetailRow label="Administrator / Legal Representative" value={supplier.administrator} /><DetailRow label="Legal Status" value={supplier.legal_status} />
         </DetailSection>
-        <DetailSection title="2. Operation & Capacity">
+        <DetailSection title="2. Operación y Capacidad">
           <DetailRow label="Facility" value={supplier.facility} /><DetailRow label="Operation Status" value={supplier.operation_status} />
           <DetailRow label="Theoretical Capacity" value={supplier.theoretical_capacity} /><DetailRow label="Real Production" value={supplier.real_production} />
           <DetailRow label="Available Volume" value={supplier.available_volume} /><DetailRow label="Volume for Astra" value={supplier.volume_to_astra} />
@@ -273,7 +273,7 @@ function SupplierDetail({
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="3. Contacts">
+        <DetailSection title="3. Contactos">
           {!data.contacts.length ? <EmptyLine text="No contact record." /> : data.contacts.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Unnamed contact'}</div><div className="text-xs text-gray-500">{c.title || 'Role not specified'}</div></div>{c.is_primary && <Badge color="blue">Primary</Badge>}</div>
@@ -282,7 +282,7 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="4. Products & Supplier Variants">
+        <DetailSection title="4. Productos y Variantes del Proveedor">
           {!data.products.length ? <EmptyLine text="No products registered." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
@@ -292,7 +292,7 @@ function SupplierDetail({
         </DetailSection>
       </div>
 
-      <DetailSection title="5. Technical / Quality — Expanded Technical Sheet">
+      <DetailSection title="5. Técnico / Calidad — Ficha Técnica Ampliada">
         {!data.specs.length ? <EmptyLine text="No technical parameters recorded. Expected evidence: COA, TDS, SDS/FDS, laboratory analysis and product-specific quality limits." /> : data.specs.map(({ product, specs }) => (
           <div key={product.id} className="mb-3 rounded-lg border border-gray-100 p-3 last:mb-0">
             <div className="mb-2 flex items-center gap-2"><FlaskConical size={15} className="text-gray-400" /><span className="text-sm font-semibold text-gray-900">{product.name}</span></div>
@@ -302,14 +302,14 @@ function SupplierDetail({
       </DetailSection>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="6. Commercial Offers">
+        <DetailSection title="6. Ofertas Comerciales">
           {!data.offers.length ? <EmptyLine text="No commercial offer recorded." /> : data.offers.map(o => (
             <div key={o.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><div className="text-sm font-semibold text-gray-900">{o.price || 'Price pending'} {o.currency}</div><Badge color={verificationColor(o.verification_status)}>{verificationLabel(o.verification_status)}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Basis: {o.price_basis || '—'}</span><span>Incoterm: {o.incoterm || '—'}</span><span>Loading: {o.loading_point || '—'}</span><span>Port: {o.port || '—'}</span><span>Destination: {o.destination || '—'}</span><span>Payment: {o.payment_terms || '—'}</span><span>Offered: {o.offered_volume || '—'}</span><span>Trial: {o.trial_quantity || '—'}</span><span>Recurring: {o.recurring_quantity || '—'}</span><span>ISCC premium: {o.certification_premium || '—'}</span></div>
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="7. Certifications">
+        <DetailSection title="7. Certificaciones">
           {!data.certifications.length ? <EmptyLine text="No certification records. Claims such as ISCC remain unverified until documentary evidence is attached." /> : data.certifications.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">{c.cert_type}</span><Badge color={c.status === 'active' ? 'green' : c.status === 'revoked' ? 'red' : 'yellow'}>{c.status}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Number: {c.cert_number || '—'}</span><span>Issuer: {c.issuing_body || '—'}</span><span>Issue: {c.issue_date || '—'}</span><span>Expiry: {c.expiration_date || '—'}</span></div>{c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
@@ -319,19 +319,19 @@ function SupplierDetail({
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="8. Due Diligence">
+        <DetailSection title="8. Debida Diligencia">
           {!data.dueDiligence.length ? <EmptyLine text="No DD records yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
             <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidence: {d.evidence_ref || '—'} · Reviewer: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
           ))}
         </DetailSection>
-        <DetailSection title="9. Logistics / Export Readiness">
+        <DetailSection title="9. Logística / Preparación para Exportación">
           {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
             <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logistics record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origin: {l.origin_location || '—'}</span><span>Loading: {l.loading_location || '—'}</span><span>Transport: {l.transport_mode}</span><span>Container: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
           ))}
         </DetailSection>
       </div>
 
-      <DetailSection title="10. Historical Procurement Intelligence">
+      <DetailSection title="10. Inteligencia Histórica de Procurement">
         {!data.intelligenceFacts.length ? <EmptyLine text="No historical intelligence facts recorded." /> : (
           <div className="space-y-2">
             {data.intelligenceFacts.map(f => (
@@ -342,33 +342,33 @@ function SupplierDetail({
                 </div>
                 {f.is_contradiction && <div className="mt-2 text-xs font-semibold text-amber-800">Contradiction requires clarification before commercial reliance.</div>}
                 {f.notes && <p className="mt-1 text-xs text-gray-500">{f.notes}</p>}
-                {f.source_ref && <a href={f.source_ref} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[11px] text-[var(--astra-blue)]">Source evidence</a>}
+                {f.source_ref && <a href={f.source_ref} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[11px] text-[var(--astra-blue)]">Ver evidencia</a>}
               </div>
             ))}
           </div>
         )}
       </DetailSection>
 
-      <DetailSection title="10. Evidence & Documents">
+      <DetailSection title="10. Evidencia y Documentos">
         {!data.documents.length ? <EmptyLine text="No documentary evidence attached." /> : data.documents.map(doc => (
           <div key={doc.id} className="rounded-lg border border-gray-100 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title || doc.file_name || 'Document'}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {doc.doc_type}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-100 p-3 text-xs text-gray-500">{doc.description || 'Metadata registered; no storage file linked.'}</div>}</div>
         ))}
       </DetailSection>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="11. Risk / Red Flags">
+        <DetailSection title="11. Riesgos / Alertas">
           {!data.redFlags.length ? <EmptyLine text="No red flags recorded." /> : data.redFlags.map(r => (
             <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Red flag'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidence: {r.evidence || '—'} · Source: {r.source || '—'}</div></div>
           ))}
         </DetailSection>
-        <DetailSection title="12. Next Actions / Follow-ups">
+        <DetailSection title="12. Próximas Acciones / Seguimientos">
           {!data.followUps.length ? <EmptyLine text="No follow-ups recorded." /> : data.followUps.map(f => (
             <div key={f.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{f.title}</span><Badge color={f.status === 'completed' ? 'green' : f.priority === 'urgent' ? 'red' : 'yellow'}>{f.status}</Badge></div>{f.description && <p className="mt-2 text-xs text-gray-600">{f.description}</p>}<div className="mt-1 text-[11px] text-gray-400">Responsible: {f.responsible_person || '—'} · Due: {f.due_date || '—'} · Priority: {f.priority}</div></div>
           ))}
         </DetailSection>
       </div>
 
-      <DetailSection title="13. Timeline / Interaction History">
+      <DetailSection title="13. Cronología / Historial de Interacciones">
         {!data.timeline.length ? <EmptyLine text="No timeline events recorded." /> : data.timeline.map(t => (
           <div key={t.id} className="flex gap-3 rounded-lg border border-gray-100 p-3"><Clock size={15} className="mt-0.5 shrink-0 text-gray-400" /><div><div className="text-sm font-semibold text-gray-900">{t.title || t.event_type}</div><div className="text-xs text-gray-500">{t.event_date || '—'} · {t.actor || '—'}</div>{t.description && <p className="mt-1 text-xs text-gray-600">{t.description}</p>}</div></div>
         ))}
