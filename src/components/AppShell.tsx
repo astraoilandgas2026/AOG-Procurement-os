@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import {
-  Building2, Users, Package, FlaskConical, DollarSign, Award, FileText,
+  Building2, Users, Package, DollarSign, Award, FileText,
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, ChevronLeft,
 } from 'lucide-react';
 
@@ -12,7 +12,6 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Inteligencia' },
   { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Inteligencia' },
   { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Inteligencia' },
-  { key: 'technical', label: 'Calidad técnica', icon: <FlaskConical size={17} />, group: 'Inteligencia' },
   { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Inteligencia' },
   { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Inteligencia' },
   { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Inteligencia' },
@@ -28,7 +27,6 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   suppliers: { title: 'Proveedores', subtitle: 'Perfiles de inteligencia de proveedores' },
   contacts: { title: 'Contactos', subtitle: 'Directorio de contactos de proveedores' },
   products: { title: 'Productos', subtitle: 'Registro de materias primas y productos' },
-  technical: { title: 'Calidad técnica', subtitle: 'Especificaciones, parámetros, COA, TDS y SDS/FDS por producto' },
   commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
   certifications: { title: 'Certificaciones', subtitle: 'Seguimiento de certificaciones y evidencia' },
   documents: { title: 'Documentos', subtitle: 'Gestión de evidencia y documentos' },
