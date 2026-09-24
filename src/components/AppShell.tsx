@@ -51,18 +51,13 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
         className={compact ? 'h-9 w-9 shrink-0' : 'h-9 w-9 sm:h-11 sm:w-11 shrink-0'}
       />
       <span className="leading-none whitespace-nowrap">
-        <span className={compact
-          ? 'block text-[16px] font-normal tracking-[0.08em] text-black'
-          : 'block text-[17px] sm:text-[19px] font-normal tracking-[0.08em] text-black'
-        }>ASTRA</span>
-        <span className={compact
-          ? 'block mt-1 text-[9px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
-          : 'block mt-1 text-[9px] sm:text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
-        }>Oil and Gas</span>
+        <span className={compact ? 'block text-[16px] font-normal tracking-[0.08em] text-black' : 'block text-[17px] sm:text-[19px] font-normal tracking-[0.08em] text-black'}>ASTRA</span>
+        <span className={compact ? 'block mt-1 text-[9px] font-normal tracking-[0.01em] text-[var(--astra-gray)]' : 'block mt-1 text-[9px] sm:text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'}>Oil and Gas</span>
       </span>
     </div>
   );
 }
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { currentPage, navigate, procurementDomain, goToOverview } = useNav();
   const pageInfo = PAGE_TITLES[currentPage];
@@ -78,6 +73,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
           </div>
           <nav className="flex-1 overflow-y-auto py-4">
+            <button
+              onClick={() => navigate('dashboard')}
+              className={`mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider ${currentPage === 'dashboard' ? 'text-[var(--astra-red)]' : 'text-[var(--astra-muted)] hover:text-[var(--astra-dark)]'}`}
+            >
+              <ChevronLeft size={15} /> Resumen
+            </button>
             <button
               onClick={goToOverview}
               className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]"
@@ -115,8 +116,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <>
                 <h1 className="text-xl font-semibold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
                 <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
-                <button onClick={goToOverview} className="mt-1 text-xs font-semibold text-[var(--astra-blue)] hover:underline">
-                  Volver a Feedstock / Energy Commodities
+                <button onClick={() => navigate('dashboard')} className="mt-1 text-xs font-semibold text-[var(--astra-blue)] hover:underline">
+                  Volver al resumen de {DOMAIN_META[procurementDomain].label}
                 </button>
               </>
             )}
@@ -126,6 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {procurementDomain && (
           <nav className="flex md:hidden min-w-0 overflow-x-auto border-b border-[var(--astra-border)] bg-white px-3 py-2">
             <div className="flex min-w-max items-center gap-1">
+              <button onClick={() => navigate('dashboard')} className={`mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold ${currentPage === 'dashboard' ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)]'}`}>Resumen</button>
               <button onClick={goToOverview} className="mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold text-[var(--astra-muted)]">Dominios</button>
               {NAV_ITEMS.map((item) => (
                 <button key={item.key} onClick={() => navigate(item.key)}
