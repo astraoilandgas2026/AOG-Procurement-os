@@ -13,7 +13,7 @@ import {
 } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import {
-  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Editar3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
+  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -198,7 +198,7 @@ export function SuppliersPage() {
                     <FileText size={14} /> Ver perfil
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => openEditar(s)}>
-                    <Editar3 size={14} /> Editarar
+                    <Edit3 size={14} /> Editar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(s.id)}>
                     <Trash2 size={14} />
@@ -215,7 +215,7 @@ export function SuppliersPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editing ? 'Editarar proveedor' : 'Registrar nuevo proveedor'}
+        title={editing ? 'Editar proveedor' : 'Registrar nuevo proveedor'}
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
@@ -298,7 +298,7 @@ function SupplierDetail({
             <p className="mt-1 text-xs text-gray-400">Perfil ampliado de inteligencia de procurement</p>
           </div>
         </div>
-        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEditar}><Editar3 size={16} /> Editarar</Button><Button variant="danger" onClick={onEliminar}><Trash2 size={16} /></Button></div>
+        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEditar}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onEliminar}><Trash2 size={16} /></Button></div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
@@ -322,8 +322,8 @@ function SupplierDetail({
         <DetailSection title="2. Operación y Capacidad">
           <DetailRow label="Planta / instalación" value={supplier.facility} /><DetailRow label="Estado operativo" value={supplier.operation_status} />
           <DetailRow label="Capacidad teórica" value={supplier.theoretical_capacity} /><DetailRow label="Producción real" value={supplier.real_production} />
-          <DetailRow label="Volumennn disponible" value={supplier.available_volume} /><DetailRow label="Volumennn para Astra" value={supplier.volume_to_astra} />
-          <DetailRow label="Volumennn de prueba" value={supplier.trial_volume} /><DetailRow label="Volumennn recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
+          <DetailRow label="Volumen disponible" value={supplier.available_volume} /><DetailRow label="Volumen para Astra" value={supplier.volume_to_astra} />
+          <DetailRow label="Volumen de prueba" value={supplier.trial_volume} /><DetailRow label="Volumen recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
         </DetailSection>
       </div>
 
@@ -341,7 +341,7 @@ function SupplierDetail({
           {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumennn: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumen: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
             </div>
           ))}
         </DetailSection>
@@ -381,7 +381,7 @@ function SupplierDetail({
         </DetailSection>
         <DetailSection title="9. Logística / Preparación para Exportación">
           {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
-            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logística record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transporte: {l.transport_mode}</span><span>Contenedor: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
+            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Registro logístico'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transporte: {l.transport_mode}</span><span>Contenedor: {l.container_type}</span><span>Embarque: {l.estimated_shipment_size || '—'}</span><span>Tiempo de tránsito: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
           ))}
         </DetailSection>
       </div>
@@ -499,16 +499,16 @@ function SupplierForm({
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Operation</h4>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Operación</h4>
         <div className="grid grid-cols-2 gap-3">
           <Input label="Planta / instalación" value={form.facility} onChange={(v) => update('facility', v)} />
           <Input label="Estado operativo" value={form.operation_status} onChange={(v) => update('operation_status', v)} />
           <Input label="Capacidad teórica" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Producción real" value={form.real_production} onChange={(v) => update('real_production', v)} />
-          <Input label="Volumennn disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
+          <Input label="Volumen disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
           <Input label="Volumenn to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
-          <Input label="Volumennn de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
-          <Input label="Volumennn recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
+          <Input label="Volumen de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
+          <Input label="Volumen recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
         </div>
         <div className="mt-3">
           <TextArea label="Infraestructura" value={form.infrastructure} onChange={(v) => update('infrastructure', v)} />
