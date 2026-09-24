@@ -422,6 +422,25 @@ export interface FollowUp {
   updated_at: string;
 }
 
+export interface IntelligenceFact {
+  id: string;
+  domain_id: string;
+  entity_type: string;
+  entity_id: string;
+  field_name: string;
+  value_text: string;
+  unit: string;
+  fact_date: string | null;
+  source_type: string;
+  source_ref: string;
+  verification_status: VerificationStatus;
+  is_contradiction: boolean;
+  contradiction_key: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface RedFlag {
   id: string;
   supplier_id: string;
