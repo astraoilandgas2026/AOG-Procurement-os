@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<rect width="100" height="100" rx="18" fill="white"/>
+<g transform="translate(50 50)">
+<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#E40521"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#FA7408" transform="rotate(72)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(72)"/>
+<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#FDBE02" transform="rotate(144)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(144)"/>
+<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#00A155" transform="rotate(216)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(216)"/>
+<path d="M0 0C-7-7-15-17-14-29C-13-39-6-46 0-50C6-46 13-39 14-29C15-17 7-7 0 0Z" fill="#08B0F6" transform="rotate(288)"/><path d="M0-7C-4-15-7-24-4-35" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" transform="rotate(288)"/>
+</g></svg>
