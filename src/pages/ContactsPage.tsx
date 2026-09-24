@@ -32,6 +32,19 @@ export function ContactsPage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
+  const prioritizedContacts = [...(contacts ?? [])].sort((a, b) => {
+    const rank = (name: string) => {
+      const value = name.toLowerCase();
+      if (value.includes('renato sales')) return 0;
+      if (value.includes('tiago nascimento') || value.includes('thiago nascimento')) return 1;
+      if (value.includes('fábio dos santos') || value.includes('fabio dos santos')) return 2;
+      return 100;
+    };
+    const rankA = rank(a.name);
+    const rankB = rank(b.name);
+    return rankA - rankB || a.name.localeCompare(b.name);
+  });
+
   const openCrear = () => {
     setEditingId(null);
     setFormError('');
@@ -93,7 +106,7 @@ export function ContactsPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {contacts.map((c) => (
+          {prioritizedContacts.map((c) => (
             <Card key={c.id}>
               <CardBody>
                 <div className="flex items-start justify-between mb-2">
