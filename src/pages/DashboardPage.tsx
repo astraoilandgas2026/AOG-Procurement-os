@@ -16,6 +16,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import type { AppData } from '@/types';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, type ProductFamily } from '@/utils/productFamilies';
 
 const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
   title: string;
@@ -45,8 +46,7 @@ export function DashboardPage() {
     return (
       <div className="space-y-8">
         <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--astra-orange)]">Procurement Intelligence OS</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Select your business domain</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Overview</h2>
           <p className="mt-2 text-sm text-slate-500">Choose the sourcing universe you want to work with. The intelligence workspace will adapt to the selected domain.</p>
         </div>
 
@@ -90,7 +90,7 @@ export function DashboardPage() {
   const pausedRejectedArchived = data.suppliers.filter((s) => ['paused', 'rejected', 'archived'].includes(s.lifecycle)).length;
   const followUpsDue = data.follow_ups.filter((f) => f.status === 'open' || f.status === 'in_progress').length;
   const openRedFlags = data.red_flags.filter((r) => r.status === 'open' || r.status === 'investigating').length;
-  const totalProducts = data.products.length;
+  const totalProducts = new Set(data.products.map((p) => getProductFamily(p))).size;
   const totalDocuments = data.documents.length;
   const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
 
@@ -104,7 +104,7 @@ export function DashboardPage() {
     { label: 'Paused / Rejected / Archived', value: pausedRejectedArchived, icon: <Building2 size={20} />, onClick: () => navigate('suppliers') },
     { label: 'Follow-ups Due', value: followUpsDue, icon: <CheckSquare size={20} />, onClick: () => navigate('follow_ups') },
     { label: 'Open Red Flags', value: openRedFlags, icon: <AlertTriangle size={20} />, onClick: () => navigate('due_diligence') },
-    { label: 'Products / Feedstocks', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
+    { label: 'Product Families', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
     { label: 'Documents', value: totalDocuments, icon: <FileText size={20} />, onClick: () => navigate('documents') },
     { label: 'Timeline Events', value: data.timeline.length, icon: <Clock size={20} />, onClick: () => navigate('timeline') },
   ];
