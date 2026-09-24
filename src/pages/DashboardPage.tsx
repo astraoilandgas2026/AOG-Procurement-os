@@ -70,7 +70,7 @@ export function DashboardPage() {
     return (
       <div className="space-y-8">
         <div className="max-w-3xl">
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Overview</h2>
+          <h2 className="mt-2 text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
           <p className="mt-2 text-sm text-slate-500">Selecciona el universo de abastecimiento con el que quieres trabajar. El espacio de inteligencia se adaptará al dominio seleccionado.</p>
         </div>
 
@@ -178,8 +178,8 @@ export function DashboardPage() {
               <p className="text-sm text-slate-500">No hay acciones pendientes ni alertas abiertas.</p>
             ) : (
               <ul className="space-y-2">
-                {followUpsDue > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><CheckSquare size={16} className="text-[var(--astra-orange)]" />{followUpsDue} follow-up(s) require attention</li>}
-                {openRedFlags > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><AlertTriangle size={16} className="text-red-600" />{openRedFlags} open red flag(s) need investigation</li>}
+                {followUpsDue > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><CheckSquare size={16} className="text-[var(--astra-orange)]" />{followUpsDue} seguimiento(s) requieren atención</li>}
+                {openRedFlags > 0 && <li className="flex items-center gap-2 text-sm text-slate-700"><AlertTriangle size={16} className="text-red-600" />{openRedFlags} alerta(s) de riesgo abiertas requieren investigación</li>}
               </ul>
             )}
           </CardBody>
@@ -199,7 +199,7 @@ export function DashboardPage() {
                   { label: 'Calificado', count: qualified },
                   { label: 'Prueba', count: trial },
                   { label: 'Recurrente', count: recurring },
-                  { label: 'Paused / Rejected / Archived', count: pausedRejectedArchived },
+                  { label: 'Pausados / Rechazados / Archivados', count: pausedRejectedArchived },
                 ].map((row) => <div key={row.label} className="flex items-center justify-between text-sm"><span className="text-slate-600">{row.label}</span><span className="font-medium text-[var(--astra-dark)]">{row.count}</span></div>)}
               </div>
             )}
