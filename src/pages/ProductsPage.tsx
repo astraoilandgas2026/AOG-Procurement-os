@@ -30,14 +30,14 @@ export function ProductsPage() {
   }, [products]);
   const openCreate = () => { setForm(emptyForm('')); setShowForm(true); };
   const save = async () => { if (!form || !form.supplier_id || !form.name) return; await getStore().products.create(form); setShowForm(false); refresh(); };
-  const remove = async (id: string) => { if (!confirm('Delete this product?')) return; await getStore().products.remove(id); refresh(); };
+  const remove = async (id: string) => { if (!confirm('¿Eliminar este producto?')) return; await getStore().products.remove(id); refresh(); };
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
   return (
     <div>
-      <PageHeader title="Productos" subtitle="Five procurement families; supplier-specific variants remain inside each family." action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} />
+      <PageHeader title="Productos" subtitle="Cinco familias de procurement; las variantes específicas permanecen dentro de cada familia." action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} />
       {!products || products.length === 0 ? (
-        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Register your first feedstock or product to start tracking technical specifications and commercial offers.' : 'Register a supplier first, then add products associated with that supplier.'} action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} /></Card>
+        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Registra tu primer feedstock o producto para seguir especificaciones técnicas y ofertas comerciales.' : 'Registra primero un proveedor y luego agrega sus productos.'} action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} /></Card>
       ) : (
         <div className="space-y-4">
           {families.map(([family, familyProducts]) => (
@@ -53,7 +53,7 @@ export function ProductsPage() {
         </div>
       )}
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar producto" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.name || !form?.supplier_id}>Crear</Button></>}>
-        {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Product / Variant Name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} /><Select label="Tipo de feedstock" value={form.feedstock_type} onChange={(v) => setForm({ ...form, feedstock_type: v as FeedstockType })} options={FEEDSTOCK_OPTIONS} /><Input label="Origen" value={form.origin} onChange={(v) => setForm({ ...form, origin: v })} /><Input label="Composición" value={form.composition} onChange={(v) => setForm({ ...form, composition: v })} /><div className="grid grid-cols-2 gap-3"><Input label="Available Volume" value={form.available_volume} onChange={(v) => setForm({ ...form, available_volume: v })} /><Input label="Unidad" value={form.unit} onChange={(v) => setForm({ ...form, unit: v })} /></div><Select label="Verification Status" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /></div>}
+        {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Product / Variant Name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} /><Select label="Tipo de feedstock" value={form.feedstock_type} onChange={(v) => setForm({ ...form, feedstock_type: v as FeedstockType })} options={FEEDSTOCK_OPTIONS} /><Input label="Origen" value={form.origin} onChange={(v) => setForm({ ...form, origin: v })} /><Input label="Composición" value={form.composition} onChange={(v) => setForm({ ...form, composition: v })} /><div className="grid grid-cols-2 gap-3"><Input label="Available Volume" value={form.available_volume} onChange={(v) => setForm({ ...form, available_volume: v })} /><Input label="Unidad" value={form.unit} onChange={(v) => setForm({ ...form, unit: v })} /></div><Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /></div>}
       </Modal>
     </div>
   );
