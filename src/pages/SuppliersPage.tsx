@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
+import { getSupabaseClient } from '@/data/supabase-client';
 import { useNav } from '@/context/NavContext';
 import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
@@ -179,6 +180,34 @@ export function SuppliersPage() {
 // Supplier Detail View
 // ============================================================
 
+function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
+  const [url, setUrl] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (!doc.file_url) return;
+      if (doc.file_url.startsWith('http')) { if (active) setUrl(doc.file_url); return; }
+      const client = getSupabaseClient();
+      if (!client) { if (active) setError('Supabase unavailable'); return; }
+      const result = await client.storage.from('documents').createSignedUrl(doc.file_url, 3600);
+      if (!active) return;
+      if (result.error) setError(result.error.message); else setUrl(result.data.signedUrl);
+    };
+    void load();
+    return () => { active = false; };
+  }, [doc.file_url]);
+  if (error) return <div className="p-3 text-xs text-red-600">{error}</div>;
+  if (!url) return <div className="p-3 text-xs text-gray-500">Loading preview…</div>;
+  const lower = url.toLowerCase();
+  return <div className="border-t border-gray-200 bg-slate-50 p-3">
+    {lower.match(/\.(png|jpg|jpeg|webp|gif)(\?|$)/) ? <img src={url} alt={doc.title} className="max-h-[520px] w-full object-contain" /> :
+     lower.match(/\.pdf(\?|$)/) ? <iframe title={doc.title} src={url} className="h-[520px] w-full bg-white" /> :
+     lower.match(/\.(mp4|webm|mov)(\?|$)/) ? <video src={url} controls className="max-h-[520px] w-full" /> :
+     <a href={url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Open document</a>}
+  </div>;
+}
+
 function SupplierDetail({
   supplier,
   onBack,
@@ -208,7 +237,7 @@ function SupplierDetail({
         {!products?.length ? <p className="text-sm text-gray-500">No products linked yet.</p> : <div className="space-y-3">{products.map((product) => <div key={product.id} className="rounded-lg border border-gray-200 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-semibold text-gray-900">{product.name}</div><div className="text-xs text-gray-500">{product.composition || 'No composition recorded'}</div></div><Badge color={verificationColor(product.verification_status)}>{verificationLabel(product.verification_status)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Family: {product.feedstock_type}</span><span>Volume: {product.available_volume ? product.available_volume + ' ' + product.unit : '—'}</span></div></div>)}</div>}
       </DetailSection></div>
       <div className="mt-4"><DetailSection title="Documents & Evidence">
-        {!documents?.length ? <p className="text-sm text-gray-500">No documents linked yet. Documents uploaded for this supplier will appear here.</p> : <div className="space-y-4">{documents.map((doc) => <div key={doc.id} className="rounded-lg border border-gray-200 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {formatDate(doc.created_at)}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <div className="border-t border-gray-200 bg-slate-50 p-3">{doc.file_url.match(/\.(png|jpg|jpeg|webp|gif)(\?|$)/i) ? <img src={doc.file_url} alt={doc.title} className="max-h-[520px] w-full object-contain" /> : doc.file_url.match(/\.pdf(\?|$)/i) ? <iframe title={doc.title} src={doc.file_url} className="h-[520px] w-full bg-white" /> : doc.file_url.match(/\.(mp4|webm|mov)(\?|$)/i) ? <video src={doc.file_url} controls className="max-h-[520px] w-full" /> : <a href={doc.file_url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Open document</a>}</div> : <div className="border-t border-gray-200 p-3 text-xs text-gray-500">Metadata registered; file preview will appear once the storage file is linked.</div>}</div>)}</div>}
+        {!documents?.length ? <p className="text-sm text-gray-500">No documents linked yet. Documents uploaded for this supplier will appear here.</p> : <div className="space-y-4">{documents.map((doc) => <div key={doc.id} className="rounded-lg border border-gray-200 overflow-hidden"><div className="flex items-center justify-between gap-3 p-3"><div><div className="text-sm font-semibold text-gray-900">{doc.title}</div><div className="text-xs text-gray-500">{doc.file_name || 'No file name'} · {formatDate(doc.created_at)}</div></div><Badge color={verificationColor(doc.verification_status)}>{verificationLabel(doc.verification_status)}</Badge></div>{doc.file_url ? <DocumentPreview doc={doc} /> : <div className="border-t border-gray-200 p-3 text-xs text-gray-500">Metadata registered; file preview will appear once the storage file is linked.</div>}</div>)}</div>}
       </DetailSection></div>
     </div>
   );
