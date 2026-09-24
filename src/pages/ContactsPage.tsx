@@ -43,7 +43,7 @@ export function ContactsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this contact?')) return;
+    if (!confirm('¿Eliminar este contacto?')) return;
     await getStore().contacts.remove(id);
     refresh();
   };
@@ -55,7 +55,7 @@ export function ContactsPage() {
     <div>
       <PageHeader
         title="Contactos"
-        subtitle="Supplier contact directory"
+        subtitle="Directorio de contactos de proveedores"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Contact</Button> : undefined}
       />
 
@@ -63,10 +63,10 @@ export function ContactsPage() {
         <Card>
           <EmptyState
             icon={<Users size={28} />}
-            title="No contacts registered"
+            title="No hay contactos registrados"
             message={suppliers && suppliers.length > 0
-              ? "Add your first supplier contact to start tracking communication channels."
-              : "Register a supplier first, then add contacts associated with that supplier."}
+              ? "Agrega el primer contacto de proveedor para registrar canales de comunicación."
+              : "Registra primero un proveedor y luego agrega sus contactos."}
             action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Contact</Button> : undefined}
           />
         </Card>
@@ -83,7 +83,7 @@ export function ContactsPage() {
                   {c.is_primary && <Badge color="amber"><Star size={10} className="mr-1" /> Primary</Badge>}
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
-                  <div className="text-xs font-medium text-gray-400 mb-1">{supplierMap.get(c.supplier_id) ?? 'Unknown Supplier'}</div>
+                  <div className="text-xs font-medium text-gray-400 mb-1">{supplierMap.get(c.supplier_id) ?? 'Proveedor desconocido'}</div>
                   {c.email && <div className="flex items-center gap-1.5"><Mail size={12} /> {c.email}</div>}
                   {c.phone && <div className="flex items-center gap-1.5"><Phone size={12} /> {c.phone}</div>}
                   {c.whatsapp && <div className="flex items-center gap-1.5"><MessageCircle size={12} /> {c.whatsapp}</div>}
@@ -119,7 +119,7 @@ export function ContactsPage() {
               required
             />
             <Input label="Nombre" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-            <Input label="Title / Role" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
+            <Input label="Cargo / función" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Correo" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
               <Input label="Teléfono" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
