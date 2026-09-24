@@ -4,8 +4,8 @@ import { getStore } from '@/data/store';
 import { getSupabaseClient } from '@/data/supabase-client';
 import { useNav } from '@/context/NavContext';
 import {
-  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
-  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
+  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import {
   lifecycleColor, lifecycleLabel,
@@ -13,11 +13,11 @@ import {
 } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import {
-  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
+  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Editar3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
-import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
+import { getProductoFamilia, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -71,8 +71,8 @@ function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'>
 export function SuppliersPage() {
   const { selectedSupplierId, selectSupplier, procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
+  const [editing, setEditaring] = useState(false);
+  const [editingSupplierId, setEditaringSupplierId] = useState<string | null>(null);
   const [form, setForm] = useState(emptySupplierForm());
   const [formError, setFormError] = useState('');
 
@@ -87,21 +87,21 @@ export function SuppliersPage() {
   );
 
   // ---- Form helpers ----
-  const openCreate = () => {
+  const openCrear = () => {
     setForm(emptySupplierForm());
     setFormError('');
-    setEditing(false);
-    setEditingSupplierId(null);
+    setEditaring(false);
+    setEditaringSupplierId(null);
     setShowForm(true);
   };
 
-  const openEdit = (s: Supplier) => {
+  const openEditar = (s: Supplier) => {
     const { id, created_at, updated_at, ...rest } = s;
     void id; void created_at; void updated_at;
     setForm(rest);
     setFormError('');
-    setEditing(true);
-    setEditingSupplierId(s.id);
+    setEditaring(true);
+    setEditaringSupplierId(s.id);
     setShowForm(true);
   };
 
@@ -115,7 +115,7 @@ export function SuppliersPage() {
         await getStore().suppliers.createForDomain(procurementDomain, form);
       }
       setShowForm(false);
-      setEditingSupplierId(null);
+      setEditaringSupplierId(null);
       refresh();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'No fue posible guardar los cambios.');
@@ -130,7 +130,7 @@ export function SuppliersPage() {
   };
 
   // ---- Render ----
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
 
   // Detail view
@@ -139,8 +139,8 @@ export function SuppliersPage() {
       <SupplierDetail
         supplier={selected}
         onBack={() => selectSupplier(null)}
-        onEdit={() => openEdit(selected)}
-        onDelete={() => remove(selected.id)}
+        onEditar={() => openEditar(selected)}
+        onEliminar={() => remove(selected.id)}
       />
     );
   }
@@ -151,7 +151,7 @@ export function SuppliersPage() {
       <PageHeader
         title="Proveedores"
         subtitle="Perfiles de inteligencia de proveedores"
-        action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
+        action={<Button onClick={openCrear}><Plus size={16} /> Agregar proveedor</Button>}
       />
 
       {!suppliers || suppliers.length === 0 ? (
@@ -160,14 +160,14 @@ export function SuppliersPage() {
             icon={<Building2 size={28} />}
             title="No hay proveedores registrados"
             message="Registra tu primer proveedor para construir inteligencia de procurement: identidad, operación, productos, ofertas, certificaciones y DD."
-            action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
+            action={<Button onClick={openCrear}><Plus size={16} /> Agregar proveedor</Button>}
           />
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...(suppliers ?? [])].sort(supplierSort).map((s) => {
             const geo = geographyStyle(s);
-            const isPriority = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+            const isPrioridad = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
             return (
             <Card key={s.id} className={`border-l-4 ${geo.border} hover:shadow-md transition-shadow cursor-pointer`}>
               <CardBody>
@@ -187,7 +187,7 @@ export function SuppliersPage() {
                     <div className="flex flex-wrap items-center gap-1.5">
                       <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
                       <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
-                      {isPriority && <Badge color="green">Verificado</Badge>}
+                      {isPrioridad && <Badge color="green">Verificado</Badge>}
                     </div>
                   )}
                   {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
@@ -197,8 +197,8 @@ export function SuppliersPage() {
                   <Button size="sm" variant="ghost" onClick={() => selectSupplier(s.id)}>
                     <FileText size={14} /> Ver perfil
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(s)}>
-                    <Edit3 size={14} /> Editar
+                  <Button size="sm" variant="ghost" onClick={() => openEditar(s)}>
+                    <Editar3 size={14} /> Editarar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(s.id)}>
                     <Trash2 size={14} />
@@ -215,7 +215,7 @@ export function SuppliersPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editing ? 'Editar proveedor' : 'Registrar nuevo proveedor'}
+        title={editing ? 'Editarar proveedor' : 'Registrar nuevo proveedor'}
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
@@ -265,8 +265,8 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 }
 
 function SupplierDetail({
-  supplier, onBack, onEdit, onDelete,
-}: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
+  supplier, onBack, onEditar, onEliminar,
+}: { supplier: Supplier; onBack: () => void; onEditar: () => void; onEliminar: () => void; }) {
   const { data, loading, error } = useAsync(async () => {
     const store = getStore();
     const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts] =
@@ -278,12 +278,12 @@ function SupplierDetail({
         store.followUps.getBySupplier(supplier.id), store.redFlags.getBySupplier(supplier.id), store.intelligenceFacts.getByEntity('supplier', supplier.id),
       ]);
     const specs = (await Promise.all(products.map(async product => ({
-      product, specs: await store.technicalSpecs.getByProduct(product.id),
+      product, specs: await store.technicalSpecs.getByProducto(product.id),
     })))).filter(entry => entry.specs.length > 0);
     return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts, specs };
   }, [supplier.id]);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
   if (!data) return null;
 
@@ -298,12 +298,12 @@ function SupplierDetail({
             <p className="mt-1 text-xs text-gray-400">Ficha ampliada de inteligencia de procurement</p>
           </div>
         </div>
-        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
+        <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEditar}><Editar3 size={16} /> Editarar</Button><Button variant="danger" onClick={onEliminar}><Trash2 size={16} /></Button></div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Productos" value={data.products.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Productoos" value={data.products.length} />
         <SummaryChip icon={<FlaskConical size={15} />} label="Especificaciones" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
         <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
         <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
@@ -322,8 +322,8 @@ function SupplierDetail({
         <DetailSection title="2. Operación y Capacidad">
           <DetailRow label="Planta / instalación" value={supplier.facility} /><DetailRow label="Estado operativo" value={supplier.operation_status} />
           <DetailRow label="Capacidad teórica" value={supplier.theoretical_capacity} /><DetailRow label="Producción real" value={supplier.real_production} />
-          <DetailRow label="Volumen disponible" value={supplier.available_volume} /><DetailRow label="Volumen para Astra" value={supplier.volume_to_astra} />
-          <DetailRow label="Volumen de prueba" value={supplier.trial_volume} /><DetailRow label="Volumen recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
+          <DetailRow label="Volumenn disponible" value={supplier.available_volume} /><DetailRow label="Volumenn para Astra" value={supplier.volume_to_astra} />
+          <DetailRow label="Volumenn de prueba" value={supplier.trial_volume} /><DetailRow label="Volumenn recurrente" value={supplier.recurring_volume} /><DetailRow label="Infraestructura" value={supplier.infrastructure} />
         </DetailSection>
       </div>
 
@@ -337,11 +337,11 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="4. Productos y Variantes del Proveedor">
+        <DetailSection title="4. Productoos y Variantees del Proveedor">
           {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumen: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumenn: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
             </div>
           ))}
         </DetailSection>
@@ -375,13 +375,13 @@ function SupplierDetail({
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="8. Debida Diligencia">
-          {!data.dueDiligence.length ? <EmptyLine text="No DD records yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
+          {!data.dueDiligence.length ? <EmptyLine text="No DD registros yet. Required categories: legal, operational, product, export, commercial risk, compliance." /> : data.dueDiligence.map(d => (
             <div key={d.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{d.category}</span><Badge color={d.status === 'rejected' ? 'red' : d.status === 'physically_verified' ? 'green' : d.status === 'independently_verified' ? 'blue' : d.status === 'documented' ? 'yellow' : 'gray'}>{d.status}</Badge></div><p className="mt-2 text-xs text-gray-600">{d.findings || 'No findings recorded.'}</p><div className="mt-1 text-[11px] text-gray-400">Evidencia: {d.evidence_ref || '—'} · Reviewer: {d.reviewer || '—'} · Review: {d.review_date || '—'}</div></div>
           ))}
         </DetailSection>
         <DetailSection title="9. Logística / Preparación para Exportación">
           {!data.logistics.length ? <EmptyLine text="No logistics record. Target structure: origin, loading point, port, flexitank/ISO tank, shipment size, lead time and export readiness." /> : data.logistics.map(l => (
-            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logística record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transport: {l.transport_mode}</span><span>Container: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
+            <div key={l.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Logística record'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div><div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transporte: {l.transport_mode}</span><span>Contenedor: {l.container_type}</span><span>Shipment: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>{l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}</div>
           ))}
         </DetailSection>
       </div>
@@ -413,12 +413,12 @@ function SupplierDetail({
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <DetailSection title="11. Riesgos / Alertas">
           {!data.redFlags.length ? <EmptyLine text="No red flags recorded." /> : data.redFlags.map(r => (
-            <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Red flag'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidencia: {r.evidence || '—'} · Source: {r.source || '—'}</div></div>
+            <div key={r.id} className="rounded-lg border border-red-100 bg-red-50 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-red-900">{r.flag_type || 'Red flag'}</span><Badge color={r.status === 'resolved' ? 'green' : 'red'}>{r.status}</Badge></div><p className="mt-2 text-xs text-red-800">{r.description}</p><div className="mt-1 text-[11px] text-red-600">Evidencia: {r.evidence || '—'} · Fuente: {r.source || '—'}</div></div>
           ))}
         </DetailSection>
         <DetailSection title="12. Próximas Acciones / Seguimientos">
           {!data.followUps.length ? <EmptyLine text="No follow-ups recorded." /> : data.followUps.map(f => (
-            <div key={f.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{f.title}</span><Badge color={f.status === 'completed' ? 'green' : f.priority === 'urgent' ? 'red' : 'yellow'}>{f.status}</Badge></div>{f.description && <p className="mt-2 text-xs text-gray-600">{f.description}</p>}<div className="mt-1 text-[11px] text-gray-400">Responsible: {f.responsible_person || '—'} · Due: {f.due_date || '—'} · Priority: {f.priority}</div></div>
+            <div key={f.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{f.title}</span><Badge color={f.status === 'completed' ? 'green' : f.priority === 'urgent' ? 'red' : 'yellow'}>{f.status}</Badge></div>{f.description && <p className="mt-2 text-xs text-gray-600">{f.description}</p>}<div className="mt-1 text-[11px] text-gray-400">Responsable: {f.responsible_person || '—'} · Vencimiento: {f.due_date || '—'} · Prioridad: {f.priority}</div></div>
           ))}
         </DetailSection>
       </div>
@@ -430,7 +430,7 @@ function SupplierDetail({
       </DetailSection>
 
       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900"><Globe2 size={15} /> Verification discipline</div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900"><Globe2 size={15} /> Verificación discipline</div>
         <p className="mt-1 text-xs leading-5 text-gray-600">Every claim must remain classified as CLAIMED, DOCUMENTED, INDEPENDENTLY VERIFIED or PHYSICALLY VERIFIED. Public registry data shown here is independent public evidence; product quality, current capacity, availability, export history and current certificates still require their own evidence.</p>
       </div>
     </div>
@@ -505,10 +505,10 @@ function SupplierForm({
           <Input label="Estado operativo" value={form.operation_status} onChange={(v) => update('operation_status', v)} />
           <Input label="Capacidad teórica" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Producción real" value={form.real_production} onChange={(v) => update('real_production', v)} />
-          <Input label="Volumen disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
-          <Input label="Volume to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
-          <Input label="Volumen de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
-          <Input label="Volumen recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
+          <Input label="Volumenn disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
+          <Input label="Volumen to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
+          <Input label="Volumenn de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
+          <Input label="Volumenn recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
         </div>
         <div className="mt-3">
           <TextArea label="Infraestructura" value={form.infrastructure} onChange={(v) => update('infrastructure', v)} />
@@ -517,7 +517,7 @@ function SupplierForm({
 
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Lifecycle</h4>
-        <Select
+        <Seleccionar
           label="Supplier Lifecycle"
           value={form.lifecycle}
           onChange={(v) => update('lifecycle', v as SupplierLifecycle)}
