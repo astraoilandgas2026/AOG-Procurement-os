@@ -22,39 +22,60 @@ import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
 const VERIFIED_PRIORITY = ['Olam Agro', 'Renovar Oleos', 'FL Óleos'];
-const geographyStyle = (supplier: Supplier) => {
-  const city = `${supplier.city} ${supplier.country}`.toLowerCase();
-  if (city.includes('são paulo') || city.includes('sao paulo') || city.includes(', sp') || city.includes('sp')) {
-    return { border: 'border-l-amber-400', badge: 'bg-amber-50 text-amber-800 border-amber-200', label: 'São Paulo' };
-  }
-  if (city.includes('rio de janeiro') || city.includes('duque de caxias')) {
-    return { border: 'border-l-red-500', badge: 'bg-red-50 text-red-800 border-red-200', label: 'Rio de Janeiro' };
-  }
-  if (city.includes('paraná') || city.includes('santa catarina') || city.includes('goiás') || city.includes('minas gerais') || city.includes('bahia') || city.includes('pará')) {
-    return { border: 'border-l-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', label: 'Interior / Sur de Brasil' };
-  }
-  if (city.includes('colombia')) {
-    return { border: 'border-l-violet-500', badge: 'bg-violet-50 text-violet-800 border-violet-200', label: 'Colombia' };
-  }
-  if (city.includes('chile')) {
-    return { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200', label: 'Chile' };
-  }
-  return { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200', label: supplier.country || 'Ubicación pendiente' };
-};
+
+const BRAZIL_INTERIOR_TERMS = [
+  'paraná', 'parana', 'santa catarina', 'rio grande do sul', 'goiás', 'goias',
+  'minas gerais', 'bahia', 'pará', 'para', 'pernambuco', 'ceará', 'ceara',
+  'mato grosso', 'mato grosso do sul', 'espírito santo', 'espirito santo',
+  'maranhão', 'maranhao', 'piauí', 'piaui', 'amazonas', 'rondônia', 'rondonia',
+  'acre', 'amapá', 'amapa', 'roraima', 'tocantins', 'alagoas', 'sergipe',
+  'paraíba', 'paraiba', 'rio grande do norte'
+];
+
+function priorityIndex(supplier: Supplier): number {
+  const name = (supplier.trading_name || supplier.legal_name).toLowerCase();
+  return VERIFIED_PRIORITY.findIndex((priority) =>
+    name.includes(priority.toLowerCase().replace('renovar oleos', 'renovar'))
+  );
+}
+
+function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'chile' {
+  if (priorityIndex(supplier) !== -1) return 'principais';
+
+  const location = `${supplier.city} ${supplier.country}`.toLowerCase();
+  if (location.includes('chile')) return 'chile';
+  if (location.includes('são paulo') || location.includes('sao paulo') || /,\s*sp\b/.test(location) || /\bsp\b/.test(location)) return 'sao_paulo';
+  if (BRAZIL_INTERIOR_TERMS.some((term) => location.includes(term))) return 'interior';
+  if (location.includes('brasil') || location.includes('brazil')) return 'brasil';
+  return 'brasil';
+}
+
+const SUPPLIER_GROUP_LABELS = {
+  principais: 'Principales',
+  sao_paulo: 'São Paulo',
+  interior: 'Interior de Brasil',
+  brasil: 'Brasil — ubicación por confirmar',
+  chile: 'Chile',
+} as const;
+
+const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'chile'] as const;
 
 const supplierSort = (a: Supplier, b: Supplier) => {
-  const ai = VERIFIED_PRIORITY.findIndex((name) => (a.trading_name || a.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
-  const bi = VERIFIED_PRIORITY.findIndex((name) => (b.trading_name || b.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
-  if (ai !== -1 || bi !== -1) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  const group = (s: Supplier) => {
-    const city = `${s.city} ${s.country}`.toLowerCase();
-    if (city.includes('são paulo') || city.includes('sao paulo') || city.includes(', sp') || city.includes('sp')) return 1;
-    if (city.includes('rio de janeiro') || city.includes('duque de caxias')) return 2;
-    if (city.includes('chile')) return 5;
-    if (city.includes('colombia')) return 4;
-    return 3;
-  };
-  return group(a) - group(b) || (a.trading_name || a.legal_name).localeCompare(b.trading_name || b.legal_name);
+  const groupA = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(a));
+  const groupB = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(b));
+  return groupA - groupB || (a.trading_name || a.legal_name).localeCompare(b.trading_name || b.legal_name);
+};
+
+function geographyStyle(supplier: Supplier) {
+  const group = supplierGroup(supplier);
+  const styles = {
+    principales: { border: 'border-l-[var(--astra-orange)]', badge: 'bg-orange-50 text-orange-800 border-orange-200' },
+    sao_paulo: { border: 'border-l-amber-400', badge: 'bg-amber-50 text-amber-800 border-amber-200' },
+    interior: { border: 'border-l-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    brasil: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
+    chile: { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200' },
+  } as const;
+  return { ...styles[group], label: SUPPLIER_GROUP_LABELS[group] };
 };
 
 function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'> {
@@ -164,51 +185,58 @@ export function SuppliersPage() {
           />
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...(suppliers ?? [])].sort(supplierSort).map((s) => {
-            const geo = geographyStyle(s);
-            const isPriority = VERIFIED_PRIORITY.some((name) => (s.trading_name || s.legal_name).toLowerCase().includes(name.toLowerCase().replace('renovar oleos', 'renovar')));
+        <div className="space-y-7">
+          {SUPPLIER_GROUP_ORDER.map((group) => {
+            const groupedSuppliers = [...(suppliers ?? [])]
+              .filter((supplier) => supplierGroup(supplier) === group)
+              .sort(supplierSort);
+            if (!groupedSuppliers.length) return null;
+
             return (
-            <Card key={s.id} className={`border-l-4 ${geo.border} hover:shadow-md transition-shadow cursor-pointer`}>
-              <CardBody>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0" onClick={() => selectSupplier(s.id)}>
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">
-                      {s.legal_name || 'Proveedor sin nombre'}
-                    </h3>
-                    {s.trading_name && (
-                      <p className="text-xs text-gray-500 truncate">{s.trading_name}</p>
-                    )}
-                  </div>
-                  <Badge color={lifecycleColor(s.lifecycle)}>{lifecycleLabel(s.lifecycle)}</Badge>
+              <section key={group}>
+                <div className="mb-3 flex items-center gap-3">
+                  <h2 className="text-sm font-semibold text-gray-900">{SUPPLIER_GROUP_LABELS[group]}</h2>
+                  <span className="text-xs text-gray-400">{groupedSuppliers.length}</span>
                 </div>
-                <div className="space-y-1 text-xs text-gray-500" onClick={() => selectSupplier(s.id)}>
-                  {s.country && (
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
-                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
-                      {isPriority && <Badge color="green">Verificado</Badge>}
-                    </div>
-                  )}
-                  {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
-                  {s.facility && <div>Instalación: {s.facility}</div>}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {groupedSuppliers.map((s) => {
+                    const geo = geographyStyle(s);
+                    const isPriority = priorityIndex(s) !== -1;
+                    return (
+                      <Card key={s.id} className={`border-l-4 ${geo.border} hover:shadow-md transition-shadow cursor-pointer`}>
+                        <CardBody>
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1 min-w-0" onClick={() => selectSupplier(s.id)}>
+                              <h3 className="text-sm font-semibold text-gray-900 truncate">{s.legal_name || 'Proveedor sin nombre'}</h3>
+                              {s.trading_name && <p className="text-xs text-gray-500 truncate">{s.trading_name}</p>}
+                            </div>
+                            <Badge color={lifecycleColor(s.lifecycle)}>{lifecycleLabel(s.lifecycle)}</Badge>
+                          </div>
+                          <div className="space-y-1 text-xs text-gray-500" onClick={() => selectSupplier(s.id)}>
+                            {s.country && (
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
+                                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
+                                {isPriority && <Badge color="green">Principal</Badge>}
+                              </div>
+                            )}
+                            {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
+                            {s.facility && <div>Instalación: {s.facility}</div>}
+                          </div>
+                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                            <Button size="sm" variant="ghost" onClick={() => selectSupplier(s.id)}><FileText size={14} /> Ver perfil</Button>
+                            <Button size="sm" variant="ghost" onClick={() => openEdit(s)}><Edit3 size={14} /> Editar</Button>
+                            <Button size="sm" variant="ghost" onClick={() => remove(s.id)}><Trash2 size={14} /></Button>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    );
+                  })}
                 </div>
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => selectSupplier(s.id)}>
-                    <FileText size={14} /> Ver perfil
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(s)}>
-                    <Edit3 size={14} /> Editar
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => remove(s.id)}>
-                    <Trash2 size={14} />
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
+              </section>
             );
           })}
-        </div>
+        </div>div>
       )}
 
       {/* Form modal */}
