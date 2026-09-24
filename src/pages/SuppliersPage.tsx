@@ -236,7 +236,7 @@ export function SuppliersPage() {
               </section>
             );
           })}
-        </div>div>
+        </div>
       )}
 
       {/* Form modal */}
