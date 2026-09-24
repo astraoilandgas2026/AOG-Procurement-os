@@ -9,7 +9,7 @@ import {
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
-import type { ComercialOffer, Incoterm, VerificationStatus } from '@/types';
+import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
 const INCOTERM_OPTIONS: { value: string; label: string }[] = [
@@ -18,7 +18,7 @@ const INCOTERM_OPTIONS: { value: string; label: string }[] = [
 
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
-function emptyForm(supplierId: string): Omit<ComercialOffer, 'id' | 'created_at' | 'updated_at'> {
+function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> {
   return {
     supplier_id: supplierId, product_id: '', price: '', currency: 'USD',
     price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
@@ -30,7 +30,7 @@ function emptyForm(supplierId: string): Omit<ComercialOffer, 'id' | 'created_at'
 
 export function ComercialPage() {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Omit<ComercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
+  const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const { procurementDomain } = useNav();
 
@@ -64,7 +64,7 @@ export function ComercialPage() {
     refresh();
   };
 
-  const openEdit = (o: ComercialOffer) => {
+  const openEdit = (o: CommercialOffer) => {
     const { id, created_at, updated_at, ...rest } = o;
     void created_at; void updated_at;
     setEditingId(id);
