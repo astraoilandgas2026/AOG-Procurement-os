@@ -110,8 +110,8 @@ export const FEEDSTOCK_LABELS: Record<FeedstockType, string> = {
   off_spec_oil: 'Aceite fuera de especificación',
   oleins: 'Oleínas',
   fatty_acids: 'Ácidos grasos',
-  acid_oils: 'Acid oils',
-  soapstock: 'Soapstock / Borra',
+  acid_oils: 'Aceites ácidos',
+  soapstock: 'Borra',
   industrial_returns: 'Retornos industriales',
   oilseed_residues: 'Residuos de procesamiento oleaginoso',
   other: 'Otro',
@@ -241,7 +241,7 @@ export const TIMELINE_EVENT_LABELS: Record<TimelineEventType, string> = {
   document_received: 'Documento recibido',
   dd_update: 'Actualización de DD',
   logistics_update: 'Actualización logística',
-  note: 'Note',
+  note: 'Nota',
   status_change: 'Cambio de estado',
 };
 
