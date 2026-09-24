@@ -73,7 +73,7 @@ export function ComercialPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this commercial offer?')) return;
+    if (!confirm('¿Eliminar esta oferta comercial?')) return;
     await getStore().commercialOffers.remove(id);
     refresh();
   };
@@ -85,7 +85,7 @@ export function ComercialPage() {
     <div>
       <PageHeader
         title="Comercial"
-        subtitle="Comercial offers and pricing"
+        subtitle="Ofertas comerciales y precios"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Offer</Button> : undefined}
       />
 
@@ -93,10 +93,10 @@ export function ComercialPage() {
         <Card>
           <EmptyState
             icon={<DollarSign size={28} />}
-            title="No commercial offers recorded"
+            title="No hay ofertas comerciales registradas"
             message={suppliers && suppliers.length > 0
-              ? "Record your first commercial offer to track pricing, Incoterms, payment terms, and negotiation history."
-              : "Register a supplier first, then add commercial offers."}
+              ? "Registra la primera oferta comercial para seguir precios, Incoterms, condiciones de pago e historial de negociación."
+              : "Registra primero un proveedor y luego agrega ofertas comerciales."}
             action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Offer</Button> : undefined}
           />
         </Card>
@@ -149,7 +149,7 @@ export function ComercialPage() {
               options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
-              <Input label="Currency" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
+              <Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
             </div>
             <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
             <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
@@ -168,7 +168,7 @@ export function ComercialPage() {
               <Input label="Cert. Premium" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
             </div>
             <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
-            <Select label="Verification Status" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
+            <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
           </div>
         )}
       </Modal>
