@@ -33,7 +33,7 @@ export function FollowUpsPage() {
   );
   const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
+  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const openCreate = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
@@ -48,7 +48,7 @@ export function FollowUpsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this follow-up?')) return;
+    if (!confirm('¿Eliminar este seguimiento?')) return;
     await getStore().followUps.remove(id);
     refresh();
   };
@@ -59,8 +59,8 @@ export function FollowUpsPage() {
   return (
     <div>
       <PageHeader
-        title="Follow-ups"
-        subtitle="Action items and next steps"
+        title="Seguimientos"
+        subtitle="Acciones pendientes y próximos pasos"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Follow-up</Button> : undefined}
       />
 
@@ -68,9 +68,9 @@ export function FollowUpsPage() {
         <Card>
           <EmptyState
             icon={<CheckSquare size={28} />}
-            title="No follow-ups recorded"
+            title="No hay seguimientos registrados"
             message={suppliers && suppliers.length > 0
-              ? "Track next actions, responsible persons, due dates, and priorities to keep procurement moving forward."
+              ? "Registra próximas acciones, responsables, fechas límite y prioridades para mantener el procurement en movimiento."
               : "Register a supplier first, then add follow-ups."}
             action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Follow-up</Button> : undefined}
           />
@@ -86,7 +86,7 @@ export function FollowUpsPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-sm font-semibold text-gray-900">{f.title}</h3>
-                        {overdue && <Badge color="red">Overdue</Badge>}
+                        {overdue && <Badge color="red">Vencido</Badge>}
                       </div>
                       <p className="text-xs text-gray-500 mb-2">{supplierMap.get(f.supplier_id) ?? '—'}</p>
                       {f.description && <p className="text-sm text-gray-600 mb-2">{f.description}</p>}
@@ -111,21 +111,21 @@ export function FollowUpsPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Add Follow-up"
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button><Button onClick={save} disabled={!form?.title}>Create</Button></>}
+        title="Agregar seguimiento"
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.title}>Crear</Button></>}
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Supplier" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))} required />
-            <Input label="Title" required value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Input label="Cargo" required value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
             <TextArea label="Description" value={form.description} onChange={(v) => setForm({ ...form, description: v })} />
-            <Input label="Responsible Person" value={form.responsible_person} onChange={(v) => setForm({ ...form, responsible_person: v })} />
+            <Input label="Responsable" value={form.responsible_person} onChange={(v) => setForm({ ...form, responsible_person: v })} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Due Date" type="date" value={form.due_date} onChange={(v) => setForm({ ...form, due_date: v })} />
               <Select label="Priority" value={form.priority} onChange={(v) => setForm({ ...form, priority: v as Priority })} options={PRIORITY_OPTIONS} />
             </div>
-            <Select label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v as FollowUpStatus })} options={STATUS_OPTIONS} />
+            <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as FollowUpStatus })} options={STATUS_OPTIONS} />
           </div>
         )}
       </Modal>
