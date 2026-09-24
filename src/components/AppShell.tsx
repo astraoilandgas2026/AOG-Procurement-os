@@ -43,23 +43,27 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 };
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
-  const height = compact ? 'h-10' : 'h-11 sm:h-12';
-  const markWidth = compact ? 'w-[42px]' : 'w-[48px] sm:w-[54px]';
   return (
-    <div className={`flex items-center ${height}`}>
-      <div className={`relative h-full shrink-0 overflow-hidden ${markWidth}`} aria-hidden="true">
-        <img
-          src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-          alt=""
-          className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left"
-          onError={(event) => {
-            event.currentTarget.src = '/AOG-Procurement-os/astra-mark.svg';
-          }}
-        />
-      </div>
+    <div className={`flex items-center ${compact ? 'h-10' : 'h-11 sm:h-12'}`}>
+      <img
+        src="/AOG-Procurement-os/astra-mark.svg"
+        alt=""
+        aria-hidden="true"
+        className={compact ? 'h-10 w-10 shrink-0' : 'h-11 w-11 shrink-0 sm:h-12 sm:w-12'}
+      />
       <div className="ml-2 flex min-w-0 flex-col justify-center leading-none">
-        <span className={`text-black ${compact ? 'text-[17px]' : 'text-[19px] sm:text-[21px]'} font-normal tracking-[0.08em]`}>Astra</span>
-        <span className={`text-[10px] sm:text-[11px] font-normal tracking-wide text-[#808080] ${compact ? '' : 'mt-0.5'}`}>Oil and Gas</span>
+        <span
+          style={{ color: '#000000', fontWeight: 400 }}
+          className={compact ? 'text-[17px] tracking-[0.08em]' : 'text-[19px] tracking-[0.08em] sm:text-[21px]'}
+        >
+          Astra
+        </span>
+        <span
+          style={{ color: '#808080', fontWeight: 400 }}
+          className="mt-0.5 text-[10px] tracking-wide sm:text-[11px]"
+        >
+          Oil and Gas
+        </span>
       </div>
     </div>
   );
