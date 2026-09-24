@@ -40,7 +40,31 @@ const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
 
 export function DashboardPage() {
   const { navigate, procurementDomain, selectDomain } = useNav();
-  const { data, loading, error } = useAsync<AppData>(() => getStore().getAll(), []);
+  const { data, loading, error } = useAsync<AppData>(async () => {
+    if (!procurementDomain) return {
+      suppliers: [], contacts: [], products: [], technical_specs: [], commercial_offers: [],
+      certifications: [], documents: [], due_diligence: [], logistics: [], timeline: [], follow_ups: [], red_flags: [],
+    };
+    const store = getStore();
+    const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
+    const all = await store.getAll();
+    const supplierIds = new Set(suppliers.map((s) => s.id));
+    const scoped = <T extends { supplier_id?: string }>(rows: T[]) => rows.filter((row) => !row.supplier_id || supplierIds.has(row.supplier_id));
+    return {
+      ...all,
+      suppliers,
+      contacts: scoped(all.contacts),
+      products: scoped(all.products),
+      commercial_offers: scoped(all.commercial_offers),
+      certifications: scoped(all.certifications),
+      documents: scoped(all.documents),
+      due_diligence: scoped(all.due_diligence),
+      logistics: scoped(all.logistics),
+      timeline: scoped(all.timeline),
+      follow_ups: scoped(all.follow_ups),
+      red_flags: scoped(all.red_flags),
+    };
+  }, [procurementDomain]);
 
   if (!procurementDomain) {
     return (
