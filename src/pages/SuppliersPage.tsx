@@ -21,7 +21,7 @@ import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/u
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
-const VERIFIED_PRIORITY = ['Olam Agro', 'Renovar Oleos', 'FL Óleos'];
+const VERIFIED_PRIORITY = ['FL Óleos', 'Olam Agro', 'Renovar Óleos'];
 
 const BRAZIL_INTERIOR_TERMS = [
   'paraná', 'parana', 'santa catarina', 'rio grande do sul', 'goiás', 'goias',
@@ -63,13 +63,17 @@ const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', '
 const supplierSort = (a: Supplier, b: Supplier) => {
   const groupA = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(a));
   const groupB = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(b));
-  return groupA - groupB || (a.trading_name || a.legal_name).localeCompare(b.trading_name || b.legal_name);
+  const priorityA = priorityIndex(a);
+  const priorityB = priorityIndex(b);
+  if (groupA !== groupB) return groupA - groupB;
+  if (groupA === 0 && priorityA !== priorityB) return priorityA - priorityB;
+  return (a.trading_name || a.legal_name).localeCompare(b.trading_name || b.legal_name);
 };
 
 function geographyStyle(supplier: Supplier) {
   const group = supplierGroup(supplier);
   const styles = {
-    principales: { border: 'border-l-[var(--astra-orange)]', badge: 'bg-orange-50 text-orange-800 border-orange-200' },
+    principales: { border: 'border-l-[var(--astra-red)]', badge: 'bg-red-50 text-red-800 border-red-200' },
     sao_paulo: { border: 'border-l-amber-400', badge: 'bg-amber-50 text-amber-800 border-amber-200' },
     interior: { border: 'border-l-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
     brasil: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
@@ -235,7 +239,7 @@ export function SuppliersPage() {
                               <div className="flex flex-wrap items-center gap-1.5">
                                 <MapPin size={12} /> {s.city ? `${s.city}, ` : ''}{s.country}
                                 <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${geo.badge}`}>{geo.label}</span>
-                                {isPriority && <Badge color="green">Principal</Badge>}
+                                {isPriority && <Badge color="red">Principal</Badge>}
                               </div>
                             )}
                             {s.tax_id && <div>CNPJ / RUT: {s.tax_id}</div>}
