@@ -1,35 +1,20 @@
-// ============================================================
-// SUPABASE CLIENT STUB
-// ============================================================
-// This file creates the Supabase client instance for future
-// use when the persistent backend is connected.
-//
-// The client is NOT used by the UI directly. Instead, a
-// Supabase-backed DataStore implementation will be created
-// in src/data/supabase-store.ts that implements the same
-// DataStore interface defined in store.ts.
-//
-// The UI always talks to getStore() — it never imports
-// this file or the Supabase client directly.
-// ============================================================
-
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL ?? '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+const SUPABASE_URL = 'https://dhswxxathvzzlybxukat.supabase.co';
+// Public publishable key: safe for browser use; RLS/Auth remain the security boundary.
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_gXvGtf3cyN4fhEViQ9QEKA_UuJxkZAU';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_PUBLISHABLE_KEY;
 
 let client: SupabaseClient | null = null;
 
 export function getSupabaseClient(): SupabaseClient | null {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-  if (!client) {
-    client = createClient(supabaseUrl, supabaseAnonKey);
-  }
+  if (!supabaseUrl || !supabaseKey) return null;
+  if (!client) client = createClient(supabaseUrl, supabaseKey);
   return client;
 }
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl && supabaseAnonKey);
+  return Boolean(supabaseUrl && supabaseKey);
 }
