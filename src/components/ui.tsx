@@ -227,14 +227,14 @@ export function PageHeader({
 export function LoadingSpinner() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm">
-      <div className="relative flex h-32 w-32 items-center justify-center">
+      <div className="relative flex h-48 w-48 items-center justify-center">
         <div className="absolute inset-0 rounded-full border border-slate-200 animate-pulse" />
-        <div className="absolute inset-2 rounded-full border border-[var(--astra-orange)]/30 animate-spin" />
-        <div className="absolute inset-5 rounded-full border border-[var(--astra-blue)]/30 animate-[spin_1.6s_linear_infinite_reverse]" />
-        <img
-          src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-          alt="Astra Oil and Gas"
-          className="h-16 w-auto max-w-[100px] object-contain animate-pulse"
+        <div className="absolute inset-2 rounded-full border-2 border-[var(--astra-orange)]/30 animate-spin" />
+        <div className="absolute inset-5 rounded-full border-2 border-[var(--astra-blue)]/30 animate-[spin_1.6s_linear_infinite_reverse]" />
+        <span
+          aria-hidden="true"
+          className="h-28 w-28 bg-contain bg-left bg-no-repeat animate-pulse"
+          style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: '420px auto' }}
         />
       </div>
     </div>
