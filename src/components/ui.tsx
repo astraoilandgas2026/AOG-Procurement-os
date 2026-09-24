@@ -236,23 +236,22 @@ function AstraLoadingMark({ size = 112 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="animate-pulse">
       <defs>
         {petals.map(([id, a, b]) => (
-          <linearGradient key={id} id={`loading-${id}`} x1="0" y1="0" x2="1" y2="1">
+          <linearGradient key={id} id={`astra-loading-${id}`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={a} /><stop offset="100%" stopColor={b} />
           </linearGradient>
         ))}
       </defs>
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
-          <path key={rotation} transform={`rotate(${rotation})`}
-            d="M0 0 C-12 -7 -21 -19 -20 -30 C-19 -40 -10 -46 0 -44 C9 -41 12 -30 9 -19 C6 -10 3 -4 0 0Z"
-            fill={`url(#loading-${petals[i][0]})`} />
+          <g key={rotation} transform={`rotate(${rotation})`}>
+            <path d="M0 0 C-12 -8 -24 -20 -23 -33 C-22 -43 -13 -49 0 -49 C13 -49 22 -43 23 -33 C24 -20 12 -8 0 0Z" fill={`url(#astra-loading-${petals[i][0]})`} />
+            <path d="M0 -8 C-7 -17 -10 -27 -6 -37" fill="none" stroke="white" strokeWidth="3.2" strokeLinecap="round" />
+          </g>
         ))}
-        <path d="M30 16 C22 11 14 10 8 14 C16 13 22 17 26 22" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" />
       </g>
     </svg>
   );
 }
-
 export function LoadingSpinner() {
   return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm"><AstraLoadingMark size={112} /></div>;
 }
