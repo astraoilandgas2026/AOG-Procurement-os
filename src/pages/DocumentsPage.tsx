@@ -3,11 +3,11 @@ import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { getSupabaseClient } from '@/data/supabase-client';
-import { Card, CardBody, EmptyState, CargaSpinner, ErrorState, Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader } from '@/components/ui';
+import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Input, Select, TextArea, Badge, Modal, PageHeader } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import { Plus, FileText, Trash2, Cargar } from 'lucide-react';
-import type { DocumentRecord, DocumentTipo, VerificaciónStatus } from '@/types';
+import type { DocumentRecord, DocumentType, VerificationStatus } from '@/types';
 import { DOCUMENT_TYPE_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const DOC_TYPE_OPTIONS = Object.entries(DOCUMENT_TYPE_LABELS).map(([value, label]) => ({ value, label }));
@@ -54,7 +54,7 @@ export function DocumentsPage() {
     if (client && doc?.file_url && !doc.file_url.startsWith('http')) await client.storage.from('documents').remove([doc.file_url]);
     refresh();
   };
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
   return (
     <div>
@@ -65,7 +65,7 @@ export function DocumentsPage() {
         </tbody></table></div></Card>
       }
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar documento" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.title || !form?.supplier_id}><Cargar size={15} /> Cargar</Button></>}>
-        {form && <div className="space-y-3"><Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Título del documento" required value={form.title} onChange={(v) => setForm({ ...form, title: v })} /><Seleccionar label="Tipo de documento" value={form.doc_type} onChange={(v) => setForm({ ...form, doc_type: v as DocumentTipo })} options={DOC_TYPE_OPTIONS} /><TextArea label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} /><input type="file" className="block w-full text-sm" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /><Input label="Cargado por" value={form.uploaded_by} onChange={(v) => setForm({ ...form, uploaded_by: v })} /><Seleccionar label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificaciónStatus })} options={VERIFICATION_OPTIONS} /><p className="text-xs text-gray-400">Los archivos se almacenan en el bucket de documentos de Supabase. La vista previa aparece dentro del perfil del proveedor.</p></div>}
+        {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Título del documento" required value={form.title} onChange={(v) => setForm({ ...form, title: v })} /><Select label="Tipo de documento" value={form.doc_type} onChange={(v) => setForm({ ...form, doc_type: v as DocumentType })} options={DOC_TYPE_OPTIONS} /><TextArea label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} /><input type="file" className="block w-full text-sm" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /><Input label="Cargado por" value={form.uploaded_by} onChange={(v) => setForm({ ...form, uploaded_by: v })} /><Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /><p className="text-xs text-gray-400">Los archivos se almacenan en el bucket de documentos de Supabase. La vista previa aparece dentro del perfil del proveedor.</p></div>}
       </Modal>
     </div>
   );
