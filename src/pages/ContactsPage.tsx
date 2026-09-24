@@ -28,7 +28,7 @@ export function ContactsPage() {
     () => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]
   );
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
+  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const openCreate = () => {
     setForm(emptyForm(''));
@@ -54,7 +54,7 @@ export function ContactsPage() {
   return (
     <div>
       <PageHeader
-        title="Contacts"
+        title="Contactos"
         subtitle="Supplier contact directory"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Contact</Button> : undefined}
       />
@@ -101,31 +101,31 @@ export function ContactsPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Add Contact"
+        title="Agregar contacto"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!form?.name || !form?.supplier_id}>Create</Button>
+            <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+            <Button onClick={save} disabled={!form?.name || !form?.supplier_id}>Crear</Button>
           </>
         }
       >
         {form && (
           <div className="space-y-3">
             <Select
-              label="Supplier"
+              label="Proveedor"
               value={form.supplier_id}
               onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))}
               required
             />
-            <Input label="Name" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
+            <Input label="Nombre" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
             <Input label="Title / Role" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-              <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+              <Input label="Correo" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
+              <Input label="Teléfono" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
             </div>
             <Input label="WhatsApp" value={form.whatsapp} onChange={(v) => setForm({ ...form, whatsapp: v })} />
-            <TextArea label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
+            <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" checked={form.is_primary} onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} />
               Primary contact
