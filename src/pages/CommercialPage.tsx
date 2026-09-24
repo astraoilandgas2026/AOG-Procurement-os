@@ -3,13 +3,13 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { useNav } from '@/context/NavContext';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, Seleccionar, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, Select, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import { Plus, DollarSign, Trash2, Editar3 } from 'lucide-react';
-import type { CommercialOffer, Incoterm, VerificaciónStatus } from '@/types';
+import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
 const INCOTERM_OPTIONS: { value: string; label: string }[] = [
@@ -78,7 +78,7 @@ export function ComercialPage() {
     refresh();
   };
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -143,16 +143,16 @@ export function ComercialPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Seleccionar label="Productoo" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
+            <Select label="Product" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
               options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
               <Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
             </div>
             <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
-            <Seleccionar label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
+            <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} />
               <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
@@ -160,7 +160,7 @@ export function ComercialPage() {
             <Input label="Destino" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
             <Input label="Condiciones de pago" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Volumenn ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
+              <Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
               <Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -168,7 +168,7 @@ export function ComercialPage() {
               <Input label="Cert. Premium" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
             </div>
             <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
-            <Seleccionar label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificaciónStatus })} options={VERIFICATION_OPTIONS} />
+            <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
           </div>
         )}
       </Modal>
