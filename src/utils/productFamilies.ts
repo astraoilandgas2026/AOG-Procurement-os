@@ -4,10 +4,10 @@ export type ProductFamily = 'uco' | 'vegetable_oils' | 'off_spec' | 'acid_oils_f
 
 export const PRODUCT_FAMILY_LABELS: Record<ProductFamily, string> = {
   uco: 'UCO / AVU',
-  vegetable_oils: 'Vegetable Oils / Mixed Vegetable Feedstock',
-  off_spec: 'Off-Spec Oils',
-  acid_oils_fatty_acids: 'Acid Oils / Fatty Acids / Soapstock',
-  secondary_residues: 'Secondary / Extraction Residues',
+  vegetable_oils: 'Aceites vegetales / materia prima vegetal mixta',
+  off_spec: 'Aceites fuera de especificación',
+  acid_oils_fatty_acids: 'Aceites ácidos / ácidos grasos / borra',
+  secondary_residues: 'Subproductos / residuos de extracción',
 };
 
 export function getProductFamily(product: Pick<Product, 'feedstock_type' | 'name'>): ProductFamily {
