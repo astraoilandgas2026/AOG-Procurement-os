@@ -157,12 +157,30 @@ export function SuppliersPage() {
   // Detail view
   if (selected && selectedSupplierId) {
     return (
-      <SupplierDetail
-        supplier={selected}
-        onBack={() => selectSupplier(null)}
-        onEdit={() => openEdit(selected)}
-        onDelete={() => remove(selected.id)}
-      />
+      <>
+        <SupplierDetail
+          supplier={selected}
+          onBack={() => selectSupplier(null)}
+          onEdit={() => openEdit(selected)}
+          onDelete={() => remove(selected.id)}
+        />
+        <Modal
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          title={editing ? 'Editar proveedor' : 'Registrar nuevo proveedor'}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+              <Button onClick={save} disabled={!form.legal_name}>
+                {editing ? 'Guardar cambios' : 'Crear proveedor'}
+              </Button>
+            </>
+          }
+        >
+          {formError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{formError}</div>}
+          <SupplierForm form={form} setForm={setForm} />
+        </Modal>
+      </>
     );
   }
 
