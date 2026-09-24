@@ -35,6 +35,7 @@ function toISO(ts: string): string {
 function mapSupplier(r: Row): Supplier {
   return {
     id: r.id as string,
+    domain_id: r.domain_id as string | undefined,
     legal_name: r.legal_name as string ?? '',
     trading_name: r.trading_name as string ?? '',
     country: r.country as string ?? '',
@@ -203,6 +204,11 @@ export class SupabaseStore implements DataStore {
       const { data, error } = await client.from('suppliers').select('*').eq('id', id).maybeSingle();
       if (error) throw error;
       return data ? mapSupplier(data as Row) : null;
+    },
+    getByDomain: async (domainId: string) => {
+      const { data, error } = await client.from('suppliers').select('*').eq('domain_id', domainId).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapSupplier);
     },
     create: async (data) => {
       const payload = strip(data as unknown as Record<string, unknown>, ['id', 'created_at', 'updated_at']);
