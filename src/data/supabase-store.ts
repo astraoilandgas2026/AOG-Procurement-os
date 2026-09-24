@@ -254,6 +254,19 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapContact);
     },
+    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
+      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
+      if (supplierError) throw supplierError;
+      const ids = (suppliers as Row[]).map(s => s.id as string);
+      if (!ids.length) return [];
+      const { data, error } = await client.from('contacts').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapContact);
+    },
     getBySupplier: async (supplierId: string) => {
       const { data, error } = await client.from('contacts').select('*').eq('supplier_id', supplierId);
       if (error) throw error;
@@ -280,6 +293,19 @@ export class SupabaseStore implements DataStore {
   products: ProductRepository = {
     getAll: async () => {
       const { data, error } = await client.from('products').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapProduct);
+    },
+    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
+      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
+      if (supplierError) throw supplierError;
+      const ids = (suppliers as Row[]).map(s => s.id as string);
+      if (!ids.length) return [];
+      const { data, error } = await client.from('products').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapProduct);
     },
