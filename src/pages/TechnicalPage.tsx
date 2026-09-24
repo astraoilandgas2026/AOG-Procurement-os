@@ -34,7 +34,7 @@ export function TechnicalPage() {
         <EmptyState
           icon={<FlaskConical size={28} />}
           title="No hay productos para revisar"
-          message="Primero registra un producto; después podrás capturar y verificar sus parámetros técnicos, COA, TDS y SDS/FDS."
+          message="Los productos aparecerán aquí cuando estén registrados. Desde esta vista podrás revisar y completar su información técnica y de calidad."
         />
       </Card>
     );
@@ -43,7 +43,11 @@ export function TechnicalPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Técnico</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Calidad técnica</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          Aquí se concentra la evidencia técnica de cada producto: composición, parámetros de calidad y resultados de COA, TDS y SDS/FDS.
+          Si todavía no existe una especificación registrada, el producto permanece visible para que puedas completar su ficha.
+        </p>
         <p className="mt-1 text-sm text-gray-500">Especificaciones técnicas y parámetros de calidad por producto.</p>
       </div>
 
