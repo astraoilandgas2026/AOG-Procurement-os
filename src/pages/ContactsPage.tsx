@@ -56,7 +56,7 @@ export function ContactsPage() {
       <PageHeader
         title="Contactos"
         subtitle="Directorio de contactos de proveedores"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Contact</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar contacto</Button> : undefined}
       />
 
       {!contacts || contacts.length === 0 ? (
@@ -67,7 +67,7 @@ export function ContactsPage() {
             message={suppliers && suppliers.length > 0
               ? "Agrega el primer contacto de proveedor para registrar canales de comunicación."
               : "Registra primero un proveedor y luego agrega sus contactos."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Contact</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar contacto</Button> : undefined}
           />
         </Card>
       ) : (
@@ -80,7 +80,7 @@ export function ContactsPage() {
                     <h3 className="text-sm font-semibold text-gray-900">{c.name}</h3>
                     {c.title && <p className="text-xs text-gray-500">{c.title}</p>}
                   </div>
-                  {c.is_primary && <Badge color="amber"><Star size={10} className="mr-1" /> Primary</Badge>}
+                  {c.is_primary && <Badge color="amber"><Star size={10} className="mr-1" /> Principal</Badge>}
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
                   <div className="text-xs font-medium text-gray-400 mb-1">{supplierMap.get(c.supplier_id) ?? 'Proveedor desconocido'}</div>
@@ -128,7 +128,7 @@ export function ContactsPage() {
             <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" checked={form.is_primary} onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} />
-              Primary contact
+              Principal contact
             </label>
           </div>
         )}
