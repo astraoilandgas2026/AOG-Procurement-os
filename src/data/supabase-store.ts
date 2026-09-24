@@ -2,13 +2,13 @@ import { getSupabaseClient } from '@/data/supabase-client';
 import type {
   AppData, Supplier, Contact, Product, TechnicalSpec, CommercialOffer,
   Certification, DocumentRecord, DueDiligenceItem, LogisticsInfo, TimelineEvent,
-  FollowUp, RedFlag,
+  FollowUp, RedFlag, IntelligenceFact,
 } from '@/types';
 import type {
   SupplierRepository, ContactRepository, ProductRepository,
   TechnicalSpecRepository, CommercialOfferRepository,
   CertificationRepository, DocumentRepository, DueDiligenceRepository,
-  LogisticsRepository, TimelineRepository, FollowUpRepository, RedFlagRepository,
+  LogisticsRepository, TimelineRepository, FollowUpRepository, RedFlagRepository, IntelligenceFactRepository,
   DataStore,
 } from '@/data/store';
 
@@ -185,6 +185,20 @@ function mapRedFlag(r: Row): RedFlag {
     created_at: r.created_at as string ?? '',
   };
 }
+
+function mapIntelligenceFact(r: Row): IntelligenceFact {
+  return {
+    id: r.id as string, domain_id: r.domain_id as string, entity_type: r.entity_type as string ?? '',
+    entity_id: r.entity_id as string, field_name: r.field_name as string ?? '',
+    value_text: r.value_text as string ?? '', unit: r.unit as string ?? '',
+    fact_date: r.fact_date as string | null, source_type: r.source_type as string ?? '',
+    source_ref: r.source_ref as string ?? '',
+    verification_status: r.verification_status as IntelligenceFact['verification_status'] ?? 'claimed',
+    is_contradiction: Boolean(r.is_contradiction), contradiction_key: r.contradiction_key as string ?? '',
+    notes: r.notes as string ?? '', created_at: r.created_at as string ?? '', updated_at: r.updated_at as string ?? '',
+  };
+}
+
 
 // Helper: strip id/created_at/updated_at for insert
 function strip<T extends Record<string, unknown>>(obj: T, keys: string[]): Record<string, unknown> {
@@ -574,6 +588,14 @@ export class SupabaseStore implements DataStore {
     remove: async (id: string) => {
       const { error } = await client.from('red_flags').delete().eq('id', id);
       if (error) throw error;
+    },
+  };
+
+  intelligenceFacts: IntelligenceFactRepository = {
+    getByEntity: async (entityType: string, entityId: string) => {
+      const { data, error } = await client.from('intelligence_facts').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('fact_date', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapIntelligenceFact);
     },
   };
 
