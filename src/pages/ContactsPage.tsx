@@ -6,7 +6,7 @@ import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
   Button, Input, TextArea, Badge, Modal, PageHeader, Select,
 } from '@/components/ui';
-import { Plus, Users, Trash2, Star, Mail, Phone, MessageCircle } from 'lucide-react';
+import { Plus, Users, Trash2, Star, Mail, Phone, MessageCircle, Edit3 } from 'lucide-react';
 import type { Contact } from '@/types';
 
 function emptyForm(supplierId: string): Omit<Contact, 'id' | 'created_at'> {
@@ -19,7 +19,9 @@ function emptyForm(supplierId: string): Omit<Contact, 'id' | 'created_at'> {
 export function ContactsPage() {
   const { procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
+  const [formError, setFormError] = useState('');
 
   const { data: contacts, loading, error, refresh } = useAsync(
     () => procurementDomain ? getStore().contacts.getByDomainKey(procurementDomain) : getStore().contacts.getAll(), [procurementDomain]
@@ -31,15 +33,34 @@ export function ContactsPage() {
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const openCrear = () => {
+    setEditingId(null);
+    setFormError('');
     setForm(emptyForm(''));
+    setShowForm(true);
+  };
+
+  const openEditar = (contact: Contact) => {
+    const { id, created_at, ...rest } = contact;
+    void created_at;
+    setEditingId(id);
+    setFormError('');
+    setForm(rest);
     setShowForm(true);
   };
 
   const save = async () => {
     if (!form || !form.supplier_id || !form.name) return;
-    await getStore().contacts.create(form);
-    setShowForm(false);
-    refresh();
+    setFormError('');
+    try {
+      if (editingId) await getStore().contacts.update(editingId, form);
+      else await getStore().contacts.create(form);
+      setShowForm(false);
+      setEditingId(null);
+      setForm(null);
+      refresh();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'No fue posible guardar el contacto.');
+    }
   };
 
   const remove = async (id: string) => {
@@ -90,6 +111,7 @@ export function ContactsPage() {
                   {c.notes && <p className="mt-2 text-gray-500">{c.notes}</p>}
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
+                  <Button size="sm" variant="ghost" onClick={() => openEditar(c)}><Edit3 size={14} /> Editar</Button>
                   <Button size="sm" variant="ghost" onClick={() => remove(c.id)}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
@@ -101,14 +123,15 @@ export function ContactsPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Agregar contacto"
+        title={editingId ? "Editar contacto" : "Agregar contacto"}
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
-            <Button onClick={save} disabled={!form?.name || !form?.supplier_id}>Crear</Button>
+            <Button onClick={save} disabled={!form?.name || !form?.supplier_id}>{editingId ? "Guardar cambios" : "Crear"}</Button>
           </>
         }
       >
+        {formError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{formError}</div>}
         {form && (
           <div className="space-y-3">
             <Select
