@@ -31,7 +31,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
   const selectDomain = (domain: ProcurementDomain) => {
     setProcurementDomain(domain);
-    setCurrentPage('dashboard');
+    setCurrentPage('suppliers');
     setSelectedSupplierId(null);
   };
 
