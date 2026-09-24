@@ -102,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--astra-border)] bg-white px-4 py-3 sm:px-8 sm:py-4">
+        <header className={`flex flex-shrink-0 flex-wrap items-center gap-3 border-b border-[var(--astra-border)] bg-white px-4 py-3 sm:px-8 sm:py-4 ${procurementDomain ? 'justify-between' : 'justify-center'}`}>
           <div>
             {!procurementDomain ? (
               <button onClick={goToOverview} className="text-left" aria-label="Astra home">
@@ -133,7 +133,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </nav>
         )}
-        <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {procurementDomain ? children : <div className="mx-auto w-full max-w-7xl">{children}</div>}
+        </main>
       </div>
     </div>
   );
