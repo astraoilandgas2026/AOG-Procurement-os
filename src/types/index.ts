@@ -478,7 +478,7 @@ export type PageKey =
   | 'suppliers'
   | 'contacts'
   | 'products'
-  | 'technical'
+
   | 'commercial'
   | 'certifications'
   | 'documents'
