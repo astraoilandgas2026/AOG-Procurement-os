@@ -44,31 +44,19 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={`flex items-center ${compact ? 'h-10' : 'h-11 sm:h-12'}`}>
-      <div
-        className={`relative shrink-0 overflow-hidden ${compact ? 'h-10 w-10' : 'h-11 w-11 sm:h-12 sm:w-12'}`}
+    <div className={`relative flex items-center overflow-hidden ${compact ? 'h-10 w-[155px]' : 'h-11 w-[185px] sm:h-12 sm:w-[200px]'}`}>
+      <img
+        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+        alt="Astra Oil and Gas"
+        className="absolute inset-0 h-full w-full object-contain object-left"
+      />
+      <img
+        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+        alt=""
         aria-hidden="true"
-      >
-        <img
-          src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-          alt=""
-          className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left"
-        />
-      </div>
-      <div className="ml-2 flex min-w-0 flex-col justify-center leading-none">
-        <span
-          style={{ color: '#000000', fontWeight: 400 }}
-          className={compact ? 'text-[17px] tracking-[0.08em]' : 'text-[19px] tracking-[0.08em] sm:text-[21px]'}
-        >
-          Astra
-        </span>
-        <span
-          style={{ color: '#808080', fontWeight: 400 }}
-          className="mt-0.5 text-[10px] tracking-wide sm:text-[11px]"
-        >
-          Oil and Gas
-        </span>
-      </div>
+        className="absolute inset-0 h-full w-full object-contain object-left brightness-0"
+        style={{ clipPath: 'inset(0 0 0 31%)' }}
+      />
     </div>
   );
 }
