@@ -46,20 +46,20 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-3'}>
+    <div className={compact ? 'flex items-center gap-2.5' : 'flex items-center gap-2.5 sm:gap-3'}>
       <img
         src="/AOG-Procurement-os/astra-mark.svg"
         alt="Astra Oil and Gas"
-        className={compact ? 'h-9 w-9 shrink-0' : 'h-11 w-11 shrink-0'}
+        className={compact ? 'h-9 w-9 shrink-0' : 'h-9 w-9 sm:h-11 sm:w-11 shrink-0'}
       />
       <span className="leading-none whitespace-nowrap">
         <span className={compact
           ? 'block text-[16px] font-normal tracking-[0.08em] text-black'
-          : 'block text-[19px] font-normal tracking-[0.08em] text-black'
+          : 'block text-[17px] sm:text-[19px] font-normal tracking-[0.08em] text-black'
         }>ASTRA</span>
         <span className={compact
           ? 'block mt-1 text-[9px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
-          : 'block mt-1 text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
+          : 'block mt-1 text-[9px] sm:text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]'
         }>Oil and Gas</span>
       </span>
     </div>
@@ -107,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex flex-shrink-0 items-center justify-between border-b border-[var(--astra-border)] bg-white px-5 py-4 sm:px-8">
+        <header className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[var(--astra-border)] bg-white px-4 py-3 sm:px-8 sm:py-4">
           <div>
             {!procurementDomain ? (
               <button onClick={goToOverview} className="text-left" aria-label="Astra home">
@@ -125,7 +125,20 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
         </header>
-        <main className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
+        {procurementDomain && (
+          <nav className="flex md:hidden min-w-0 overflow-x-auto border-b border-[var(--astra-border)] bg-white px-3 py-2">
+            <div className="flex min-w-max items-center gap-1">
+              <button onClick={goToOverview} className="mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold text-[var(--astra-muted)]">Dominios</button>
+              {NAV_ITEMS.map((item) => (
+                <button key={item.key} onClick={() => navigate(item.key)}
+                  className={`shrink-0 rounded-md px-2.5 py-2 text-xs font-medium ${currentPage === item.key ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)] hover:bg-slate-50'}`}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
+        <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
