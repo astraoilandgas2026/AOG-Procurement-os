@@ -15,7 +15,7 @@ import { formatDate } from '@/utils/date';
 import {
   Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle,
 } from 'lucide-react';
-import type { Supplier, SupplierLifecycle } from '@/types';
+import type { Supplier, SupplierLifecycle, Contact } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
 import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/utils/productFamilies';
 
@@ -312,9 +312,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
         </div>
       </div>
       {isImage ? <img src={url} alt={doc.title} className="max-h-[520px] w-full rounded-md bg-white object-contain" /> :
-       isPdf ? <object data={url} type="application/pdf" aria-label={doc.title} className="h-[520px] w-full rounded-md bg-white">
-         <div className="p-4 text-xs text-gray-500">El visor PDF del navegador no está disponible. Usa “Abrir” para ver el documento.</div>
-       </object> :
+       isPdf ? <iframe src={`${url}#toolbar=1&navpanes=0&view=FitH`} title={doc.title || fileName} loading="eager" className="h-[520px] w-full rounded-md border border-gray-200 bg-white" /> :
        isVideo ? <video src={url} controls className="max-h-[520px] w-full rounded-md" /> :
        <div className="rounded-md border border-dashed border-gray-200 bg-white p-5 text-center text-xs text-gray-500">Vista previa no disponible para este formato. Usa “Abrir” o “Descargar”.</div>}
     </div>
@@ -324,7 +322,12 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 function SupplierDetail({
   supplier, onBack, onEdit, onDelete,
 }: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
-  const { data, loading, error } = useAsync(async () => {
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [editingContactId, setEditingContactId] = useState<string | null>(null);
+  const [contactForm, setContactForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
+  const [contactError, setContactError] = useState('');
+
+  const { data, loading, error, refresh } = useAsync(async () => {
     const store = getStore();
     const [contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts] =
       await Promise.all([
@@ -343,6 +346,30 @@ function SupplierDetail({
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
   if (!data) return null;
+
+  const openContactEdit = (contact: Contact) => {
+    const { id, created_at, ...rest } = contact;
+    void id; void created_at;
+    setContactForm(rest);
+    setEditingContactId(contact.id);
+    setContactError('');
+    setShowContactForm(true);
+  };
+
+  const saveContact = async () => {
+    if (!contactForm || !contactForm.name.trim()) return;
+    setContactError('');
+    try {
+      if (!editingContactId) throw new Error('Contacto no seleccionado.');
+      await getStore().contacts.update(editingContactId, contactForm);
+      setShowContactForm(false);
+      setEditingContactId(null);
+      setContactForm(null);
+      refresh();
+    } catch (err) {
+      setContactError(err instanceof Error ? err.message : 'No fue posible guardar el contacto.');
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -391,6 +418,9 @@ function SupplierDetail({
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Contacto sin nombre'}</div><div className="text-xs text-gray-500">{c.title || 'Cargo no especificado'}</div></div>{c.is_primary && <Badge color="blue">Principal</Badge>}</div>
               <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-gray-600 sm:grid-cols-2"><span>Correo: {c.email || '—'}</span><span>Teléfono: {c.phone || '—'}</span><span>WhatsApp: {c.whatsapp || '—'}</span></div>
               {c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
+              <div className="mt-2 flex justify-end">
+                <Button size="sm" variant="ghost" onClick={() => openContactEdit(c)}><Edit3 size={13} /> Editar contacto</Button>
+              </div>
             </div>
           ))}
         </DetailSection>
@@ -487,6 +517,36 @@ function SupplierDetail({
       </DetailSection>
 
     </div>
+
+      <Modal
+        open={showContactForm}
+        onClose={() => setShowContactForm(false)}
+        title="Editar contacto"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowContactForm(false)}>Cancelar</Button>
+            <Button onClick={saveContact} disabled={!contactForm?.name.trim()}>Guardar cambios</Button>
+          </>
+        }
+      >
+        {contactError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{contactError}</div>}
+        {contactForm && (
+          <div className="space-y-3">
+            <Input label="Nombre" required value={contactForm.name} onChange={(v) => setContactForm({ ...contactForm, name: v })} />
+            <Input label="Cargo / función" value={contactForm.title} onChange={(v) => setContactForm({ ...contactForm, title: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Correo" value={contactForm.email} onChange={(v) => setContactForm({ ...contactForm, email: v })} />
+              <Input label="Teléfono" value={contactForm.phone} onChange={(v) => setContactForm({ ...contactForm, phone: v })} />
+            </div>
+            <Input label="WhatsApp" value={contactForm.whatsapp} onChange={(v) => setContactForm({ ...contactForm, whatsapp: v })} />
+            <TextArea label="Notas" value={contactForm.notes} onChange={(v) => setContactForm({ ...contactForm, notes: v })} />
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" checked={contactForm.is_primary} onChange={(e) => setContactForm({ ...contactForm, is_primary: e.target.checked })} />
+              Contacto principal
+            </label>
+          </div>
+        )}
+      </Modal>
   );
 }
 
