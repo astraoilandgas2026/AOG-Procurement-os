@@ -28,7 +28,7 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
   };
 }
 
-export function ComercialPage() {
+export function CommercialPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const [editingId, setEditaringId] = useState<string | null>(null);
