@@ -15,9 +15,10 @@ import { LogisticsPage } from '@/pages/LogisticsPage';
 import { TimelinePage } from '@/pages/TimelinePage';
 import { FollowUpsPage } from '@/pages/FollowUpsPage';
 import { IntelligencePage } from '@/pages/IntelligencePage';
+import type { ComponentType } from 'react';
 import type { PageKey } from '@/types';
 
-const PAGES: Record<PageKey, React.ComponentType> = {dashboard:DashboardPage,suppliers:SuppliersPage,contacts:ContactsPage,products:ProductsPage,technical:TechnicalPage,commercial:CommercialPage,certifications:CertificationsPage,documents:DocumentsPage,due_diligence:DueDiligencePage,logistics:LogisticsPage,timeline:TimelinePage,follow_ups:FollowUpsPage,intelligence:IntelligencePage};
+const PAGES: Record<PageKey, ComponentType> = {dashboard:DashboardPage,suppliers:SuppliersPage,contacts:ContactsPage,products:ProductsPage,technical:TechnicalPage,commercial:CommercialPage,certifications:CertificationsPage,documents:DocumentsPage,due_diligence:DueDiligencePage,logistics:LogisticsPage,timeline:TimelinePage,follow_ups:FollowUpsPage,intelligence:IntelligencePage};
 function PageRenderer(){const {currentPage}=useNav();const Page=PAGES[currentPage];return <Page/>;}
 function ProtectedApp(){const {user,loading}=useAuth();if(loading)return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading…</div>;if(!user)return <LoginPage/>;return <NavProvider><AppShell><PageRenderer/></AppShell></NavProvider>;}
 export default function App(){return <AuthProvider><ProtectedApp/></AuthProvider>;}
