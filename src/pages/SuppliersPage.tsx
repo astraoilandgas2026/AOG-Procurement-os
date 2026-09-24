@@ -4,8 +4,8 @@ import { getStore } from '@/data/store';
 import { getSupabaseClient } from '@/data/supabase-client';
 import { useNav } from '@/context/NavContext';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import {
   lifecycleColor, lifecycleLabel,
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
-import { getProductoFamilia, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -130,7 +130,7 @@ export function SuppliersPage() {
   };
 
   // ---- Render ----
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   // Detail view
@@ -283,7 +283,7 @@ function SupplierDetail({
     return { contacts, products, documents, offers, certifications, dueDiligence, logistics, timeline, followUps, redFlags, intelligenceFacts, specs };
   }, [supplier.id]);
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
   if (!data) return null;
 
@@ -303,7 +303,7 @@ function SupplierDetail({
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
         <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Productoos" value={data.products.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Products" value={data.products.length} />
         <SummaryChip icon={<FlaskConical size={15} />} label="Especificaciones" value={data.specs.reduce((n, x) => n + x.specs.length, 0)} />
         <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
         <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
@@ -337,11 +337,11 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="4. Productoos y Variantees del Proveedor">
+        <DetailSection title="4. Products y Variantes del Proveedor">
           {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductoFamilia(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumen: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Familia: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span><span>Origen: {p.origin || '—'}</span><span>Volumen: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span><span>Verificación: {p.verification_status}</span></div>
             </div>
           ))}
         </DetailSection>
@@ -506,7 +506,7 @@ function SupplierForm({
           <Input label="Capacidad teórica" value={form.theoretical_capacity} onChange={(v) => update('theoretical_capacity', v)} />
           <Input label="Producción real" value={form.real_production} onChange={(v) => update('real_production', v)} />
           <Input label="Volumen disponible" value={form.available_volume} onChange={(v) => update('available_volume', v)} />
-          <Input label="Volumenn to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
+          <Input label="Volumen to Astra" value={form.volume_to_astra} onChange={(v) => update('volume_to_astra', v)} />
           <Input label="Volumen de prueba" value={form.trial_volume} onChange={(v) => update('trial_volume', v)} />
           <Input label="Volumen recurrente" value={form.recurring_volume} onChange={(v) => update('recurring_volume', v)} />
         </div>
@@ -517,7 +517,7 @@ function SupplierForm({
 
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Lifecycle</h4>
-        <Seleccionar
+        <Select
           label="Supplier Lifecycle"
           value={form.lifecycle}
           onChange={(v) => update('lifecycle', v as SupplierLifecycle)}
