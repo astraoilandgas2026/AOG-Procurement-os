@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
-  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
-  Button, Input, Seleccionar, TextArea, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
+  Button, Input, Select, TextArea, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { Plus, Truck, Trash2 } from 'lucide-react';
-import type { LogisticsInfo, TransporteMode, ContenedorType, VerificaciónStatus } from '@/types';
+import type { LogisticsInfo, TransportMode, ContainerType, VerificationStatus } from '@/types';
 import { TRANSPORT_MODE_LABELS, CONTAINER_TYPE_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const TRANSPORT_OPTIONS = Object.entries(TRANSPORT_MODE_LABELS).map(([value, label]) => ({ value, label }));
@@ -52,7 +52,7 @@ export function LogísticaPage() {
     refresh();
   };
 
-  if (loading) return <CargaSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -112,20 +112,20 @@ export function LogísticaPage() {
       >
         {form && (
           <div className="space-y-3">
-            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Input label="Ubicación de origen" value={form.origin_location} onChange={(v) => setForm({ ...form, origin_location: v })} />
             <Input label="Ubicación de carga" value={form.loading_location} onChange={(v) => setForm({ ...form, loading_location: v })} />
             <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Seleccionar label="Modo de transporte" value={form.transport_mode} onChange={(v) => setForm({ ...form, transport_mode: v as TransporteMode })} options={TRANSPORT_OPTIONS} />
-              <Seleccionar label="Tipo de contenedor" value={form.container_type} onChange={(v) => setForm({ ...form, container_type: v as ContenedorType })} options={CONTAINER_OPTIONS} />
+              <Select label="Modo de transporte" value={form.transport_mode} onChange={(v) => setForm({ ...form, transport_mode: v as TransportMode })} options={TRANSPORT_OPTIONS} />
+              <Select label="Tipo de contenedor" value={form.container_type} onChange={(v) => setForm({ ...form, container_type: v as ContainerType })} options={CONTAINER_OPTIONS} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input label="Tamaño estimado del embarque" value={form.estimated_shipment_size} onChange={(v) => setForm({ ...form, estimated_shipment_size: v })} />
               <Input label="Tiempo de tránsito" value={form.lead_time} onChange={(v) => setForm({ ...form, lead_time: v })} />
             </div>
-            <Seleccionar label="Preparación para exportación" value={form.export_readiness} onChange={(v) => setForm({ ...form, export_readiness: v as VerificaciónStatus })} options={VERIFICATION_OPTIONS} />
+            <Select label="Preparación para exportación" value={form.export_readiness} onChange={(v) => setForm({ ...form, export_readiness: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
             <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
           </div>
         )}
