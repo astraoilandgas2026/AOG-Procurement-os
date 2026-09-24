@@ -41,7 +41,7 @@ export function CertificationsPage() {
   );
   const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
+  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const openCreate = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
@@ -67,7 +67,7 @@ export function CertificationsPage() {
   return (
     <div>
       <PageHeader
-        title="Certifications"
+        title="Certificaciones"
         subtitle="Certification tracking and evidence"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Certification</Button> : undefined}
       />
@@ -76,7 +76,7 @@ export function CertificationsPage() {
         <Card>
           <EmptyState
             icon={<Award size={28} />}
-            title="No certifications recorded"
+            title="No hay certificaciones registradas"
             message={suppliers && suppliers.length > 0
               ? "Track ISCC and other certifications, including certificate status, expiration, and supporting evidence."
               : "Register a supplier first, then add certifications."}
@@ -114,22 +114,22 @@ export function CertificationsPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Add Certification"
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button><Button onClick={save} disabled={!form?.cert_type}>Create</Button></>}
+        title="Agregar certificación"
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.cert_type}>Crear</Button></>}
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Supplier" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))} required />
-            <Input label="Certification Type" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISCC, RSB, etc." />
-            <Input label="Certificate Number" value={form.cert_number} onChange={(v) => setForm({ ...form, cert_number: v })} />
-            <Select label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Input label="Tipo de certificación" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISCC, RSB, etc." />
+            <Input label="Número de certificado" value={form.cert_number} onChange={(v) => setForm({ ...form, cert_number: v })} />
+            <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Issue Date" type="date" value={form.issue_date} onChange={(v) => setForm({ ...form, issue_date: v })} />
-              <Input label="Expiration Date" type="date" value={form.expiration_date} onChange={(v) => setForm({ ...form, expiration_date: v })} />
+              <Input label="Fecha de emisión" type="date" value={form.issue_date} onChange={(v) => setForm({ ...form, issue_date: v })} />
+              <Input label="Fecha de vencimiento" type="date" value={form.expiration_date} onChange={(v) => setForm({ ...form, expiration_date: v })} />
             </div>
             <Input label="Issuing Body" value={form.issuing_body} onChange={(v) => setForm({ ...form, issuing_body: v })} />
-            <TextArea label="Notes" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
+            <TextArea label="Notas" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} />
           </div>
         )}
       </Modal>
