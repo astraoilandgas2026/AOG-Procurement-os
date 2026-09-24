@@ -44,24 +44,48 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
 };
 
+function AstraMark({ size = 80 }: { size?: number }) {
+  const petals = [
+    ['red', '#E31E24', '#A6191D'],
+    ['orange', '#F58220', '#D95B10'],
+    ['yellow', '#FDB913', '#E5A00D'],
+    ['green', '#00A651', '#007A3D'],
+    ['blue', '#00AEEF', '#0072BC'],
+  ];
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="shrink-0">
+      <defs>
+        {petals.map(([id, a, b]) => (
+          <linearGradient key={id} id={`astra-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={a} /><stop offset="100%" stopColor={b} />
+          </linearGradient>
+        ))}
+      </defs>
+      <g transform="translate(50 50)">
+        {[0, 72, 144, 216, 288].map((rotation, i) => (
+          <path key={rotation} transform={`rotate(${rotation})`}
+            d="M0 0 C-13 -7 -24 -20 -22 -33 C-20 -45 -9 -51 0 -48 C10 -44 14 -32 10 -20 C7 -11 4 -5 0 0Z"
+            fill={`url(#astra-${petals[i][0]})`} />
+        ))}
+        <path d="M48 28 C33 17 19 15 7 21 C17 19 28 24 35 34" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" />
+      </g>
+    </svg>
+  );
+}
+
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-4'}>
-      <span
-        aria-hidden="true"
-        className={compact ? 'h-12 w-12 shrink-0 bg-contain bg-left bg-no-repeat' : 'h-20 w-20 shrink-0 bg-contain bg-left bg-no-repeat'}
-        style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: compact ? '240px auto' : '380px auto' }}
-      />
+    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-5'}>
+      <AstraMark size={compact ? 56 : 96} />
       <span className="leading-none">
-        <span className={compact ? 'block text-xl font-black tracking-[0.08em] text-black' : 'block text-4xl font-black tracking-[0.08em] text-black'}>ASTRA</span>
-        <span className={compact ? 'block mt-1 text-xs font-serif font-semibold tracking-[0.08em] text-black' : 'block mt-1 text-lg font-serif font-semibold tracking-[0.08em] text-black'}>Oil and Gas</span>
+        <span className={compact ? 'block text-xl font-medium tracking-[0.07em] text-black' : 'block text-4xl font-medium tracking-[0.07em] text-black'}>ASTRA</span>
+        <span className={compact ? 'block mt-1 text-xs font-serif font-normal tracking-[0.05em] text-black' : 'block mt-2 text-lg font-serif font-normal tracking-[0.05em] text-black'}>Oil and Gas</span>
       </span>
     </div>
   );
 }
-
 export function AppShell({ children }: { children: ReactNode }) {
-  const { currentPage, navigate, procurementDomain, selectDomain, goToOverview } = useNav();
+  const { currentPage, navigate, procurementDomain, goToOverview } = useNav();
   const pageInfo = PAGE_TITLES[currentPage];
   const groups = ['Inteligencia', 'Actividad'];
 
@@ -110,7 +134,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </button>
             ) : (
               <>
-                <h1 className="text-xl font-bold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
+                <h1 className="text-xl font-semibold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
                 <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
                 <button onClick={goToOverview} className="mt-1 text-xs font-semibold text-[var(--astra-blue)] hover:underline">
                   Volver a Feedstock / Energy Commodities
