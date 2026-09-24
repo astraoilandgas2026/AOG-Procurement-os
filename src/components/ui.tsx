@@ -224,23 +224,38 @@ export function PageHeader({
   );
 }
 
-export function LoadingSpinner() {
+function AstraLoadingMark({ size = 112 }: { size?: number }) {
+  const petals = [
+    ['red', '#E31E24', '#A6191D'],
+    ['orange', '#F58220', '#D95B10'],
+    ['yellow', '#FDB913', '#E5A00D'],
+    ['green', '#00A651', '#007A3D'],
+    ['blue', '#00AEEF', '#0072BC'],
+  ];
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm">
-      <div className="relative flex h-48 w-48 items-center justify-center">
-        <div className="absolute inset-0 rounded-full border border-slate-200 animate-pulse" />
-        <div className="absolute inset-2 rounded-full border-2 border-[var(--astra-orange)]/30 animate-spin" />
-        <div className="absolute inset-5 rounded-full border-2 border-[var(--astra-blue)]/30 animate-[spin_1.6s_linear_infinite_reverse]" />
-        <span
-          aria-hidden="true"
-          className="h-56 w-56 bg-contain bg-left bg-no-repeat animate-pulse"
-          style={{ backgroundImage: 'url(https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png)', backgroundSize: '840px auto' }}
-        />
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="animate-pulse">
+      <defs>
+        {petals.map(([id, a, b]) => (
+          <linearGradient key={id} id={`loading-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={a} /><stop offset="100%" stopColor={b} />
+          </linearGradient>
+        ))}
+      </defs>
+      <g transform="translate(50 50)">
+        {[0, 72, 144, 216, 288].map((rotation, i) => (
+          <path key={rotation} transform={`rotate(${rotation})`}
+            d="M0 0 C-13 -7 -24 -20 -22 -33 C-20 -45 -9 -51 0 -48 C10 -44 14 -32 10 -20 C7 -11 4 -5 0 0Z"
+            fill={`url(#loading-${petals[i][0]})`} />
+        ))}
+        <path d="M48 28 C33 17 19 15 7 21 C17 19 28 24 35 34" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" />
+      </g>
+    </svg>
   );
 }
 
+export function LoadingSpinner() {
+  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm"><AstraLoadingMark size={112} /></div>;
+}
 export function ErrorState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
