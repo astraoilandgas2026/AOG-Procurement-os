@@ -43,16 +43,24 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 };
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
+  const height = compact ? 'h-10' : 'h-11 sm:h-12';
+  const markWidth = compact ? 'w-[42px]' : 'w-[48px] sm:w-[54px]';
   return (
-    <div className={compact ? 'flex items-center' : 'flex items-center'}>
-      <img
-        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-        alt="Astra Oil and Gas"
-        onError={(event) => {
-          event.currentTarget.src = '/AOG-Procurement-os/astra-mark.svg';
-        }}
-        className={compact ? 'h-10 w-auto max-w-[155px] object-contain' : 'h-11 w-auto max-w-[185px] object-contain sm:h-12 sm:max-w-[200px]'}
-      />
+    <div className={`flex items-center ${height}`}>
+      <div className={`relative h-full shrink-0 overflow-hidden ${markWidth}`} aria-hidden="true">
+        <img
+          src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
+          alt=""
+          className="absolute left-0 top-0 h-full w-auto max-w-none object-contain object-left"
+          onError={(event) => {
+            event.currentTarget.src = '/AOG-Procurement-os/astra-mark.svg';
+          }}
+        />
+      </div>
+      <div className="ml-2 flex min-w-0 flex-col justify-center leading-none">
+        <span className={`text-black ${compact ? 'text-[17px]' : 'text-[19px] sm:text-[21px]'} font-normal tracking-[0.08em]`}>Astra</span>
+        <span className={`text-[10px] sm:text-[11px] font-normal tracking-wide text-[#808080] ${compact ? '' : 'mt-0.5'}`}>Oil and Gas</span>
+      </div>
     </div>
   );
 }
