@@ -16,7 +16,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import type { AppData } from '@/types';
-import { getProductFamily, PRODUCT_FAMILY_LABELS, type ProductFamily } from '@/utils/productFamilies';
+import { getProductFamily } from '@/utils/productFamilies';
 
 const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
   title: string;
