@@ -3,41 +3,40 @@ import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import {
   LayoutDashboard, Building2, Users, Package, FlaskConical, DollarSign, Award, FileText,
-  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, ChevronLeft, LogOut,
+  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, ChevronLeft,
 } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'suppliers', label: 'Suppliers', icon: <Building2 size={17} />, group: 'Intelligence' },
-  { key: 'contacts', label: 'Contacts', icon: <Users size={17} />, group: 'Intelligence' },
-  { key: 'products', label: 'Products', icon: <Package size={17} />, group: 'Intelligence' },
-  { key: 'technical', label: 'Technical', icon: <FlaskConical size={17} />, group: 'Intelligence' },
-  { key: 'commercial', label: 'Commercial', icon: <DollarSign size={17} />, group: 'Intelligence' },
-  { key: 'certifications', label: 'Certifications', icon: <Award size={17} />, group: 'Intelligence' },
-  { key: 'documents', label: 'Documents', icon: <FileText size={17} />, group: 'Intelligence' },
-  { key: 'due_diligence', label: 'Due Diligence', icon: <ShieldCheck size={17} />, group: 'Intelligence' },
-  { key: 'logistics', label: 'Logistics', icon: <Truck size={17} />, group: 'Intelligence' },
-  { key: 'timeline', label: 'Timeline', icon: <Clock size={17} />, group: 'Activity' },
-  { key: 'follow_ups', label: 'Follow-ups', icon: <CheckSquare size={17} />, group: 'Activity' },
-  { key: 'intelligence', label: 'Intelligence Map', icon: <Network size={17} />, group: 'Activity' },
+  { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Inteligencia' },
+  { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Intelligence' },
+  { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Intelligence' },
+  { key: 'technical', label: 'Técnico', icon: <FlaskConical size={17} />, group: 'Intelligence' },
+  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Intelligence' },
+  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Intelligence' },
+  { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Intelligence' },
+  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Intelligence' },
+  { key: 'logistics', label: 'Logística', icon: <Truck size={17} />, group: 'Intelligence' },
+  { key: 'timeline', label: 'Cronología', icon: <Clock size={17} />, group: 'Actividad' },
+  { key: 'follow_ups', label: 'Seguimientos', icon: <CheckSquare size={17} />, group: 'Activity' },
+  { key: 'intelligence', label: 'Mapa de Inteligencia', icon: <Network size={17} />, group: 'Activity' },
 ];
 
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
-  dashboard: { title: 'Overview', subtitle: 'Procurement intelligence overview' },
-  suppliers: { title: 'Suppliers', subtitle: 'Supplier intelligence profiles' },
-  contacts: { title: 'Contacts', subtitle: 'Supplier contact directory' },
-  products: { title: 'Products', subtitle: 'Feedstock and product registry' },
-  technical: { title: 'Technical', subtitle: 'Technical specifications and quality parameters' },
-  commercial: { title: 'Commercial', subtitle: 'Commercial offers and pricing' },
-  certifications: { title: 'Certifications', subtitle: 'Certification tracking and evidence' },
-  documents: { title: 'Documents', subtitle: 'Evidence and document management' },
-  due_diligence: { title: 'Due Diligence', subtitle: 'Verification and risk assessment' },
-  logistics: { title: 'Logistics', subtitle: 'Export and logistics readiness' },
-  timeline: { title: 'Timeline', subtitle: 'Supplier interaction history' },
-  follow_ups: { title: 'Follow-ups', subtitle: 'Action items and next steps' },
-  intelligence: { title: 'Intelligence Map', subtitle: 'Mental map and relationship overview' },
+  dashboard: { title: 'Resumen', subtitle: 'Visión general de inteligencia de procurement' },
+  suppliers: { title: 'Proveedores', subtitle: 'Perfiles de inteligencia de proveedores' },
+  contacts: { title: 'Contactos', subtitle: 'Directorio de contactos de proveedores' },
+  products: { title: 'Productos', subtitle: 'Registro de materias primas y productos' },
+  technical: { title: 'Técnico', subtitle: 'Especificaciones técnicas y parámetros de calidad' },
+  commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
+  certifications: { title: 'Certificaciones', subtitle: 'Seguimiento de certificaciones y evidencia' },
+  documents: { title: 'Documentos', subtitle: 'Gestión de evidencia y documentos' },
+  due_diligence: { title: 'Debida Diligencia', subtitle: 'Verificación y evaluación de riesgos' },
+  logistics: { title: 'Logística', subtitle: 'Preparación logística y de exportación' },
+  timeline: { title: 'Cronología', subtitle: 'Historial de interacciones con proveedores' },
+  follow_ups: { title: 'Seguimientos', subtitle: 'Acciones pendientes y próximos pasos' },
+  intelligence: { title: 'Mapa de Inteligencia', subtitle: 'Mapa de relaciones e inteligencia' },
 };
 
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
@@ -49,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { currentPage, navigate, procurementDomain, selectDomain } = useNav();
   const { signOut } = useAuth();
   const pageInfo = PAGE_TITLES[currentPage];
-  const groups = ['Intelligence', 'Activity'];
+  const groups = ['Inteligencia', 'Actividad'];
 
   return (
     <div className={`flex min-h-screen bg-white ${procurementDomain ? "h-screen" : ""}`}>
@@ -59,7 +58,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <img
               src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
               alt="Astra Oil and Gas"
-              className="h-10 w-auto object-contain"
+              className="h-14 w-auto max-w-[210px] object-contain"
             />
           </button>
         </div>
@@ -84,10 +83,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className={`border-t border-[var(--astra-border)] px-5 py-4 ${procurementDomain ? "" : "hidden"}`}>
           {procurementDomain && (
-            <div className="mb-3 flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
+            <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
               {DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span>
             </div>
           )}
+        </div>        )}
           <button onClick={() => void signOut()} className="flex items-center gap-2 text-xs text-[var(--astra-muted)] hover:text-[var(--astra-dark)]"><LogOut size={14} /> Sign out</button>
         </div>
       </aside>
@@ -100,7 +100,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <img
                   src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
                   alt="Astra Oil and Gas"
-                  className="h-12 w-auto object-contain"
+                  className="h-16 w-auto max-w-[230px] object-contain"
                 />
               </button>
             ) : (
