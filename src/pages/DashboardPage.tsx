@@ -129,7 +129,7 @@ export function DashboardPage() {
     { label: 'Seguimientos Pendientes', value: followUpsDue, icon: <CheckSquare size={20} />, onClick: () => navigate('follow_ups') },
     { label: 'Alertas Abiertas', value: openRedFlags, icon: <AlertTriangle size={20} />, onClick: () => navigate('due_diligence') },
     { label: 'Familias de Productos', value: totalProducts, icon: <Package size={20} />, onClick: () => navigate('products') },
-    { label: 'Documents', value: totalDocuments, icon: <FileText size={20} />, onClick: () => navigate('documents') },
+    { label: 'Documentos', value: totalDocuments, icon: <FileText size={20} />, onClick: () => navigate('documents') },
     { label: 'Eventos de Cronología', value: data.timeline.length, icon: <Clock size={20} />, onClick: () => navigate('timeline') },
   ];
 
@@ -196,9 +196,9 @@ export function DashboardPage() {
                   { label: 'Prospecto', count: data.suppliers.filter((s) => s.lifecycle === 'prospect').length },
                   { label: 'Active', count: activeSuppliers },
                   { label: 'DD Pending', count: ddPending },
-                  { label: 'Qualified', count: qualified },
-                  { label: 'Trial', count: trial },
-                  { label: 'Recurring', count: recurring },
+                  { label: 'Calificado', count: qualified },
+                  { label: 'Prueba', count: trial },
+                  { label: 'Recurrente', count: recurring },
                   { label: 'Paused / Rejected / Archived', count: pausedRejectedArchived },
                 ].map((row) => <div key={row.label} className="flex items-center justify-between text-sm"><span className="text-slate-600">{row.label}</span><span className="font-medium text-[var(--astra-dark)]">{row.count}</span></div>)}
               </div>
