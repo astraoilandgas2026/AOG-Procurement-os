@@ -10,9 +10,9 @@ import { Plus, Award, Trash2 } from 'lucide-react';
 import type { Certification } from '@/types';
 
 const CERT_STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
+  { value: 'active', label: 'Activo' },
   { value: 'expired', label: 'Expired' },
-  { value: 'pending', label: 'Pending' },
+  { value: 'pending', label: 'Pendiente' },
   { value: 'revoked', label: 'Revoked' },
 ];
 
@@ -56,7 +56,7 @@ export function CertificationsPage() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Delete this certification?')) return;
+    if (!confirm('¿Eliminar esta certificación?')) return;
     await getStore().certifications.remove(id);
     refresh();
   };
@@ -68,7 +68,7 @@ export function CertificationsPage() {
     <div>
       <PageHeader
         title="Certificaciones"
-        subtitle="Certification tracking and evidence"
+        subtitle="Seguimiento de certificaciones y evidencia"
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Certification</Button> : undefined}
       />
 
@@ -78,8 +78,8 @@ export function CertificationsPage() {
             icon={<Award size={28} />}
             title="No hay certificaciones registradas"
             message={suppliers && suppliers.length > 0
-              ? "Track ISCC and other certifications, including certificate status, expiration, and supporting evidence."
-              : "Register a supplier first, then add certifications."}
+              ? "Registra ISCC y otras certificaciones, incluyendo estado, vencimiento y evidencia de respaldo."
+              : "Registra primero un proveedor y luego agrega certificaciones."}
             action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Certification</Button> : undefined}
           />
         </Card>
