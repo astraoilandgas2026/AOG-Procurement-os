@@ -35,7 +35,7 @@ export function DocumentsPage() {
     if (file) {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       storagePath = form.supplier_id + '/' + Date.now() + '-' + safeName;
-      const upload = await client.storage.from('documents').upload(storagePath, file, { contentTipo: file.type || 'application/octet-stream', upsert: false });
+      const upload = await client.storage.from('documents').upload(storagePath, file, { contentType: file.type || 'application/octet-stream', upsert: false });
       if (upload.error) throw upload.error;
     }
     try {
