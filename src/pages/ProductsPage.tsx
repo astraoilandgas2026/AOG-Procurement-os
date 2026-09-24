@@ -35,14 +35,14 @@ export function ProductsPage() {
   if (error) return <ErrorState message={error} />;
   return (
     <div>
-      <PageHeader title="Productos" subtitle="Cinco familias de procurement; las variantes específicas permanecen dentro de cada familia." action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} />
+      <PageHeader title="Productos" subtitle="Cinco familias de procurement; las variantes específicas permanecen dentro de cada familia." action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar producto</Button> : undefined} />
       {!products || products.length === 0 ? (
-        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Registra tu primer feedstock o producto para seguir especificaciones técnicas y ofertas comerciales.' : 'Registra primero un proveedor y luego agrega sus productos.'} action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Product</Button> : undefined} /></Card>
+        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Registra tu primer feedstock o producto para seguir especificaciones técnicas y ofertas comerciales.' : 'Registra primero un proveedor y luego agrega sus productos.'} action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar producto</Button> : undefined} /></Card>
       ) : (
         <div className="space-y-4">
           {families.map(([family, familyProducts]) => (
             <Card key={family}><CardBody>
-              <div className="flex items-center justify-between gap-4 mb-3"><div><h3 className="text-sm font-semibold text-gray-900">{PRODUCT_FAMILY_LABELS[family]}</h3><p className="text-xs text-gray-500">{familyProducts.length} supplier-linked record(s).</p></div><Badge color="blue">{familyProducts.length} records</Badge></div>
+              <div className="flex items-center justify-between gap-4 mb-3"><div><h3 className="text-sm font-semibold text-gray-900">{PRODUCT_FAMILY_LABELS[family]}</h3><p className="text-xs text-gray-500">{familyProducts.length} registro(s) vinculados a proveedores.</p></div><Badge color="blue">{familyProducts.length} records</Badge></div>
               <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="border-b border-gray-200"><tr>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Variant</th><th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Proveedor</th><th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Origen</th><th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Volumen</th><th className="px-3 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Verificación</th><th className="px-3 py-2"></th>
               </tr></thead><tbody className="divide-y divide-gray-100">
