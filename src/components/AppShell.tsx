@@ -64,10 +64,10 @@ function AstraMark({ size = 80 }: { size?: number }) {
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <path key={rotation} transform={`rotate(${rotation})`}
-            d="M0 0 C-13 -7 -24 -20 -22 -33 C-20 -45 -9 -51 0 -48 C10 -44 14 -32 10 -20 C7 -11 4 -5 0 0Z"
+            d="M0 0 C-12 -7 -21 -19 -20 -30 C-19 -40 -10 -46 0 -44 C9 -41 12 -30 9 -19 C6 -10 3 -4 0 0Z"
             fill={`url(#astra-${petals[i][0]})`} />
         ))}
-        <path d="M48 28 C33 17 19 15 7 21 C17 19 28 24 35 34" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" />
+        <path d="M30 16 C22 11 14 10 8 14 C16 13 22 17 26 22" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" />
       </g>
     </svg>
   );
@@ -75,11 +75,11 @@ function AstraMark({ size = 80 }: { size?: number }) {
 
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-5'}>
-      <AstraMark size={compact ? 56 : 96} />
+    <div className={compact ? 'flex items-center gap-3' : 'flex items-center gap-6'}>
+      <AstraMark size={compact ? 64 : 118} />
       <span className="leading-none">
-        <span className={compact ? 'block text-xl font-medium tracking-[0.07em] text-black' : 'block text-4xl font-medium tracking-[0.07em] text-black'}>ASTRA</span>
-        <span className={compact ? 'block mt-1 text-xs font-serif font-normal tracking-[0.05em] text-black' : 'block mt-2 text-lg font-serif font-normal tracking-[0.05em] text-black'}>Oil and Gas</span>
+        <span className={compact ? 'block text-xl font-normal tracking-[0.12em] text-black' : 'block text-5xl font-normal tracking-[0.12em] text-black'}>ASTRA</span>
+        <span className={compact ? 'block mt-1 text-xs font-serif font-normal tracking-[0.04em] text-black' : 'block mt-2 text-lg font-serif font-normal tracking-[0.04em] text-black'}>Oil and Gas</span>
       </span>
     </div>
   );
