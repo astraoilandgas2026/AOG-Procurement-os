@@ -12,10 +12,10 @@ export type VerificationStatus =
   | 'physically_verified';
 
 export const VERIFICATION_LABELS: Record<VerificationStatus, string> = {
-  claimed: 'Claimed',
-  documented: 'Documented',
-  independently_verified: 'Independently Verified',
-  physically_verified: 'Physically Verified',
+  claimed: 'Declarado',
+  documented: 'Documentado',
+  independently_verified: 'Verificado independientemente',
+  physically_verified: 'Verificado físicamente',
 };
 
 export const VERIFICATION_ORDER: VerificationStatus[] = [
@@ -39,15 +39,15 @@ export type SupplierLifecycle =
   | 'archived';
 
 export const LIFECYCLE_LABELS: Record<SupplierLifecycle, string> = {
-  prospect: 'Prospect',
-  active: 'Active',
-  dd_pending: 'DD Pending',
-  qualified: 'Qualified',
-  trial: 'Trial',
-  recurring: 'Recurring',
-  paused: 'Paused',
-  rejected: 'Rejected',
-  archived: 'Archived',
+  prospect: 'Prospecto',
+  active: 'Activo',
+  dd_pending: 'DD pendiente',
+  qualified: 'Calificado',
+  trial: 'Prueba',
+  recurring: 'Recurrente',
+  paused: 'Pausado',
+  rejected: 'Rechazado',
+  archived: 'Archivado',
 };
 
 // --- Due Diligence ---
@@ -62,13 +62,13 @@ export type DDStatus =
   | 'not_applicable';
 
 export const DD_STATUS_LABELS: Record<DDStatus, string> = {
-  pending: 'Pending',
-  claimed: 'Claimed',
-  documented: 'Documented',
-  independently_verified: 'Independently Verified',
-  physically_verified: 'Physically Verified',
-  rejected: 'Rejected',
-  not_applicable: 'Not Applicable',
+  pending: 'Pendiente',
+  claimed: 'Declarado',
+  documented: 'Documentado',
+  independently_verified: 'Verificado independientemente',
+  physically_verified: 'Verificado físicamente',
+  rejected: 'Rechazado',
+  not_applicable: 'No aplica',
 };
 
 export type DDCategory =
@@ -80,12 +80,12 @@ export type DDCategory =
   | 'compliance';
 
 export const DD_CATEGORY_LABELS: Record<DDCategory, string> = {
-  legal: 'Legal Existence',
-  operational: 'Operation / Capacity',
-  product: 'Product / Quality',
-  export: 'Export History',
-  commercial_risk: 'Commercial Risk',
-  compliance: 'Compliance',
+  legal: 'Existencia legal',
+  operational: 'Operación / capacidad',
+  product: 'Producto / calidad',
+  export: 'Historial exportador',
+  commercial_risk: 'Riesgo comercial',
+  compliance: 'Cumplimiento',
 };
 
 // --- Feedstock Types ---
@@ -104,17 +104,17 @@ export type FeedstockType =
   | 'other';
 
 export const FEEDSTOCK_LABELS: Record<FeedstockType, string> = {
-  uco: 'UCO / Used Cooking Oil / AVU',
-  vegetable_oil: 'Vegetable Oil',
-  degummed_oil: 'Degummed Oil',
-  off_spec_oil: 'Off-Spec Oil',
-  oleins: 'Oleins',
-  fatty_acids: 'Fatty Acids',
-  acid_oils: 'Acid Oils',
+  uco: 'UCO / AVU',
+  vegetable_oil: 'Aceite vegetal',
+  degummed_oil: 'Aceite desgomado',
+  off_spec_oil: 'Aceite fuera de especificación',
+  oleins: 'Oleínas',
+  fatty_acids: 'Ácidos grasos',
+  acid_oils: 'Acid oils',
   soapstock: 'Soapstock / Borra',
-  industrial_returns: 'Industrial Returns',
-  oilseed_residues: 'Oilseed Processing Residues',
-  other: 'Other',
+  industrial_returns: 'Retornos industriales',
+  oilseed_residues: 'Residuos de procesamiento oleaginoso',
+  other: 'Otro',
 };
 
 // --- Priority ---
@@ -122,10 +122,10 @@ export const FEEDSTOCK_LABELS: Record<FeedstockType, string> = {
 export type Priority = 'low' | 'medium' | 'high' | 'urgent';
 
 export const PRIORITY_LABELS: Record<Priority, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-  urgent: 'Urgent',
+  low: 'Baja',
+  medium: 'Media',
+  high: 'Alta',
+  urgent: 'Urgente',
 };
 
 // --- Follow-up Status ---
@@ -133,10 +133,10 @@ export const PRIORITY_LABELS: Record<Priority, string> = {
 export type FollowUpStatus = 'open' | 'in_progress' | 'completed' | 'overdue';
 
 export const FOLLOWUP_STATUS_LABELS: Record<FollowUpStatus, string> = {
-  open: 'Open',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  overdue: 'Overdue',
+  open: 'Abierto',
+  in_progress: 'En curso',
+  completed: 'Completado',
+  overdue: 'Vencido',
 };
 
 // --- Incoterms ---
@@ -159,9 +159,9 @@ export type Incoterm =
 export type TransportMode = 'road' | 'rail' | 'sea' | 'multimodal';
 
 export const TRANSPORT_MODE_LABELS: Record<TransportMode, string> = {
-  road: 'Road',
-  rail: 'Rail',
-  sea: 'Sea',
+  road: 'Carretera',
+  rail: 'Ferrocarril',
+  sea: 'Marítimo',
   multimodal: 'Multimodal',
 };
 
@@ -171,10 +171,10 @@ export type ContainerType = 'flexitank' | 'iso_tank' | 'dry_container' | 'bulk' 
 
 export const CONTAINER_TYPE_LABELS: Record<ContainerType, string> = {
   flexitank: 'Flexitank',
-  iso_tank: 'ISO Tank',
-  dry_container: 'Dry Container',
-  bulk: 'Bulk',
-  other: 'Other',
+  iso_tank: 'Tanque ISO',
+  dry_container: 'Contenedor seco',
+  bulk: 'Granel',
+  other: 'Otro',
 };
 
 // --- Document Type ---
@@ -198,18 +198,18 @@ export type DocumentType =
 export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   cnpj_rut: 'CNPJ / RUT',
   coa: 'COA',
-  sgs: 'SGS Report',
+  sgs: 'Informe SGS',
   tds: 'TDS',
   sds_fds: 'SDS / FDS',
-  iscc: 'ISCC Certificate',
-  license: 'License',
-  photograph: 'Photograph',
+  iscc: 'Certificado ISCC',
+  license: 'Licencia',
+  photograph: 'Fotografía',
   video: 'Video',
-  bill_of_lading: 'Bill of Lading',
-  inspection_report: 'Inspection Report',
-  visit_report: 'Visit Report',
-  contract: 'Contract',
-  other: 'Other',
+  bill_of_lading: 'Conocimiento de embarque',
+  inspection_report: 'Informe de inspección',
+  visit_report: 'Informe de visita',
+  contract: 'Contrato',
+  other: 'Otro',
 };
 
 // --- Timeline Event Type ---
@@ -230,19 +230,19 @@ export type TimelineEventType =
   | 'status_change';
 
 export const TIMELINE_EVENT_LABELS: Record<TimelineEventType, string> = {
-  call: 'Call',
-  email: 'Email',
-  meeting: 'Meeting',
-  visit: 'Site Visit',
-  offer_received: 'Offer Received',
-  offer_revised: 'Offer Revised',
-  sample_requested: 'Sample Requested',
-  sample_received: 'Sample Received',
-  document_received: 'Document Received',
-  dd_update: 'Due Diligence Update',
-  logistics_update: 'Logistics Update',
+  call: 'Llamada',
+  email: 'Correo',
+  meeting: 'Reunión',
+  visit: 'Visita a planta',
+  offer_received: 'Oferta recibida',
+  offer_revised: 'Oferta revisada',
+  sample_requested: 'Muestra solicitada',
+  sample_received: 'Muestra recibida',
+  document_received: 'Documento recibido',
+  dd_update: 'Actualización de DD',
+  logistics_update: 'Actualización logística',
   note: 'Note',
-  status_change: 'Status Change',
+  status_change: 'Cambio de estado',
 };
 
 // ============================================================
