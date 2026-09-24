@@ -266,30 +266,59 @@ export function SuppliersPage() {
 
 function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
   const [url, setUrl] = useState('');
+  const [downloadUrl, setDownloadUrl] = useState('');
   const [error, setError] = useState('');
   useEffect(() => {
     let active = true;
     const load = async () => {
       if (!doc.file_url) return;
-      if (doc.file_url.startsWith('http')) { if (active) setUrl(doc.file_url); return; }
+      if (doc.file_url.startsWith('http')) {
+        if (active) { setUrl(doc.file_url); setDownloadUrl(doc.file_url); }
+        return;
+      }
       const client = getSupabaseClient();
       if (!client) { if (active) setError('Supabase no disponible'); return; }
-      const result = await client.storage.from('documents').createSignedUrl(doc.file_url, 3600);
+      const [preview, download] = await Promise.all([
+        client.storage.from('documents').createSignedUrl(doc.file_url, 3600),
+        client.storage.from('documents').createSignedUrl(doc.file_url, 3600, { download: true }),
+      ]);
       if (!active) return;
-      if (result.error) setError(result.error.message); else setUrl(result.data.signedUrl);
+      if (preview.error) setError(preview.error.message);
+      else {
+        setUrl(preview.data.signedUrl);
+        setDownloadUrl(download.error ? preview.data.signedUrl : download.data.signedUrl);
+      }
     };
     void load();
     return () => { active = false; };
   }, [doc.file_url]);
+
   if (error) return <div className="p-3 text-xs text-red-600">{error}</div>;
   if (!url) return <div className="p-3 text-xs text-gray-500">Cargando vista previa…</div>;
-  const lower = url.toLowerCase();
-  return <div className="border-t border-gray-200 bg-slate-50 p-3">
-    {lower.match(/\.(png|jpg|jpeg|webp|gif)(\?|$)/) ? <img src={url} alt={doc.title} className="max-h-[520px] w-full object-contain" /> :
-     lower.match(/\.pdf(\?|$)/) ? <iframe title={doc.title} src={url} className="h-[520px] w-full bg-white" /> :
-     lower.match(/\.(mp4|webm|mov)(\?|$)/) ? <video src={url} controls className="max-h-[520px] w-full" /> :
-     <a href={url} target="_blank" rel="noreferrer" className="text-sm font-medium text-[var(--astra-blue)]">Abrir documento</a>}
-  </div>;
+
+  const fileName = doc.file_name || doc.title || 'documento';
+  const lower = fileName.toLowerCase();
+  const isImage = /\.(png|jpg|jpeg|webp|gif)$/.test(lower);
+  const isPdf = /\.pdf$/.test(lower);
+  const isVideo = /\.(mp4|webm|mov)$/.test(lower);
+
+  return (
+    <div className="border-t border-gray-200 bg-slate-50 p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Vista previa</span>
+        <div className="flex items-center gap-2">
+          <a href={url} target="_blank" rel="noreferrer" className="rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700">Abrir</a>
+          <a href={downloadUrl} className="rounded-md bg-[var(--astra-blue)] px-2.5 py-1.5 text-xs font-medium text-white">Descargar</a>
+        </div>
+      </div>
+      {isImage ? <img src={url} alt={doc.title} className="max-h-[520px] w-full rounded-md bg-white object-contain" /> :
+       isPdf ? <object data={url} type="application/pdf" aria-label={doc.title} className="h-[520px] w-full rounded-md bg-white">
+         <div className="p-4 text-xs text-gray-500">El visor PDF del navegador no está disponible. Usa “Abrir” para ver el documento.</div>
+       </object> :
+       isVideo ? <video src={url} controls className="max-h-[520px] w-full rounded-md" /> :
+       <div className="rounded-md border border-dashed border-gray-200 bg-white p-5 text-center text-xs text-gray-500">Vista previa no disponible para este formato. Usa “Abrir” o “Descargar”.</div>}
+    </div>
+  );
 }
 
 function SupplierDetail({
