@@ -42,21 +42,65 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
 };
 
+function AstraMark({ size = 40 }: { size?: number }) {
+  const petals = [
+    ['red', '#E31E24', '#A6191D'],
+    ['orange', '#F58220', '#D95B10'],
+    ['yellow', '#FDB913', '#E5A00D'],
+    ['green', '#00A651', '#007A3D'],
+    ['blue', '#00AEEF', '#0072BC'],
+  ];
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="shrink-0">
+      <defs>
+        {petals.map(([id, a, b]) => (
+          <linearGradient key={id} id={`astra-brand-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={a} />
+            <stop offset="100%" stopColor={b} />
+          </linearGradient>
+        ))}
+      </defs>
+      <g transform="translate(50 50)">
+        {[0, 72, 144, 216, 288].map((rotation, i) => (
+          <g key={rotation} transform={`rotate(${rotation})`}>
+            <path
+              d="M50 1 C56 4 61 9 64 16 C68 27 57 40 50 50 C43 40 32 27 36 16 C39 9 44 4 50 1Z"
+              transform="translate(-50 -50)"
+              fill={`url(#astra-brand-${petals[i][0]})`}
+            />
+            <path
+              d="M50 43 C46 34 43 25 46 16"
+              transform="translate(-50 -50)"
+              fill="none"
+              stroke="white"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </g>
+        ))}
+      </g>
+    </svg>
+  );
+}
+
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={`relative flex items-center overflow-hidden ${compact ? 'h-10 w-[155px]' : 'h-11 w-[185px] sm:h-12 sm:w-[200px]'}`}>
-      <img
-        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-        alt="Astra Oil and Gas"
-        className="absolute inset-0 h-full w-full object-contain object-left"
-      />
-      <img
-        src="https://astraoilandgas.com/wp-content/uploads/2024/07/Astra_Logo_Horizontal_w-300x118.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-contain object-left grayscale contrast-[1000%]"
-        style={{ clipPath: 'inset(0 0 0 43%)' }}
-      />
+    <div className={`flex items-center gap-2.5 ${compact ? 'h-10' : 'h-12'}`}>
+      <AstraMark size={compact ? 30 : 40} />
+      <div className="flex flex-col justify-center leading-none whitespace-nowrap">
+        <div
+          className={`font-bold text-black ${compact ? 'text-[18px] tracking-[0.09em]' : 'text-[23px] sm:text-[24px] tracking-[0.08em]'}`}
+          style={{ fontFamily: 'Arial Narrow, Helvetica Neue, Arial, sans-serif', transform: 'scaleX(1.02)', transformOrigin: 'left center' }}
+        >
+          ASTRA
+        </div>
+        <div
+          className={`mt-1 text-[#808080] ${compact ? 'text-[7px] tracking-[0.08em]' : 'text-[8px] sm:text-[9px] tracking-[0.07em]'}`}
+          style={{ fontFamily: 'Georgia, Times New Roman, serif' }}
+        >
+          Oil and Gas
+        </div>
+      </div>
     </div>
   );
 }
@@ -72,14 +116,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         <aside className="hidden md:flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)]">
           <div className="border-b border-[var(--astra-border)] px-5 py-5">
             <button onClick={goToOverview} className="flex w-full items-center text-left" aria-label="Astra home">
-              <AstraLogo />
+              <AstraLogo compact />
             </button>
           </div>
           <nav className="flex-1 overflow-y-auto py-4">
-            <button
-              onClick={() => navigate('dashboard')}
-              className={`mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider ${currentPage === 'dashboard' ? 'text-[var(--astra-red)]' : 'text-[var(--astra-muted)] hover:text-[var(--astra-dark)]'}`}
-            >
+            <button onClick={() => navigate('dashboard')}
+              className={`mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider ${currentPage === 'dashboard' ? 'text-[var(--astra-red)]' : 'text-[var(--astra-muted)] hover:text-[var(--astra-dark)]'}`}>
               Resumen
             </button>
             {groups.map((group) => (
