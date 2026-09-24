@@ -4,28 +4,37 @@ import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Badge,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
+import { displayProductName } from '@/utils/productFamilies';
 import { FlaskConical } from 'lucide-react';
+import { useNav } from '@/context/NavContext';
 
 export function TechnicalPage() {
-  const { data: products, loading, error } = useAsync(
-    () => getStore().products.getAll(), []
-  );
+  const { procurementDomain } = useNav();
+  const { data, loading, error } = useAsync(async () => {
+    const store = getStore();
+    const products = procurementDomain
+      ? await store.products.getByDomainKey(procurementDomain)
+      : await store.products.getAll();
+
+    const withSpecs = await Promise.all(
+      products.map(async (product) => ({
+        product,
+        specs: await store.technicalSpecs.getByProduct(product.id),
+      }))
+    );
+
+    return withSpecs;
+  }, [procurementDomain]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
-
-  const productsWithSpecs = (products ?? []).map((p) => ({
-    product: p,
-    specs: getStore().technicalSpecs.getByProducto(p.id),
-  }));
-
-  if (!products || products.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <Card>
         <EmptyState
           icon={<FlaskConical size={28} />}
-          title="No hay especificaciones técnicas"
-          message="Primero debes registrar un producto; luego podrás capturar parámetros de calidad, COA, TDS y SDS/FDS."
+          title="No hay productos para revisar"
+          message="Primero registra un producto; después podrás capturar y verificar sus parámetros técnicos, COA, TDS y SDS/FDS."
         />
       </Card>
     );
@@ -35,21 +44,54 @@ export function TechnicalPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Técnico</h1>
-        <p className="text-sm text-gray-500 mt-1">Especificaciones técnicas y parámetros de calidad</p>
+        <p className="mt-1 text-sm text-gray-500">Especificaciones técnicas y parámetros de calidad por producto.</p>
       </div>
-      {productsWithSpecs.map(({ product }) => (
+
+      {data.map(({ product, specs }) => (
         <Card key={product.id}>
           <CardBody>
-            <div className="flex items-center justify-between mb-3">
+            <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">{product.name}</h3>
+                <h3 className="text-sm font-semibold text-gray-900">{displayProductName(product.name)}</h3>
                 <p className="text-xs text-gray-500">{product.composition || 'Sin datos de composición'}</p>
               </div>
               <Badge color={verificationColor(product.verification_status)}>
                 {verificationLabel(product.verification_status)}
               </Badge>
             </div>
-            <p className="text-sm text-gray-400">Aún no hay especificaciones técnicas. Agrega parámetros de COA, TDS, SDS/FDS y datos de calidad.</p>
+
+            {specs.length === 0 ? (
+              <p className="text-sm text-gray-400">Aún no hay especificaciones técnicas. Agrega parámetros de COA, TDS, SDS/FDS y datos de calidad.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-gray-200">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Parámetro</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Valor</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Unidad</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Método</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-gray-500">Verificación</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {specs.map((spec) => (
+                      <tr key={spec.id}>
+                        <td className="px-3 py-2 font-medium text-gray-900">{spec.parameter}</td>
+                        <td className="px-3 py-2 text-gray-700">{spec.value || '—'}</td>
+                        <td className="px-3 py-2 text-gray-600">{spec.unit || '—'}</td>
+                        <td className="px-3 py-2 text-gray-600">{spec.method || '—'}</td>
+                        <td className="px-3 py-2">
+                          <Badge color={verificationColor(spec.verification_status)}>
+                            {verificationLabel(spec.verification_status)}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </CardBody>
         </Card>
       ))}
