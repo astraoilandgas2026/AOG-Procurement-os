@@ -56,13 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)]">
         <div className="border-b border-[var(--astra-border)] px-5 py-5">
           <button onClick={() => { navigate('dashboard'); }} className="flex items-center gap-3 text-left">
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-[var(--astra-red)]" />
-              <span className="h-3 w-3 rounded-full bg-[var(--astra-orange)]" />
-              <span className="h-3 w-3 rounded-full bg-[var(--astra-yellow)]" />
-              <span className="h-3 w-3 rounded-full bg-[var(--astra-green)]" />
-              <span className="h-3 w-3 rounded-full bg-[var(--astra-blue)]" />
-            </div>
+            <div className="h-8 w-1 rounded-full bg-[var(--astra-red)]" />
             <div>
               <div className="text-sm font-bold tracking-wide text-[var(--astra-dark)]">ASTRA</div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--astra-gray)]">Oil and Gas · Procurement OS</div>
@@ -72,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {procurementDomain && (
           <nav className="flex-1 overflow-y-auto py-4">
-            <button onClick={() => { selectDomain(procurementDomain); navigate('dashboard'); }} className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white">
+            <button onClick={() => { selectDomain(procurementDomain); navigate('dashboard'); }} className="mb-4 flex w-full items-center gap-2 px-5 text-xs font-semibold uppercase tracking-wider text-[var(--astra-muted)] hover:text-[var(--astra-dark)]">
               <ChevronLeft size={15} /> Overview
             </button>
             {groups.map((group) => (
