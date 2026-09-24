@@ -52,8 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const groups = ['Intelligence', 'Activity'];
 
   return (
-    <div className="flex h-screen bg-white">
-      <aside className="flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)]">
+    <div className={`flex min-h-screen bg-white ${procurementDomain ? "h-screen" : ""}`}>
+      <aside className={`flex w-64 flex-shrink-0 flex-col bg-white text-[var(--astra-dark)] border-r border-[var(--astra-border)] ${procurementDomain ? "" : "hidden"}`}>
         <div className="border-b border-[var(--astra-border)] px-5 py-5">
           <button onClick={() => { navigate('dashboard'); }} className="flex items-center gap-3 text-left">
             <div className="h-8 w-1 rounded-full bg-[var(--astra-red)]" />
@@ -82,7 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         )}
 
-        <div className="border-t border-[var(--astra-border)] px-5 py-4">
+        <div className={`border-t border-[var(--astra-border)] px-5 py-4 ${procurementDomain ? "" : "hidden"}`}>
           {procurementDomain && (
             <div className="mb-3 flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs text-[var(--astra-muted)] border border-[var(--astra-border)]">
               {DOMAIN_META[procurementDomain].icon}<span>{DOMAIN_META[procurementDomain].label}</span>
@@ -93,16 +93,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex flex-shrink-0 items-center justify-between border-b border-[var(--astra-border)] bg-white px-8 py-4">
+        <header className="flex flex-shrink-0 items-center justify-between border-b border-[var(--astra-border)] bg-white px-5 py-4 sm:px-8">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
-            <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
+            {!procurementDomain ? (
+              <button onClick={() => navigate('dashboard')} className="text-left" aria-label="Astra home">
+                <div className="text-xl font-black tracking-wide text-[var(--astra-dark)]">ASTRA</div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--astra-gray)]">Oil and Gas</div>
+              </button>
+            ) : (
+              <>
+                <h1 className="text-xl font-bold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
+                <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
+              </>
+            )}
           </div>
-          {procurementDomain && (
-            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">
-              {DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}
-            </div>
-          )}
+          {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
         </header>
         <main className="flex-1 overflow-y-auto p-8">{children}</main>
       </div>
