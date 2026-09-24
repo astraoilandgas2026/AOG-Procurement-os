@@ -42,7 +42,7 @@ export function DueDiligencePage() {
   );
   const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Unknown']));
+  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const openDDCreate = () => {
     setDDForm(emptyDDForm(suppliers?.[0]?.id ?? ''));
@@ -57,7 +57,7 @@ export function DueDiligencePage() {
   };
 
   const removeDD = async (id: string) => {
-    if (!confirm('Delete this DD item?')) return;
+    if (!confirm('¿Eliminar este elemento de DD?')) return;
     await getStore().dueDiligence.remove(id);
     refresh();
   };
@@ -75,7 +75,7 @@ export function DueDiligencePage() {
   };
 
   const removeFlag = async (id: string) => {
-    if (!confirm('Delete this red flag?')) return;
+    if (!confirm('¿Eliminar esta alerta de riesgo?')) return;
     await getStore().redFlags.remove(id);
     refresh();
   };
@@ -91,7 +91,7 @@ export function DueDiligencePage() {
       <Card>
         <EmptyState
           icon={<ShieldCheck size={28} />}
-          title="No due diligence records"
+          title="No hay registros de debida diligencia"
           message="Register a supplier first, then create due diligence items to track legal, operational, product, export, commercial risk, and compliance verification."
         />
       </Card>
@@ -101,7 +101,7 @@ export function DueDiligencePage() {
   return (
     <div>
       <PageHeader
-        title="Due Diligence"
+        title="Debida Diligencia"
         subtitle="Verification and risk assessment"
         action={
           hasSuppliers && (
@@ -115,12 +115,12 @@ export function DueDiligencePage() {
 
       {/* DD Items */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Due Diligence Items</h2>
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">Elementos de debida diligencia</h2>
         {!hasDD ? (
           <Card>
             <EmptyState
               icon={<ShieldCheck size={28} />}
-              title="No DD items yet"
+              title="Aún no hay elementos de DD"
               message="Create due diligence items to track verification across legal existence, operation/capacity, product/quality, export history, commercial risk, and compliance."
               action={hasSuppliers ? <Button onClick={openDDCreate}><Plus size={16} /> Add DD Item</Button> : undefined}
             />
@@ -155,7 +155,7 @@ export function DueDiligencePage() {
 
       {/* Red Flags */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Red Flags</h2>
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">Alertas de riesgo</h2>
         <Card>
           <CardBody>
             <p className="text-sm text-gray-500">No red flags recorded. Record risks such as unrealistic prices, perfect specs without evidence, excessive intermediaries, pressure for advance payment, or inconsistent documentation.</p>
@@ -167,20 +167,20 @@ export function DueDiligencePage() {
       <Modal
         open={showDDForm}
         onClose={() => setShowDDForm(false)}
-        title="Add Due Diligence Item"
-        footer={<><Button variant="secondary" onClick={() => setShowDDForm(false)}>Cancel</Button><Button onClick={saveDD}>Create</Button></>}
+        title="Agregar elemento de debida diligencia"
+        footer={<><Button variant="secondary" onClick={() => setShowDDForm(false)}>Cancelar</Button><Button onClick={saveDD}>Crear</Button></>}
       >
         {ddForm && (
           <div className="space-y-3">
-            <Select label="Supplier" value={ddForm.supplier_id} onChange={(v) => setDDForm({ ...ddForm, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))} required />
+            <Select label="Proveedor" value={ddForm.supplier_id} onChange={(v) => setDDForm({ ...ddForm, supplier_id: v })}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Select label="DD Category" value={ddForm.category} onChange={(v) => setDDForm({ ...ddForm, category: v as DDCategory })} options={DD_CATEGORY_OPTIONS} />
-            <Select label="Status" value={ddForm.status} onChange={(v) => setDDForm({ ...ddForm, status: v as DDStatus })} options={DD_STATUS_OPTIONS} />
-            <TextArea label="Findings" value={ddForm.findings} onChange={(v) => setDDForm({ ...ddForm, findings: v })} />
-            <Input label="Evidence Reference" value={ddForm.evidence_ref} onChange={(v) => setDDForm({ ...ddForm, evidence_ref: v })} />
+            <Select label="Estado" value={ddForm.status} onChange={(v) => setDDForm({ ...ddForm, status: v as DDStatus })} options={DD_STATUS_OPTIONS} />
+            <TextArea label="Hallazgos" value={ddForm.findings} onChange={(v) => setDDForm({ ...ddForm, findings: v })} />
+            <Input label="Referencia de evidencia" value={ddForm.evidence_ref} onChange={(v) => setDDForm({ ...ddForm, evidence_ref: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Reviewer" value={ddForm.reviewer} onChange={(v) => setDDForm({ ...ddForm, reviewer: v })} />
-              <Input label="Review Date" type="date" value={ddForm.review_date} onChange={(v) => setDDForm({ ...ddForm, review_date: v })} />
+              <Input label="Revisor" value={ddForm.reviewer} onChange={(v) => setDDForm({ ...ddForm, reviewer: v })} />
+              <Input label="Fecha de revisión" type="date" value={ddForm.review_date} onChange={(v) => setDDForm({ ...ddForm, review_date: v })} />
             </div>
           </div>
         )}
@@ -190,20 +190,20 @@ export function DueDiligencePage() {
       <Modal
         open={showFlagForm}
         onClose={() => setShowFlagForm(false)}
-        title="Record Red Flag"
-        footer={<><Button variant="secondary" onClick={() => setShowFlagForm(false)}>Cancel</Button><Button onClick={saveFlag} disabled={!flagForm?.description}>Create</Button></>}
+        title="Registrar alerta de riesgo"
+        footer={<><Button variant="secondary" onClick={() => setShowFlagForm(false)}>Cancelar</Button><Button onClick={saveFlag} disabled={!flagForm?.description}>Crear</Button></>}
       >
         {flagForm && (
           <div className="space-y-3">
-            <Select label="Supplier" value={flagForm.supplier_id} onChange={(v) => setFlagForm({ ...flagForm, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Unnamed' }))} required />
-            <Input label="Flag Type" value={flagForm.flag_type} onChange={(v) => setFlagForm({ ...flagForm, flag_type: v })} placeholder="e.g. Unrealistic price" />
+            <Select label="Proveedor" value={flagForm.supplier_id} onChange={(v) => setFlagForm({ ...flagForm, supplier_id: v })}
+              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Input label="Tipo de alerta" value={flagForm.flag_type} onChange={(v) => setFlagForm({ ...flagForm, flag_type: v })} placeholder="e.g. Unrealistic price" />
             <TextArea label="Description" required value={flagForm.description} onChange={(v) => setFlagForm({ ...flagForm, description: v })} />
             <TextArea label="Evidence" value={flagForm.evidence} onChange={(v) => setFlagForm({ ...flagForm, evidence: v })} />
             <Input label="Source" value={flagForm.source} onChange={(v) => setFlagForm({ ...flagForm, source: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Reviewer" value={flagForm.reviewer} onChange={(v) => setFlagForm({ ...flagForm, reviewer: v })} />
-              <Input label="Flag Date" type="date" value={flagForm.flag_date} onChange={(v) => setFlagForm({ ...flagForm, flag_date: v })} />
+              <Input label="Revisor" value={flagForm.reviewer} onChange={(v) => setFlagForm({ ...flagForm, reviewer: v })} />
+              <Input label="Fecha de alerta" type="date" value={flagForm.flag_date} onChange={(v) => setFlagForm({ ...flagForm, flag_date: v })} />
             </div>
             <p className="text-xs text-gray-400">The system records evidence and source. It does not automatically classify a supplier as fraudulent.</p>
           </div>
