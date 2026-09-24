@@ -244,10 +244,10 @@ function AstraLoadingMark({ size = 112 }: { size?: number }) {
       <g transform="translate(50 50)">
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <path key={rotation} transform={`rotate(${rotation})`}
-            d="M0 0 C-13 -7 -24 -20 -22 -33 C-20 -45 -9 -51 0 -48 C10 -44 14 -32 10 -20 C7 -11 4 -5 0 0Z"
+            d="M0 0 C-12 -7 -21 -19 -20 -30 C-19 -40 -10 -46 0 -44 C9 -41 12 -30 9 -19 C6 -10 3 -4 0 0Z"
             fill={`url(#loading-${petals[i][0]})`} />
         ))}
-        <path d="M48 28 C33 17 19 15 7 21 C17 19 28 24 35 34" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" />
+        <path d="M30 16 C22 11 14 10 8 14 C16 13 22 17 26 22" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" />
       </g>
     </svg>
   );
