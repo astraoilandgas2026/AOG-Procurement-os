@@ -86,7 +86,7 @@ export function ComercialPage() {
       <PageHeader
         title="Comercial"
         subtitle="Ofertas comerciales y precios"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Offer</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar oferta</Button> : undefined}
       />
 
       {!offers || offers.length === 0 ? (
@@ -97,7 +97,7 @@ export function ComercialPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra la primera oferta comercial para seguir precios, Incoterms, condiciones de pago e historial de negociación."
               : "Registra primero un proveedor y luego agrega ofertas comerciales."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Add Offer</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar oferta</Button> : undefined}
           />
         </Card>
       ) : (
@@ -122,7 +122,7 @@ export function ComercialPage() {
                   <div>Offered: <span className="font-medium text-gray-900">{o.offered_volume || '—'}</span></div>
                   <div>Trial: <span className="font-medium text-gray-900">{o.trial_quantity || '—'}</span></div>
                   <div>Recurring: <span className="font-medium text-gray-900">{o.recurring_quantity || '—'}</span></div>
-                  <div>Payment: <span className="font-medium text-gray-900">{o.payment_terms || '—'}</span></div>
+                  <div>Pago: <span className="font-medium text-gray-900">{o.payment_terms || '—'}</span></div>
                   {o.product_id && <div>Product: <span className="font-medium text-gray-900">{productMap.get(o.product_id) ?? '—'}</span></div>}
                   <div>Validity: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
