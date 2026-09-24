@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
-import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -378,7 +378,7 @@ function SupplierDetail({
       <DetailSection title="5. Técnico / Calidad — Ficha Técnica Ampliada">
         {!data.specs.length ? <EmptyLine text="No hay parámetros técnicos registrados. Evidencia esperada: COA, TDS, SDS/FDS, análisis de laboratorio y límites de calidad específicos del producto." /> : data.specs.map(({ product, specs }) => (
           <div key={product.id} className="mb-3 rounded-lg border border-gray-100 p-3 last:mb-0">
-            <div className="mb-2 flex items-center gap-2"><FlaskConical size={15} className="text-gray-400" /><span className="text-sm font-semibold text-gray-900">{product.name}</span></div>
+            <div className="mb-2 flex items-center gap-2"><FlaskConical size={15} className="text-gray-400" /><span className="text-sm font-semibold text-gray-900">{displayProductName(product.name)}</span></div>
             <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="border-b border-gray-100 text-left text-gray-500"><th className="py-2 pr-3">Parámetro</th><th className="py-2 pr-3">Valor</th><th className="py-2 pr-3">Unidad</th><th className="py-2 pr-3">Método</th><th className="py-2">Evidencia</th></tr></thead><tbody>{specs.map(s => <tr key={s.id} className="border-b border-gray-50"><td className="py-2 pr-3 font-medium text-gray-800">{s.parameter}</td><td className="py-2 pr-3">{s.value || '—'}</td><td className="py-2 pr-3">{s.unit || '—'}</td><td className="py-2 pr-3">{s.method || '—'}</td><td className="py-2"><Badge color={verificationColor(s.verification_status)}>{verificationLabel(s.verification_status)}</Badge></td></tr>)}</tbody></table></div>
           </div>
         ))}
