@@ -30,7 +30,18 @@ export function ProductsPage() {
       supplierId,
       supplierName: supplierMap.get(supplierId) ?? 'Proveedor sin nombre',
       products: supplierProducts.sort((a, b) => displayProductName(a.name).localeCompare(displayProductName(b.name))),
-    })).sort((a, b) => a.supplierName.localeCompare(b.supplierName));
+    })).sort((a, b) => {
+      const rank = (name: string) => {
+        const value = name.toLowerCase();
+        if (value.includes('fl óleos') || value.includes('fl oleos')) return 0;
+        if (value.includes('olam agro')) return 1;
+        if (value.includes('renovar')) return 2;
+        return 100;
+      };
+      const rankA = rank(a.supplierName);
+      const rankB = rank(b.supplierName);
+      return rankA - rankB || a.supplierName.localeCompare(b.supplierName);
+    });
   }, [products, supplierMap]);
   const openCrear = () => { setForm(emptyForm('')); setShowForm(true); };
   const save = async () => { if (!form || !form.supplier_id || !form.name) return; await getStore().products.create(form); setShowForm(false); refresh(); };
