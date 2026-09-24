@@ -32,7 +32,7 @@ export function displayProductName(name: string): string {
     [/vegetable oils?/gi, 'Aceites vegetales'],
     [/mixed vegetable feedstock/gi, 'Materia prima vegetal mixta'],
     [/mixed vegetable/gi, 'Vegetal mixto'],
-    [/mixed cotton/gi, 'Mixto de algodón'],
+    [/mixed cotton/gi, 'Mixo de algodón y soya'],
     [/cotton/gi, 'Algodón'],
     [/soybean/gi, 'Soya'],
     [/soy/gi, 'Soya'],
