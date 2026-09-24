@@ -70,28 +70,12 @@ export function DashboardPage() {
     return (
       <div className="space-y-8">
         <div className="max-w-3xl">
-          <div className="mb-5 inline-flex items-center">
+          <div className="mb-6 flex items-center">
             <div className="flex items-center gap-3">
-              <svg width="48" height="48" viewBox="0 0 100 100" aria-hidden="true" className="shrink-0">
-                <defs>
-                  <linearGradient id="overview-astra-red" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#E31E24" /><stop offset="100%" stopColor="#A6191D" /></linearGradient>
-                  <linearGradient id="overview-astra-orange" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#F58220" /><stop offset="100%" stopColor="#D95B10" /></linearGradient>
-                  <linearGradient id="overview-astra-yellow" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#FDB913" /><stop offset="100%" stopColor="#E5A00D" /></linearGradient>
-                  <linearGradient id="overview-astra-green" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#00A651" /><stop offset="100%" stopColor="#007A3D" /></linearGradient>
-                  <linearGradient id="overview-astra-blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#00AEEF" /><stop offset="100%" stopColor="#0072BC" /></linearGradient>
-                </defs>
-                <g transform="translate(50 50)">
-                  {[0,72,144,216,288].map((rotation, i) => (
-                    <g key={rotation} transform={`rotate(${rotation})`}>
-                      <path d="M0 0 C-7 -7 -15 -17 -14 -29 C-13 -39 -6 -46 0 -50 C6 -46 13 -39 14 -29 C15 -17 7 -7 0 0Z" fill={[\"url(#overview-astra-red)\",\"url(#overview-astra-orange)\",\"url(#overview-astra-yellow)\",\"url(#overview-astra-green)\",\"url(#overview-astra-blue)\"][i]} />
-                      <path d="M0 -7 C-4 -15 -7 -24 -4 -35" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" />
-                    </g>
-                  ))}
-                </g>
-              </svg>
+              <img src="/AOG-Procurement-os/astra-mark.svg" alt="Astra Oil and Gas" className="h-12 w-12 shrink-0" />
               <div className="leading-none whitespace-nowrap">
-                <div className="text-[19px] font-medium tracking-[0.12em] text-black [font-family:Arial_Narrow,Roboto_Condensed,Arial,sans-serif]">ASTRA</div>
-                <div className="mt-0.5 text-[9px] font-serif font-normal tracking-[0.02em] text-black">Oil and Gas</div>
+                <div className="text-[19px] font-normal tracking-[0.08em] text-black">ASTRA</div>
+                <div className="mt-1 text-[10px] font-normal tracking-[0.01em] text-[var(--astra-gray)]">Oil and Gas</div>
               </div>
             </div>
           </div>
