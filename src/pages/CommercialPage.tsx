@@ -120,8 +120,8 @@ export function ComercialPage() {
                   <div>Incoterm: <span className="font-medium text-gray-900">{o.incoterm}</span></div>
                   <div>Port: <span className="font-medium text-gray-900">{o.port || '—'}</span></div>
                   <div>Offered: <span className="font-medium text-gray-900">{o.offered_volume || '—'}</span></div>
-                  <div>Trial: <span className="font-medium text-gray-900">{o.trial_quantity || '—'}</span></div>
-                  <div>Recurring: <span className="font-medium text-gray-900">{o.recurring_quantity || '—'}</span></div>
+                  <div>Prueba: <span className="font-medium text-gray-900">{o.trial_quantity || '—'}</span></div>
+                  <div>Recurrente: <span className="font-medium text-gray-900">{o.recurring_quantity || '—'}</span></div>
                   <div>Pago: <span className="font-medium text-gray-900">{o.payment_terms || '—'}</span></div>
                   {o.product_id && <div>Product: <span className="font-medium text-gray-900">{productMap.get(o.product_id) ?? '—'}</span></div>}
                   <div>Validity: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
