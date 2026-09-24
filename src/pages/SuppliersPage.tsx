@@ -13,7 +13,7 @@ import {
 } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import {
-  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle, Globe2,
+  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle,
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -429,10 +429,6 @@ function SupplierDetail({
         ))}
       </DetailSection>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold text-gray-900"><Globe2 size={15} /> Verificación discipline</div>
-        <p className="mt-1 text-xs leading-5 text-gray-600">Toda afirmación debe conservar su estado CLAIMED, DOCUMENTED, INDEPENDENTLY VERIFIED o PHYSICALLY VERIFIED. Los registros públicos mostrados aquí son evidencia pública independiente; calidad del producto, capacidad actual, disponibilidad, historial exportador y certificados vigentes requieren evidencia propia.</p>
-      </div>
     </div>
   );
 }
