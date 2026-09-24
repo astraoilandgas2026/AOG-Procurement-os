@@ -3,13 +3,13 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { useNav } from '@/context/NavContext';
 import {
-  Card, CardBody, EmptyState, LoadingSpinner, ErrorState,
-  Button, Input, Select, Badge, Modal, PageHeader,
+  Card, CardBody, EmptyState, CargaSpinner, ErrorState,
+  Button, Input, Seleccionar, Badge, Modal, PageHeader,
 } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
-import { Plus, DollarSign, Trash2, Edit3 } from 'lucide-react';
-import type { CommercialOffer, Incoterm, VerificationStatus } from '@/types';
+import { Plus, DollarSign, Trash2, Editar3 } from 'lucide-react';
+import type { CommercialOffer, Incoterm, VerificaciónStatus } from '@/types';
 import { VERIFICATION_LABELS } from '@/types';
 
 const INCOTERM_OPTIONS: { value: string; label: string }[] = [
@@ -31,7 +31,7 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
 export function ComercialPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditaringId] = useState<string | null>(null);
   const { procurementDomain } = useNav();
 
   const { data: offers, loading, error, refresh } = useAsync(
@@ -50,7 +50,7 @@ export function ComercialPage() {
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const productMap = new Map((products ?? []).map((p) => [p.id, p.name]));
 
-  const openCreate = () => {
+  const openCrear = () => {
     setForm(emptyForm(suppliers?.[0]?.id ?? ''));
     setShowForm(true);
   };
@@ -60,14 +60,14 @@ export function ComercialPage() {
     if (editingId) await getStore().commercialOffers.update(editingId, form);
     else await getStore().commercialOffers.create(form);
     setShowForm(false);
-    setEditingId(null);
+    setEditaringId(null);
     refresh();
   };
 
-  const openEdit = (o: CommercialOffer) => {
+  const openEditar = (o: CommercialOffer) => {
     const { id, created_at, updated_at, ...rest } = o;
     void created_at; void updated_at;
-    setEditingId(id);
+    setEditaringId(id);
     setForm(rest);
     setShowForm(true);
   };
@@ -78,7 +78,7 @@ export function ComercialPage() {
     refresh();
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <CargaSpinner />;
   if (error) return <ErrorState message={error} />;
 
   return (
@@ -86,7 +86,7 @@ export function ComercialPage() {
       <PageHeader
         title="Comercial"
         subtitle="Ofertas comerciales y precios"
-        action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar oferta</Button> : undefined}
+        action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar oferta</Button> : undefined}
       />
 
       {!offers || offers.length === 0 ? (
@@ -97,7 +97,7 @@ export function ComercialPage() {
             message={suppliers && suppliers.length > 0
               ? "Registra la primera oferta comercial para seguir precios, Incoterms, condiciones de pago e historial de negociación."
               : "Registra primero un proveedor y luego agrega ofertas comerciales."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCreate}><Plus size={16} /> Agregar oferta</Button> : undefined}
+            action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar oferta</Button> : undefined}
           />
         </Card>
       ) : (
@@ -118,16 +118,16 @@ export function ComercialPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                   <div>Incoterm: <span className="font-medium text-gray-900">{o.incoterm}</span></div>
-                  <div>Port: <span className="font-medium text-gray-900">{o.port || '—'}</span></div>
-                  <div>Offered: <span className="font-medium text-gray-900">{o.offered_volume || '—'}</span></div>
+                  <div>Puerto: <span className="font-medium text-gray-900">{o.port || '—'}</span></div>
+                  <div>Ofertado: <span className="font-medium text-gray-900">{o.offered_volume || '—'}</span></div>
                   <div>Prueba: <span className="font-medium text-gray-900">{o.trial_quantity || '—'}</span></div>
                   <div>Recurrente: <span className="font-medium text-gray-900">{o.recurring_quantity || '—'}</span></div>
                   <div>Pago: <span className="font-medium text-gray-900">{o.payment_terms || '—'}</span></div>
-                  {o.product_id && <div>Product: <span className="font-medium text-gray-900">{productMap.get(o.product_id) ?? '—'}</span></div>}
-                  <div>Validity: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
+                  {o.product_id && <div>Producto: <span className="font-medium text-gray-900">{productMap.get(o.product_id) ?? '—'}</span></div>}
+                  <div>Vigencia: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={() => openEditar(o)}><Editar3 size={14} /></Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
@@ -138,21 +138,21 @@ export function ComercialPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title={editingId ? 'Editar Oferta Comercial' : 'Agregar Oferta Comercial'}
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar Cambios' : 'Crear'}</Button></>}
+        title={editingId ? 'Editarar Oferta Comercial' : 'Agregar Oferta Comercial'}
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}
       >
         {form && (
           <div className="space-y-3">
-            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
+            <Seleccionar label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
               options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
+            <Seleccionar label="Productoo" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
               options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
               <Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
             </div>
             <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
-            <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
+            <Seleccionar label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} />
               <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
@@ -160,7 +160,7 @@ export function ComercialPage() {
             <Input label="Destino" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
             <Input label="Condiciones de pago" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
             <div className="grid grid-cols-2 gap-3">
-              <Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
+              <Input label="Volumenn ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
               <Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -168,7 +168,7 @@ export function ComercialPage() {
               <Input label="Cert. Premium" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
             </div>
             <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
-            <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
+            <Seleccionar label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificaciónStatus })} options={VERIFICATION_OPTIONS} />
           </div>
         )}
       </Modal>
