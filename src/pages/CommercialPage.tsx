@@ -22,7 +22,7 @@ const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, la
 function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> {
   return {
     supplier_id: supplierId, product_id: '', price: '', currency: 'USD', price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
-    destination: '', payment_terms: '', offered_volume: '', trial_quantity: '', recurring_quantity: '', certification_premium: '', commercial_validity: '',
+    destination: '', payment_terms: '', offered_volume: '', trial_quantity: '', recurring_quantity: '', certification_premium: '' , commercial_validity: '',
     verification_status: 'claimed', price_unit: 'MT', price_date: '', source: '',
   };
 }
@@ -179,7 +179,6 @@ export function CommercialPage() {
                   <div>Recurrente: <span className="font-medium text-gray-900">{o.recurring_quantity || '—'}</span></div>
                   <div>Pago: <span className="font-medium text-gray-900">{o.payment_terms || '—'}</span></div>
                   {o.product_id && <div>Producto: <span className="font-medium text-gray-900">{productMap.get(o.product_id) ?? '—'}</span></div>}
-                  <div>Vigencia: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
                   <Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); openSheet(o); }}><FileText size={14} /> Ficha comercial</Button><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); openEdit(o); }}><Edit3 size={14} /> Editar</Button><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(o.id); }}><Trash2 size={14} /></Button>
@@ -228,7 +227,6 @@ export function CommercialPage() {
             <Input label="Condiciones de pago" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
             <div className="grid grid-cols-2 gap-3"><Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} /><Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} /></div>
             <div className="grid grid-cols-2 gap-3"><Input label="Cantidad recurrente" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} /><Input label="Prima de certificación" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} /></div>
-            <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
             <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
           </div>
         )}
