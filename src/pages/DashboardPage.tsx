@@ -108,7 +108,7 @@ export function DashboardPage() {
   const totalContacts = data.contacts.length;
   const totalProducts = new Set(data.products.map((p) => getProductFamily(p))).size;
   const totalDocuments = data.documents.length;
-  const totalDueDiligence = data.due_diligence.length;
+  const totalDueDiligence = new Set(data.due_diligence.map((d) => d.supplier_id)).size;
   const totalCommercialOffers = data.commercial_offers.length;
   const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
 
