@@ -53,8 +53,6 @@ function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interi
   if (country === 'argentina') return 'argentina';
   if (country === 'colombia') return 'colombia';
   if (country === 'espana' || country === 'spain') return 'espana';
-  if (country === 'alemania' || country === 'germany') return 'alemania';
-
   if (country === 'brasil' || country === 'brazil') {
     if (normalizedLocation.includes('sao paulo') || /,\\s*sp\\b/.test(normalizedLocation) || /\\bsp\\b/.test(normalizedLocation)) return 'sao_paulo';
     if (BRAZIL_INTERIOR_TERMS.some((term) => normalizedLocation.includes(term.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()))) return 'interior';
