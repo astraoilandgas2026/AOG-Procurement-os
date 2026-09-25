@@ -2,7 +2,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, ShieldCheck, CheckSquare, Package, FileText, Droplets, Fuel, ArrowRight } from 'lucide-react';
+import { Building2, ShieldCheck, CheckSquare, Package, FileText, Droplets, Fuel, Pickaxe, ArrowRight } from 'lucide-react';
 import type { AppData } from '@/types';
 import { getProductFamily } from '@/utils/productFamilies';
 
@@ -23,6 +23,12 @@ const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
     description: 'Inteligencia comercial para commodities energéticos convencionales y suministro físico.',
     icon: Fuel,
     products: 'Gas · fuel oil · petcoke · diésel · crudo · otros commodities energéticos',
+  },
+  mining_commodities: {
+    title: 'Mining Commodities',
+    description: 'Inteligencia de abastecimiento para commodities mineros, minerales y corrientes de carbón.',
+    icon: Pickaxe,
+    products: 'Carbón · minerales · concentrados · commodities mineros y subproductos',
   },
 };
 
@@ -69,7 +75,7 @@ export function DashboardPage() {
           <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
           <p className="mt-2 text-sm text-slate-500">Selecciona el universo de abastecimiento con el que quieres trabajar. El espacio de inteligencia se adaptará al dominio seleccionado.</p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-5xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
           {(Object.keys(DOMAIN_CONTENT) as ProcurementDomain[]).map((key) => {
             const domain = DOMAIN_CONTENT[key];
             const Icon = domain.icon;
