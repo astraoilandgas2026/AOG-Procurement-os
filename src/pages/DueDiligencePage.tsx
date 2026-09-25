@@ -94,6 +94,7 @@ export function DueDiligencePage() {
 
   const hasSuppliers = suppliers && suppliers.length > 0;
   const hasDD = ddItems && ddItems.length > 0;
+  const suppliersWithDD = new Set((ddItems ?? []).map((item) => item.supplier_id)).size;
 
   if (!hasSuppliers && !hasDD) {
     return (
@@ -124,7 +125,7 @@ export function DueDiligencePage() {
 
       {/* DD Items */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-700 mb-3">Elementos de debida diligencia</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">\n          <h2 className="text-sm font-semibold text-gray-700">Proveedores con debida diligencia</h2>\n          <span className="text-xs font-medium text-gray-500">{suppliersWithDD} proveedores</span>\n        </div>
         {!hasDD ? (
           <Card>
             <EmptyState
@@ -142,10 +143,10 @@ export function DueDiligencePage() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-base font-semibold text-gray-900">{supplierMap.get(supplierId) ?? 'Proveedor sin nombre'}</h3>
-                      <p className="text-xs text-gray-500">{items.length} de 6 categorías de DD registradas</p>
+                      <p className="text-xs text-gray-500">Información de DD consolidada en un único perfil</p>
                     </div>
                     <Badge color={items.every((item) => item.status === 'completed') ? 'green' : 'yellow'}>
-                      {items.filter((item) => item.status === 'completed').length}/{items.length} completas
+                      {items.filter((item) => item.status === 'completed').length}/{items.length} categorías completas
                     </Badge>
                   </div>
 
