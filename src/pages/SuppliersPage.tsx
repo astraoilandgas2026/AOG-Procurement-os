@@ -440,7 +440,7 @@ function SupplierDetail({
       </DetailSection>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="1. Identidad Legal y Corporativa">
+        <DetailSection title="6. Identidad Legal y Corporativa">
           <DetailRow label="Razón social" value={supplier.legal_name} /><DetailRow label="Nombre comercial" value={supplier.trading_name} />
           <DetailRow label="País" value={supplier.country} /><DetailRow label="Ciudad" value={supplier.city} /><DetailRow label="Dirección" value={supplier.address} />
           <DetailRow label="CNPJ / RUT" value={supplier.tax_id} /><DetailRow label="CNAE / actividad declarada" value={supplier.cnae} />
@@ -471,7 +471,7 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="5. Certificaciones">
+        <DetailSection title="3. Certificaciones">
           {!data.certifications.length ? <EmptyLine text="No hay registros de certificación. Las afirmaciones como ISCC permanecen sin verificar hasta adjuntar evidencia documental." /> : data.certifications.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 p-3"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">{c.cert_type}</span><Badge color={c.status === 'active' ? 'green' : c.status === 'revoked' ? 'red' : 'yellow'}>{c.status}</Badge></div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Número: {c.cert_number || '—'}</span><span>Emisor: {c.issuing_body || '—'}</span><span>Emisión: {c.issue_date || '—'}</span><span>Vencimiento: {c.expiration_date || '—'}</span></div>{c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
@@ -531,7 +531,7 @@ function SupplierDetail({
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <DetailSection title="3. Contactos">
+        <DetailSection title="7. Contactos">
           {!data.contacts.length ? <EmptyLine text="Sin registro de contacto." /> : data.contacts.map(c => (
             <div key={c.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{c.name || 'Contacto sin nombre'}</div><div className="text-xs text-gray-500">{c.title || 'Cargo no especificado'}</div></div>{c.is_primary && <Badge color="blue">Principal</Badge>}</div>
@@ -543,7 +543,7 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
-        <DetailSection title="4. Products y Variantes del Proveedor">
+        <DetailSection title="8. Products y Variantes del Proveedor">
           {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
             <div key={p.id} className="rounded-lg border border-gray-100 p-3">
               <div className="flex items-start justify-between gap-2"><div><div className="text-sm font-semibold text-gray-900">{p.name}</div><div className="text-xs text-gray-500">{p.composition || 'Sin composición registrada'}</div></div><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></div>
