@@ -1,6 +1,6 @@
 import type { FeedstockType, Product } from '@/types';
 
-export type ProductFamily = 'uco' | 'vegetable_oils' | 'off_spec' | 'acid_oils_fatty_acids' | 'secondary_residues';
+export type ProductFamily = 'uco' | 'vegetable_oils' | 'off_spec' | 'acid_oils_fatty_acids' | 'secondary_residues' | 'refined_petroleum' | 'crude_oil' | 'lng_natural_gas' | 'other_energy';
 
 export const PRODUCT_FAMILY_LABELS: Record<ProductFamily, string> = {
   uco: 'UCO / AVU',
@@ -8,10 +8,19 @@ export const PRODUCT_FAMILY_LABELS: Record<ProductFamily, string> = {
   off_spec: 'Aceites fuera de especificación',
   acid_oils_fatty_acids: 'Aceites ácidos / ácidos grasos / borra',
   secondary_residues: 'Subproductos / residuos de extracción',
+  refined_petroleum: 'Productos refinados / derivados del petróleo',
+  crude_oil: 'Crudos',
+  lng_natural_gas: 'LNG / Gas natural',
+  other_energy: 'Otros commodities energéticos',
 };
 
-export function getProductFamily(product: Pick<Product, 'feedstock_type' | 'name'>): ProductFamily {
+export function getProductFamily(product: Pick<Product, 'feedstock_type' | 'name' | 'commodity_category'>): ProductFamily {
   const name = product.name.toLowerCase();
+  const category = (product.commodity_category || '').toLowerCase();
+  if (/refined|petroleum|derivatives/.test(category)) return 'refined_petroleum';
+  if (/crude/.test(category)) return 'crude_oil';
+  if (/lng|natural.?gas/.test(category)) return 'lng_natural_gas';
+  if (category && category !== 'feedstock') return 'other_energy';
   const type = product.feedstock_type as FeedstockType;
   if (type === 'uco' || /uco|used cooking|used frying|recovered cooking|avu/.test(name)) return 'uco';
   if (type === 'off_spec_oil' || /off[- ]spec/.test(name)) return 'off_spec';
