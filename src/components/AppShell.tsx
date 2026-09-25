@@ -26,7 +26,7 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   dashboard: { title: 'Resumen', subtitle: 'Visión general de inteligencia de procurement' },
   suppliers: { title: 'Proveedores', subtitle: 'Perfiles de inteligencia de proveedores' },
   contacts: { title: 'Contactos', subtitle: 'Directorio de contactos de proveedores' },
-  products: { title: 'Productos', subtitle: 'Registro de materias primas y productos' },
+  products: { title: 'Productos', subtitle: '' },
   commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
   certifications: { title: 'Certificaciones', subtitle: 'Seguimiento de certificaciones y evidencia' },
   documents: { title: 'Documentos', subtitle: 'Gestión de evidencia y documentos' },
@@ -155,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : (
               <>
                 <h1 className="text-xl font-semibold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
-                <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
+                {pageInfo.subtitle && <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>}
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {(Object.keys(DOMAIN_META) as ProcurementDomain[]).map((domain) => (
                     <button
