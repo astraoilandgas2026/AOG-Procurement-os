@@ -55,10 +55,15 @@ export function CommercialPage() {
   const normalizeSupplierName = (value: string) =>
     value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-  const isPrioritySupplier = (supplier: string) => {
+  const priorityRank = (supplier: string) => {
     const value = normalizeSupplierName(supplier);
-    return value.includes('fl oleos') || value.includes('olam agro') || value.includes('renovar oleos');
+    if (value.includes('renovar oleos')) return 0;
+    if (value.includes('fl oleos')) return 1;
+    if (value.includes('olam agro')) return 2;
+    return 3;
   };
+
+  const isPrioritySupplier = (supplier: string) => priorityRank(supplier) < 3;
 
   const numericPrice = (offer: CommercialOffer) => {
     const match = String(offer.price ?? '').replace(',', '.').match(/\d+(?:\.\d+)?/);
@@ -66,9 +71,20 @@ export function CommercialPage() {
   };
 
   const prioritizedOffers = [...(offers ?? [])].sort((a, b) => {
-    const priorityA = isPrioritySupplier(supplierMap.get(a.supplier_id) ?? '') ? 0 : 1;
-    const priorityB = isPrioritySupplier(supplierMap.get(b.supplier_id) ?? '') ? 0 : 1;
-    if (priorityA !== priorityB) return priorityA - priorityB;
+    const supplierA = supplierMap.get(a.supplier_id) ?? '';
+    const supplierB = supplierMap.get(b.supplier_id) ?? '';
+    const rankA = priorityRank(supplierA);
+    const rankB = priorityRank(supplierB);
+
+    // 1) Prioridad primero: Renovar → FL Óleos → Olam.
+    // 2) Dentro de cada proveedor prioritario, menor precio primero.
+    // 3) Todos los demás proveedores después, también por menor precio.
+    if (rankA !== rankB) {
+      if (rankA < 3 && rankB < 3) return rankA - rankB;
+      if (rankA < 3) return -1;
+      if (rankB < 3) return 1;
+    }
+
     return numericPrice(a) - numericPrice(b);
   });
 
