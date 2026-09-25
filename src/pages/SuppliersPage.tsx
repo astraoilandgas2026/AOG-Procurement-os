@@ -21,7 +21,7 @@ import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/u
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
-const VERIFIED_PRIORITY = ['Renovar Óleos', 'FL Óleos', 'Olam Agro'];
+const VERIFIED_PRIORITY = ['Renovar Oleos', 'FL Óleos', 'Olam Agro'];
 
 const BRAZIL_INTERIOR_TERMS = [
   'paraná', 'parana', 'santa catarina', 'rio grande do sul', 'goiás', 'goias',
@@ -35,8 +35,11 @@ const BRAZIL_INTERIOR_TERMS = [
 function priorityIndex(supplier: Supplier): number {
   const normalize = (value: string) =>
     value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
-  const name = normalize(supplier.trading_name || supplier.legal_name);
-  return VERIFIED_PRIORITY.findIndex((priority) => name.includes(normalize(priority)));
+  const names = [supplier.trading_name || '', supplier.legal_name || ''].map(normalize);
+  return VERIFIED_PRIORITY.findIndex((priority) => {
+    const normalizedPriority = normalize(priority);
+    return names.some((name) => name.includes(normalizedPriority));
+  });
 }
 
 function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'otros' {
