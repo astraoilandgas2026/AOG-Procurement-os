@@ -407,14 +407,6 @@ function SupplierDetail({
         <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-        <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
-        <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
-        <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
-        <SummaryChip icon={<FileText size={15} />} label="Documentos" value={data.documents.length} />
-        <SummaryChip icon={<AlertTriangle size={15} />} label="Alertas" value={data.redFlags.length} danger={data.redFlags.length > 0} />
-      </div>
-
       <DetailSection title="1. Comercial — Oferta Prioritaria">
         {!data.offers.length ? <EmptyLine text="Sin oferta comercial registrada." /> : data.offers.map(o => (
           <div key={o.id} className="rounded-lg border border-gray-100 p-3">
@@ -551,6 +543,15 @@ function SupplierDetail({
             </div>
           ))}
         </DetailSection>
+      </div>
+
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <SummaryChip icon={<DollarSign size={15} />} label="Ofertas" value={data.offers.length} />
+        <SummaryChip icon={<Users size={15} />} label="Contactos" value={data.contacts.length} />
+        <SummaryChip icon={<Award size={15} />} label="Certificaciones" value={data.certifications.length} />
+        <SummaryChip icon={<FileText size={15} />} label="Documentos" value={data.documents.length} />
+        <SummaryChip icon={<AlertTriangle size={15} />} label="Alertas" value={data.redFlags.length} danger={data.redFlags.length > 0} />
       </div>
 
 
