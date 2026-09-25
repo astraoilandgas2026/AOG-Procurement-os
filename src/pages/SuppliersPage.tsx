@@ -21,7 +21,7 @@ import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/u
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
-const VERIFIED_PRIORITY = ['FL Óleos', 'Olam Agro', 'Renovar Óleos'];
+const VERIFIED_PRIORITY = ['Renovar Óleos', 'FL Óleos', 'Olam Agro'];
 
 const BRAZIL_INTERIOR_TERMS = [
   'paraná', 'parana', 'santa catarina', 'rio grande do sul', 'goiás', 'goias',
@@ -39,26 +39,40 @@ function priorityIndex(supplier: Supplier): number {
   return VERIFIED_PRIORITY.findIndex((priority) => name.includes(normalize(priority)));
 }
 
-function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'chile' {
+function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'otros' {
   if (priorityIndex(supplier) !== -1) return 'principais';
 
-  const location = `${supplier.city} ${supplier.country}`.toLowerCase();
-  if (location.includes('chile')) return 'chile';
-  if (location.includes('são paulo') || location.includes('sao paulo') || /,\s*sp\b/.test(location) || /\bsp\b/.test(location)) return 'sao_paulo';
-  if (BRAZIL_INTERIOR_TERMS.some((term) => location.includes(term))) return 'interior';
-  if (location.includes('brasil') || location.includes('brazil')) return 'brasil';
-  return 'brasil';
+  const country = (supplier.country || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+  const location = (supplier.city || '') + ' ' + (supplier.country || '');
+  const normalizedLocation = location.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+
+  if (country === 'chile') return 'chile';
+  if (country === 'argentina') return 'argentina';
+  if (country === 'colombia') return 'colombia';
+  if (country === 'espana' || country === 'spain') return 'espana';
+
+  if (country === 'brasil' || country === 'brazil') {
+    if (normalizedLocation.includes('sao paulo') || /,\\s*sp\\b/.test(normalizedLocation) || /\\bsp\\b/.test(normalizedLocation)) return 'sao_paulo';
+    if (BRAZIL_INTERIOR_TERMS.some((term) => normalizedLocation.includes(term.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase()))) return 'interior';
+    return 'brasil';
+  }
+
+  return 'otros';
 }
 
 const SUPPLIER_GROUP_LABELS = {
   principais: 'Principales',
-  sao_paulo: 'São Paulo',
-  interior: 'Interior de Brasil',
+  sao_paulo: 'Brasil — São Paulo',
+  interior: 'Brasil — Interior',
   brasil: 'Brasil — ubicación por confirmar',
+  argentina: 'Argentina',
   chile: 'Chile',
+  colombia: 'Colombia',
+  espana: 'España',
+  otros: 'Otros países',
 } as const;
 
-const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'chile'] as const;
+const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'argentina', 'colombia', 'chile', 'espana', 'otros'] as const;
 
 const supplierSort = (a: Supplier, b: Supplier) => {
   const groupA = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(a));
