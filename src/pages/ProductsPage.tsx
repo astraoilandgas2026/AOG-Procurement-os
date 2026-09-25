@@ -50,9 +50,9 @@ export function ProductsPage() {
   if (error) return <ErrorState message={error} />;
   return (
     <div>
-      <PageHeader title="Productos" subtitle="Catálogo de productos por proveedor." action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar producto</Button> : undefined} />
+      {suppliers && suppliers.length > 0 && <div className="mb-4 flex justify-end"><Button onClick={openCrear}><Plus size={16} /> Agregar producto</Button></div>}
       {!products || products.length === 0 ? (
-        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Registra tu primer producto para seguir especificaciones técnicas y ofertas comerciales.' : 'Registra primero un proveedor y luego agrega sus productos.'} action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar producto</Button> : undefined} /></Card>
+        <Card><EmptyState icon={<Package size={28} />} title="No hay productos registrados" message={suppliers && suppliers.length > 0 ? 'Registra tu primer producto para seguir especificaciones técnicas y ofertas comerciales.' : 'Registra primero un proveedor y luego agrega sus productos.'} /></Card>
       ) : (
         <div className="space-y-4">
           {supplierGroups.map(({ supplierId, supplierName, products: supplierProducts }) => {
