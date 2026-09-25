@@ -73,7 +73,7 @@ export function DashboardPage() {
       <div className="space-y-8">
         <div className="max-w-3xl">
           <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
-          <p className="mt-2 text-sm text-slate-500">Selecciona el universo de abastecimiento con el que quieres trabajar. El espacio de inteligencia se adaptará al dominio seleccionado.</p>
+          <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
           {(Object.keys(DOMAIN_CONTENT) as ProcurementDomain[]).map((key) => {
@@ -130,8 +130,8 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--astra-orange)]">{DOMAIN_CONTENT[procurementDomain].title}</p>
-        <p className="mt-1 text-sm text-slate-500">{DOMAIN_CONTENT[procurementDomain].description}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--astra-orange)]">{DOMAIN_CONTENT[procurementDomain].title}</p>
+        
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
