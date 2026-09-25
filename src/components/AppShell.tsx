@@ -3,7 +3,7 @@ import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import {
   Building2, Users, Package, DollarSign, Award, FileText,
-  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel,
+  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe,
 } from 'lucide-react';
 
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
@@ -40,6 +40,7 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
   feedstock: { label: 'Feedstock', icon: <Droplets size={16} /> },
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
+  mining_commodities: { label: 'Mining Commodities', icon: <Pickaxe size={16} /> },
 };
 
 function AstraMark({ size = 40 }: { size?: number }) {
@@ -106,7 +107,7 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { currentPage, navigate, procurementDomain, goToOverview } = useNav();
+  const { currentPage, navigate, procurementDomain, goToOverview, selectDomain } = useNav();
   const pageInfo = PAGE_TITLES[currentPage];
   const groups = ['Inteligencia', 'Actividad'];
 
@@ -155,9 +156,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               <>
                 <h1 className="text-xl font-semibold tracking-tight text-[var(--astra-dark)]">{pageInfo.title}</h1>
                 <p className="text-sm text-[var(--astra-muted)]">{pageInfo.subtitle}</p>
-                <button onClick={() => navigate('dashboard')} className="mt-1 text-xs font-semibold text-[var(--astra-blue)] hover:underline">
-                  Volver al resumen de {DOMAIN_META[procurementDomain].label}
-                </button>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {(Object.keys(DOMAIN_META) as ProcurementDomain[]).map((domain) => (
+                    <button
+                      key={domain}
+                      onClick={() => selectDomain(domain)}
+                      className={`rounded-md border px-2.5 py-1 text-[11px] font-semibold ${domain === procurementDomain ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-slate-200 text-[var(--astra-muted)] hover:bg-slate-50'}`}
+                    >
+                      {DOMAIN_META[domain].label}
+                    </button>
+                  ))}
+                </div>
               </>
             )}
           </div>
