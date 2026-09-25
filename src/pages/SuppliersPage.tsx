@@ -61,7 +61,7 @@ function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interi
     return 'brasil';
   }
 
-  return 'alemania';
+  return 'sin_ubicacion';
 }
 
 const SUPPLIER_GROUP_LABELS = {
@@ -73,10 +73,10 @@ const SUPPLIER_GROUP_LABELS = {
   chile: 'Chile',
   colombia: 'Colombia',
   espana: 'España',
-  alemania: 'Alemania',
+  sin_ubicacion: 'Ubicación no especificada',
 } as const;
 
-const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'argentina', 'colombia', 'chile', 'espana', 'alemania'] as const;
+const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'argentina', 'colombia', 'chile', 'espana', 'sin_ubicacion'] as const;
 
 const supplierSort = (a: Supplier, b: Supplier) => {
   const groupA = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(a));
@@ -99,7 +99,7 @@ function geographyStyle(supplier: Supplier) {
     colombia: { border: 'border-l-yellow-500', badge: 'bg-yellow-50 text-yellow-800 border-yellow-200' },
     chile: { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200' },
     espana: { border: 'border-l-orange-500', badge: 'bg-orange-50 text-orange-800 border-orange-200' },
-    alemania: { border: 'border-l-slate-500', badge: 'bg-slate-100 text-slate-800 border-slate-200' },
+    sin_ubicacion: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
   } as const;
   return { ...styles[group], label: SUPPLIER_GROUP_LABELS[group] };
 };
