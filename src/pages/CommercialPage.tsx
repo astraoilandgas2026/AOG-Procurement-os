@@ -51,20 +51,44 @@ export function CommercialPage() {
   const { data: products } = useAsync(() => getStore().products.getAll(), []);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
+  const supplierLifecycleMap = new Map((suppliers ?? []).map((s) => [s.id, s.lifecycle]));
   const productMap = new Map((products ?? []).map((p) => [p.id, displayProductName(p.name)]));
 
+  const normalizeSupplierName = (value: string) =>
+    value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+
+  const priorityIndex = (supplier: string) => {
+    const value = normalizeSupplierName(supplier);
+    if (value.includes('fl oleos')) return 0;
+    if (value.includes('olam agro')) return 1;
+    if (value.includes('renovar oleos')) return 2;
+    return 100;
+  };
+
+  const numericPrice = (offer: CommercialOffer) => {
+    const match = String(offer.price ?? '').replace(',', '.').match(/\\d+(?:\\.\\d+)?/);
+    return match ? Number(match[0]) : Number.POSITIVE_INFINITY;
+  };
+
   const prioritizedOffers = [...(offers ?? [])].sort((a, b) => {
-    const rank = (supplier: string) => {
-      const value = supplier.toLowerCase();
-      if (value.includes('olam agro')) return 0;
-      if (value.includes('fl óleos') || value.includes('fl oleos')) return 1;
-      if (value.includes('renovar')) return 2;
-      return 100;
-    };
-    const rankA = rank(supplierMap.get(a.supplier_id) ?? '');
-    const rankB = rank(supplierMap.get(b.supplier_id) ?? '');
-    return rankA - rankB || (supplierMap.get(a.supplier_id) ?? '').localeCompare(supplierMap.get(b.supplier_id) ?? '');
+    const priorityA = priorityIndex(supplierMap.get(a.supplier_id) ?? '');
+    const priorityB = priorityIndex(supplierMap.get(b.supplier_id) ?? '');
+    if (priorityA !== priorityB) return priorityA - priorityB;
+    return numericPrice(a) - numericPrice(b);
   });
+
+  const offerStyle = (offer: CommercialOffer) => {
+    const priority = priorityIndex(supplierMap.get(offer.supplier_id) ?? '');
+    if (priority !== 100) return 'border-l-4 border-l-red-500 bg-red-50/30';
+    const lifecycle = supplierLifecycleMap.get(offer.supplier_id);
+    if (lifecycle === 'qualified' || lifecycle === 'active' || lifecycle === 'trial' || lifecycle === 'recurring') {
+      return 'border-l-4 border-l-amber-400 bg-amber-50/20';
+    }
+    if (lifecycle === 'prospect' || lifecycle === 'dd_pending') {
+      return 'border-l-4 border-l-blue-400 bg-blue-50/20';
+    }
+    return 'border-l-4 border-l-slate-300 bg-white';
+  };
 
   const openSheet = (offer: CommercialOffer) => { setSheetOffer(offer); setShowSheet(true); };
 
@@ -121,10 +145,13 @@ export function CommercialPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {prioritizedOffers.map((o) => (
-            <Card key={o.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(o.supplier_id)}>
+            <Card key={o.id} className={`cursor-pointer transition-shadow hover:shadow-md ${offerStyle(o)}`} onClick={() => selectSupplier(o.supplier_id)}>
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
                   <div>
+                    {priorityIndex(supplierMap.get(o.supplier_id) ?? '') !== 100 && (
+                      <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-700">Prioridad</div>
+                    )}
                     <h3 className="text-sm font-semibold text-gray-900">
                       {o.price} {o.currency} {o.price_basis && `/ ${o.price_basis === 'historical supplier quoted price' ? 'Precio histórico cotizado por el proveedor' : o.price_basis}`}
                     </h3>
