@@ -34,7 +34,7 @@ const BRAZIL_INTERIOR_TERMS = [
 
 function priorityIndex(supplier: Supplier): number {
   const normalize = (value: string) =>
-    value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+    value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const names = [supplier.trading_name || '', supplier.legal_name || ''].map(normalize);
   return VERIFIED_PRIORITY.findIndex((priority) => {
     const normalizedPriority = normalize(priority);
@@ -42,25 +42,26 @@ function priorityIndex(supplier: Supplier): number {
   });
 }
 
-function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'otros' {
+function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'alemania' {
   if (priorityIndex(supplier) !== -1) return 'principais';
 
-  const country = (supplier.country || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+  const country = (supplier.country || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const location = (supplier.city || '') + ' ' + (supplier.country || '');
-  const normalizedLocation = location.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+  const normalizedLocation = location.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
   if (country === 'chile') return 'chile';
   if (country === 'argentina') return 'argentina';
   if (country === 'colombia') return 'colombia';
   if (country === 'espana' || country === 'spain') return 'espana';
+  if (country === 'alemania' || country === 'germany') return 'alemania';
 
   if (country === 'brasil' || country === 'brazil') {
     if (normalizedLocation.includes('sao paulo') || /,\\s*sp\\b/.test(normalizedLocation) || /\\bsp\\b/.test(normalizedLocation)) return 'sao_paulo';
-    if (BRAZIL_INTERIOR_TERMS.some((term) => normalizedLocation.includes(term.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase()))) return 'interior';
+    if (BRAZIL_INTERIOR_TERMS.some((term) => normalizedLocation.includes(term.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()))) return 'interior';
     return 'brasil';
   }
 
-  return 'otros';
+  return 'alemania';
 }
 
 const SUPPLIER_GROUP_LABELS = {
@@ -72,10 +73,10 @@ const SUPPLIER_GROUP_LABELS = {
   chile: 'Chile',
   colombia: 'Colombia',
   espana: 'España',
-  otros: 'Otros países',
+  alemania: 'Alemania',
 } as const;
 
-const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'argentina', 'colombia', 'chile', 'espana', 'otros'] as const;
+const SUPPLIER_GROUP_ORDER = ['principais', 'sao_paulo', 'interior', 'brasil', 'argentina', 'colombia', 'chile', 'espana', 'alemania'] as const;
 
 const supplierSort = (a: Supplier, b: Supplier) => {
   const groupA = SUPPLIER_GROUP_ORDER.indexOf(supplierGroup(a));
@@ -98,7 +99,7 @@ function geographyStyle(supplier: Supplier) {
     colombia: { border: 'border-l-yellow-500', badge: 'bg-yellow-50 text-yellow-800 border-yellow-200' },
     chile: { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200' },
     espana: { border: 'border-l-orange-500', badge: 'bg-orange-50 text-orange-800 border-orange-200' },
-    otros: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
+    alemania: { border: 'border-l-slate-500', badge: 'bg-slate-100 text-slate-800 border-slate-200' },
   } as const;
   return { ...styles[group], label: SUPPLIER_GROUP_LABELS[group] };
 };
