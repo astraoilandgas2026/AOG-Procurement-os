@@ -44,6 +44,15 @@ export function DueDiligencePage() {
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
+  const groupedDD = Array.from(
+    (ddItems ?? []).reduce((map, item) => {
+      const existing = map.get(item.supplier_id) ?? [];
+      existing.push(item);
+      map.set(item.supplier_id, existing);
+      return map;
+    }, new Map<string, VencimientoDiligenceItem[]>())
+  );
+
   const openDDCrear = () => {
     setDDForm(emptyDDForm(suppliers?.[0]?.id ?? ''));
     setShowDDForm(true);
@@ -127,24 +136,42 @@ export function DueDiligencePage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ddItems!.map((d) => (
-              <Card key={d.id}>
+            {groupedDD.map(([supplierId, items]) => (
+              <Card key={supplierId}>
                 <CardBody>
-                  <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900">{DD_CATEGORY_LABELS[d.category]}</h3>
-                      <p className="text-xs text-gray-500">{supplierMap.get(d.supplier_id) ?? '—'}</p>
+                      <h3 className="text-base font-semibold text-gray-900">{supplierMap.get(supplierId) ?? 'Proveedor sin nombre'}</h3>
+                      <p className="text-xs text-gray-500">{items.length} de 6 categorías de DD registradas</p>
                     </div>
-                    <Badge color={ddStatusColor(d.status)}>{ddStatusLabel(d.status)}</Badge>
+                    <Badge color={items.every((item) => item.status === 'completed') ? 'green' : 'yellow'}>
+                      {items.filter((item) => item.status === 'completed').length}/{items.length} completas
+                    </Badge>
                   </div>
-                  {d.findings && <p className="text-xs text-gray-600 mb-2">{d.findings}</p>}
-                  <div className="space-y-0.5 text-xs text-gray-500">
-                    {d.reviewer && <div>Revisor: {d.reviewer}</div>}
-                    {d.review_date && <div>Revisado: {formatDate(d.review_date)}</div>}
-                    {d.evidence_ref && <div>Evidencia: {d.evidence_ref}</div>}
-                  </div>
-                  <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                    <Button size="sm" variant="ghost" onClick={() => removeDD(d.id)}><Trash2 size={14} /></Button>
+
+                  <div className="space-y-2">
+                    {items
+                      .slice()
+                      .sort((a, b) => String(a.category).localeCompare(String(b.category)))
+                      .map((d) => (
+                        <div key={d.id} className="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="text-xs font-semibold text-gray-800">{DD_CATEGORY_LABELS[d.category]}</div>
+                              {d.findings && <p className="mt-1 text-xs text-gray-600">{d.findings}</p>}
+                              <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
+                                {d.reviewer && <div>Revisor: {d.reviewer}</div>}
+                                {d.review_date && <div>Revisado: {formatDate(d.review_date)}</div>}
+                                {d.evidence_ref && <div>Evidencia: {d.evidence_ref}</div>}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Badge color={ddStatusColor(d.status)}>{ddStatusLabel(d.status)}</Badge>
+                              <Button size="sm" variant="ghost" onClick={() => removeDD(d.id)}><Trash2 size={14} /></Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </CardBody>
               </Card>
