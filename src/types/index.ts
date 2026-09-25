@@ -300,6 +300,7 @@ export interface Product {
   supplier_id: string;
   name: string;
   feedstock_type: FeedstockType;
+  commodity_category?: string;
   origin: string;
   composition: string;
   available_volume: string;
@@ -339,6 +340,9 @@ export interface CommercialOffer {
   certification_premium: string;
   commercial_validity: string;
   verification_status: VerificationStatus;
+  price_unit: string;
+  price_date: string;
+  source: string;
   created_at: string;
   updated_at: string;
 }
