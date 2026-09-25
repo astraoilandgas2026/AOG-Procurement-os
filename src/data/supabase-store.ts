@@ -1,6 +1,6 @@
 import { getSupabaseClient } from '@/data/supabase-client';
 import type {
-  AppData, Supplier, Contact, Product, TechnicalSpec, CommercialOffer,
+  AppData, ProcurementDomain, Supplier, Contact, Product, TechnicalSpec, CommercialOffer,
   Certification, DocumentRecord, DueDiligenceItem, LogisticsInfo, TimelineEvent,
   FollowUp, RedFlag, IntelligenceFact,
 } from '@/types';
@@ -28,6 +28,16 @@ type Row = Record<string, unknown>;
 
 function toISO(ts: string): string {
   return ts ? new Date(ts).toISOString() : new Date().toISOString();
+}
+
+
+function domainNameForKey(domainKey: ProcurementDomain): string {
+  const names: Record<ProcurementDomain, string> = {
+    feedstock: 'Feedstock',
+    energy_commodities: 'Energy Commodities',
+    mining_commodities: 'Mining Commodities',
+  };
+  return names[domainKey];
 }
 
 // -- Suppliers --
@@ -224,8 +234,8 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapSupplier);
     },
-    createForDomain: async (domainKey: 'feedstock' | 'energy_commodities', data) => {
-      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+    createForDomain: async (domainKey: ProcurementDomain, data) => {
+      const domainName = domainNameForKey(domainKey);
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) throw new Error(`Procurement domain not found: ${domainName}`);
@@ -235,8 +245,8 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return mapSupplier(row as Row);
     },
-    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
-      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) return [];
@@ -268,8 +278,8 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapContact);
     },
-    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
-      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) return [];
@@ -310,8 +320,8 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapProduct);
     },
-    getByDomainKey: async (domainKey: 'feedstock' | 'energy_commodities') => {
-      const domainName = domainKey === 'feedstock' ? 'Feedstock' : 'Energy Commodities';
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) return [];
