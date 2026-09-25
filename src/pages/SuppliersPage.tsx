@@ -91,7 +91,11 @@ function geographyStyle(supplier: Supplier) {
     sao_paulo: { border: 'border-l-amber-400', badge: 'bg-amber-50 text-amber-800 border-amber-200' },
     interior: { border: 'border-l-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
     brasil: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
+    argentina: { border: 'border-l-slate-500', badge: 'bg-slate-100 text-slate-800 border-slate-200' },
+    colombia: { border: 'border-l-yellow-500', badge: 'bg-yellow-50 text-yellow-800 border-yellow-200' },
     chile: { border: 'border-l-blue-500', badge: 'bg-blue-50 text-blue-800 border-blue-200' },
+    espana: { border: 'border-l-orange-500', badge: 'bg-orange-50 text-orange-800 border-orange-200' },
+    otros: { border: 'border-l-slate-300', badge: 'bg-slate-50 text-slate-700 border-slate-200' },
   } as const;
   return { ...styles[group], label: SUPPLIER_GROUP_LABELS[group] };
 };
