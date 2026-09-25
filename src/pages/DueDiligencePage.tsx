@@ -158,22 +158,9 @@ export function DueDiligencePage() {
                       .slice()
                       .sort((a, b) => String(a.category).localeCompare(String(b.category)))
                       .map((d) => (
-                        <div key={d.id} className="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="text-xs font-semibold text-gray-800">{DD_CATEGORY_LABELS[d.category]}</div>
-                              {d.findings && <p className="mt-1 text-xs text-gray-600">{d.findings}</p>}
-                              <div className="mt-1 space-y-0.5 text-[11px] text-gray-500">
-                                {d.reviewer && <div>Revisor: {d.reviewer}</div>}
-                                {d.review_date && <div>Revisado: {formatDate(d.review_date)}</div>}
-                                {d.evidence_ref && <div>Evidencia: {d.evidence_ref}</div>}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Badge color={ddStatusColor(d.status)}>{ddStatusLabel(d.status)}</Badge>
-                              <Button size="sm" variant="ghost" onClick={() => removeDD(d.id)}><Trash2 size={14} /></Button>
-                            </div>
-                          </div>
+                        <div key={d.id} className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-gray-50/60 px-3 py-2">
+                          <div className="text-xs font-medium text-gray-800">{DD_CATEGORY_LABELS[d.category]}</div>
+                          <Badge color={ddStatusColor(d.status)}>{ddStatusLabel(d.status)}</Badge>
                         </div>
                       ))}
                   </div>
