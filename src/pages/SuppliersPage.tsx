@@ -33,10 +33,10 @@ const BRAZIL_INTERIOR_TERMS = [
 ];
 
 function priorityIndex(supplier: Supplier): number {
-  const name = (supplier.trading_name || supplier.legal_name).toLowerCase();
-  return VERIFIED_PRIORITY.findIndex((priority) =>
-    name.includes(priority.toLowerCase().replace('renovar oleos', 'renovar'))
-  );
+  const normalize = (value: string) =>
+    value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+  const name = normalize(supplier.trading_name || supplier.legal_name);
+  return VERIFIED_PRIORITY.findIndex((priority) => name.includes(normalize(priority)));
 }
 
 function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'chile' {
