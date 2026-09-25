@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { PageKey } from '@/types';
-
-export type ProcurementDomain = 'feedstock' | 'energy_commodities';
+import type { PageKey, ProcurementDomain } from '@/types';
 
 interface NavigationState {
   currentPage: PageKey;
