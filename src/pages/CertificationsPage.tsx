@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
@@ -27,12 +28,13 @@ function certStatusColor(status: string): 'green' | 'red' | 'amber' | 'gray' {
 
 function emptyForm(supplierId: string): Omit<Certification, 'id' | 'created_at'> {
   return {
-    supplier_id: supplierId, cert_type: 'ISCC', cert_number: '', status: 'pending',
+    supplier_id: supplierId, cert_type: '', cert_number: '', status: 'pending',
     issue_date: '', expiration_date: '', issuing_body: '', notes: '',
   };
 }
 
 export function CertificationsPage() {
+  const { procurementDomain } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Certification, 'id' | 'created_at'> | null>(null);
 
@@ -41,9 +43,12 @@ export function CertificationsPage() {
   );
   const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
 
-  const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
+  const domainSuppliers = (suppliers ?? []).filter((s) => !procurementDomain || s.domain_id === undefined || s.domain_id === (procurementDomain === 'feedstock' ? 'feedstock' : procurementDomain));
+  const domainSupplierIds = new Set(domainSuppliers.map((s) => s.id));
+  const visibleCerts = (certs ?? []).filter((c) => domainSupplierIds.has(c.supplier_id));
+  const supplierMap = new Map(domainSuppliers.map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
-  const prioritizedCertifications = [...(certs ?? [])].sort((a, b) => {
+  const prioritizedCertifications = [...visibleCerts].sort((a, b) => {
     const supplierA = supplierMap.get(a.supplier_id)?.toLowerCase() ?? '';
     const supplierB = supplierMap.get(b.supplier_id)?.toLowerCase() ?? '';
     const isOlamISCC = (supplier: string, certType: string) =>
@@ -54,7 +59,7 @@ export function CertificationsPage() {
   });
 
   const openCrear = () => {
-    setForm(emptyForm(suppliers?.[0]?.id ?? ''));
+    setForm(emptyForm(domainSuppliers?.[0]?.id ?? ''));
     setShowForm(true);
   };
 
@@ -82,15 +87,15 @@ export function CertificationsPage() {
         action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar certificación</Button> : undefined}
       />
 
-      {!certs || certs.length === 0 ? (
+      {!visibleCerts || visibleCerts.length === 0 ? (
         <Card>
           <EmptyState
             icon={<Award size={28} />}
             title="No hay certificaciones registradas"
             message={suppliers && suppliers.length > 0
-              ? "Registra ISCC y otras certificaciones, incluyendo estado, vencimiento y evidencia de respaldo."
+              ? "Registra certificaciones y evidencia de respaldo para este dominio."
               : "Registra primero un proveedor y luego agrega certificaciones."}
-            action={suppliers && suppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar certificación</Button> : undefined}
+            action={domainSuppliers && domainSuppliers.length > 0 ? <Button onClick={openCrear}><Plus size={16} /> Agregar certificación</Button> : undefined}
           />
         </Card>
       ) : (
@@ -130,8 +135,8 @@ export function CertificationsPage() {
         {form && (
           <div className="space-y-3">
             <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Input label="Tipo de certificación" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISCC, RSB, etc." />
+              options={domainSuppliers.map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Input label="Tipo de certificación" value={form.cert_type} onChange={(v) => setForm({ ...form, cert_type: v })} placeholder="ISO, calidad, seguridad, etc." />
             <Input label="Número de certificado" value={form.cert_number} onChange={(v) => setForm({ ...form, cert_number: v })} />
             <Select label="Estado" value={form.status} onChange={(v) => setForm({ ...form, status: v as Certification['status'] })} options={CERT_STATUS_OPTIONS} />
             <div className="grid grid-cols-2 gap-3">
