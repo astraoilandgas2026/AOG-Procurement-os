@@ -21,10 +21,8 @@ const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, la
 
 function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at' | 'updated_at'> {
   return {
-    supplier_id: supplierId, product_id: '', price: '', currency: 'USD',
-    price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
-    destination: '', payment_terms: '', offered_volume: '', trial_quantity: '',
-    recurring_quantity: '', certification_premium: '', commercial_validity: '',
+    supplier_id: supplierId, product_id: '', price: '', currency: 'USD', price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
+    destination: '', payment_terms: '', offered_volume: '', trial_quantity: '', recurring_quantity: '', certification_premium: '', commercial_validity: '',
     verification_status: 'claimed',
   };
 }
@@ -55,31 +53,27 @@ export function CommercialPage() {
   const productMap = new Map((products ?? []).map((p) => [p.id, displayProductName(p.name)]));
 
   const normalizeSupplierName = (value: string) =>
-    value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+    value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-  const priorityIndex = (supplier: string) => {
+  const isPrioritySupplier = (supplier: string) => {
     const value = normalizeSupplierName(supplier);
-    if (value.includes('fl oleos')) return 0;
-    if (value.includes('olam agro')) return 1;
-    if (value.includes('renovar oleos')) return 2;
-    return 100;
+    return value.includes('fl oleos') || value.includes('olam agro') || value.includes('renovar oleos');
   };
 
   const numericPrice = (offer: CommercialOffer) => {
-    const match = String(offer.price ?? '').replace(',', '.').match(/\\d+(?:\\.\\d+)?/);
+    const match = String(offer.price ?? '').replace(',', '.').match(/\d+(?:\.\d+)?/);
     return match ? Number(match[0]) : Number.POSITIVE_INFINITY;
   };
 
   const prioritizedOffers = [...(offers ?? [])].sort((a, b) => {
-    const priorityA = priorityIndex(supplierMap.get(a.supplier_id) ?? '');
-    const priorityB = priorityIndex(supplierMap.get(b.supplier_id) ?? '');
+    const priorityA = isPrioritySupplier(supplierMap.get(a.supplier_id) ?? '') ? 0 : 1;
+    const priorityB = isPrioritySupplier(supplierMap.get(b.supplier_id) ?? '') ? 0 : 1;
     if (priorityA !== priorityB) return priorityA - priorityB;
     return numericPrice(a) - numericPrice(b);
   });
 
   const offerStyle = (offer: CommercialOffer) => {
-    const priority = priorityIndex(supplierMap.get(offer.supplier_id) ?? '');
-    if (priority !== 100) return 'border-l-4 border-l-red-500 bg-red-50/30';
+    if (isPrioritySupplier(supplierMap.get(offer.supplier_id) ?? '')) return 'border-l-4 border-l-red-500 bg-red-50/30';
     const lifecycle = supplierLifecycleMap.get(offer.supplier_id);
     if (lifecycle === 'qualified' || lifecycle === 'active' || lifecycle === 'trial' || lifecycle === 'recurring') {
       return 'border-l-4 border-l-amber-400 bg-amber-50/20';
@@ -149,11 +143,11 @@ export function CommercialPage() {
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    {priorityIndex(supplierMap.get(o.supplier_id) ?? '') !== 100 && (
+                    {isPrioritySupplier(supplierMap.get(o.supplier_id) ?? '') && (
                       <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-700">Prioridad</div>
                     )}
                     <h3 className="text-sm font-semibold text-gray-900">
-                      {o.price} {o.currency} {o.price_basis && `/ ${o.price_basis === 'historical supplier quoted price' ? 'Precio histórico cotizado por el proveedor' : o.price_basis}`}
+                      {o.price} {o.currency} / MT
                     </h3>
                     <button type="button" onClick={() => selectSupplier(o.supplier_id)} className="text-left text-xs font-medium text-[var(--astra-blue)] hover:underline">{supplierMap.get(o.supplier_id) ?? '—'}</button>
                   </div>
@@ -180,18 +174,14 @@ export function CommercialPage() {
         </div>
       )}
 
-      <Modal
-        open={showSheet}
-        onClose={() => setShowSheet(false)}
-        title="Ficha comercial de la oferta"
-        footer={<><Button variant="secondary" onClick={() => setShowSheet(false)}>Cerrar</Button><Button onClick={() => { setShowSheet(false); if (sheetOffer?.supplier_id) selectSupplier(sheetOffer.supplier_id); }}>Ver ficha del proveedor</Button></>}
-      >
+      <Modal open={showSheet} onClose={() => setShowSheet(false)} title="Ficha comercial de la oferta"
+        footer={<><Button variant="secondary" onClick={() => setShowSheet(false)}>Cerrar</Button><Button onClick={() => { setShowSheet(false); if (sheetOffer?.supplier_id) selectSupplier(sheetOffer.supplier_id); }}>Ver ficha del proveedor</Button></>}>
         {sheetOffer && (
           <div className="space-y-4 text-sm">
             <div><p className="text-xs text-gray-400">Proveedor</p><p className="font-semibold text-gray-900">{supplierMap.get(sheetOffer.supplier_id) ?? 'Proveedor sin nombre'}</p></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><p className="text-xs text-gray-400">Precio</p><p className="font-semibold">{sheetOffer.price} {sheetOffer.currency}</p></div>
-              <div><p className="text-xs text-gray-400">Base</p><p>{sheetOffer.price_basis === 'historical supplier quoted price' ? 'Precio histórico cotizado por el proveedor' : (sheetOffer.price_basis || '—')}</p></div>
+              <div><p className="text-xs text-gray-400">Precio</p><p className="font-semibold">{sheetOffer.price} {sheetOffer.currency} / MT</p></div>
+              <div><p className="text-xs text-gray-400">Base</p><p>{sheetOffer.price_basis || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Incoterm</p><p>{sheetOffer.incoterm || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Puerto</p><p>{sheetOffer.port || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Volumen ofertado</p><p>{sheetOffer.offered_volume || '—'}</p></div>
@@ -205,38 +195,20 @@ export function CommercialPage() {
         )}
       </Modal>
 
-      <Modal
-        open={showForm}
-        onClose={() => setShowForm(false)}
-        title={editingId ? 'Editar oferta comercial' : 'Agregar oferta comercial'}
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}
-      >
+      <Modal open={showForm} onClose={() => setShowForm(false)} title={editingId ? 'Editar oferta comercial' : 'Agregar oferta comercial'}
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}><span>Cancelar</span></Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}>
         {form && (
           <div className="space-y-3">
-            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })}
-              options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
-            <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })}
-              options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} />
-              <Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} />
-            </div>
+            <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
+            <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })} options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
+            <div className="grid grid-cols-2 gap-3"><Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} /><Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} /></div>
             <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
             <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} />
-              <Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} />
-            </div>
+            <div className="grid grid-cols-2 gap-3"><Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} /><Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} /></div>
             <Input label="Destino" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
             <Input label="Condiciones de pago" value={form.payment_terms} onChange={(v) => setForm({ ...form, payment_terms: v })} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} />
-              <Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Cantidad recurrente" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} />
-              <Input label="Prima de certificación" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} />
-            </div>
+            <div className="grid grid-cols-2 gap-3"><Input label="Volumen ofertado" value={form.offered_volume} onChange={(v) => setForm({ ...form, offered_volume: v })} /><Input label="Cantidad de prueba" value={form.trial_quantity} onChange={(v) => setForm({ ...form, trial_quantity: v })} /></div>
+            <div className="grid grid-cols-2 gap-3"><Input label="Cantidad recurrente" value={form.recurring_quantity} onChange={(v) => setForm({ ...form, recurring_quantity: v })} /><Input label="Prima de certificación" value={form.certification_premium} onChange={(v) => setForm({ ...form, certification_premium: v })} /></div>
             <Input label="Vigencia comercial" type="date" value={form.commercial_validity} onChange={(v) => setForm({ ...form, commercial_validity: v })} />
             <Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
           </div>
