@@ -42,7 +42,7 @@ function priorityIndex(supplier: Supplier): number {
   });
 }
 
-function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'alemania' {
+function supplierGroup(supplier: Supplier): 'principais' | 'sao_paulo' | 'interior' | 'brasil' | 'argentina' | 'chile' | 'colombia' | 'espana' | 'sin_ubicacion' {
   if (priorityIndex(supplier) !== -1) return 'principais';
 
   const country = (supplier.country || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
