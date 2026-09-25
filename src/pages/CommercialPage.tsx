@@ -23,7 +23,7 @@ function emptyForm(supplierId: string): Omit<CommercialOffer, 'id' | 'created_at
   return {
     supplier_id: supplierId, product_id: '', price: '', currency: 'USD', price_basis: '', incoterm: 'FOB', loading_point: '', port: '',
     destination: '', payment_terms: '', offered_volume: '', trial_quantity: '', recurring_quantity: '', certification_premium: '', commercial_validity: '',
-    verification_status: 'claimed',
+    verification_status: 'claimed', price_unit: 'MT', price_date: '', source: '',
   };
 }
 
@@ -163,7 +163,7 @@ export function CommercialPage() {
                       <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-red-700">Prioridad</div>
                     )}
                     <h3 className="text-sm font-semibold text-gray-900">
-                      {o.price} {o.currency} / MT
+                      {o.price || 'N/D'} {o.price ? o.currency : ''}{o.price_unit ? ` / ${o.price_unit}` : ''}
                     </h3>
                     <button type="button" onClick={() => selectSupplier(o.supplier_id)} className="text-left text-xs font-medium text-[var(--astra-blue)] hover:underline">{supplierMap.get(o.supplier_id) ?? '—'}</button>
                   </div>
@@ -196,8 +196,10 @@ export function CommercialPage() {
           <div className="space-y-4 text-sm">
             <div><p className="text-xs text-gray-400">Proveedor</p><p className="font-semibold text-gray-900">{supplierMap.get(sheetOffer.supplier_id) ?? 'Proveedor sin nombre'}</p></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><p className="text-xs text-gray-400">Precio</p><p className="font-semibold">{sheetOffer.price} {sheetOffer.currency} / MT</p></div>
+              <div><p className="text-xs text-gray-400">Precio</p><p className="font-semibold">{sheetOffer.price || 'N/D'} {sheetOffer.price ? sheetOffer.currency : ''}{sheetOffer.price_unit ? ` / ${sheetOffer.price_unit}` : ''}</p></div>
               <div><p className="text-xs text-gray-400">Base</p><p>{sheetOffer.price_basis || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Fecha precio</p><p>{sheetOffer.price_date || '—'}</p></div>
+              <div><p className="text-xs text-gray-400">Fuente</p><p>{sheetOffer.source || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Incoterm</p><p>{sheetOffer.incoterm || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Puerto</p><p>{sheetOffer.port || '—'}</p></div>
               <div><p className="text-xs text-gray-400">Volumen ofertado</p><p>{sheetOffer.offered_volume || '—'}</p></div>
@@ -212,12 +214,13 @@ export function CommercialPage() {
       </Modal>
 
       <Modal open={showForm} onClose={() => setShowForm(false)} title={editingId ? 'Editar oferta comercial' : 'Agregar oferta comercial'}
-        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}><span>Cancelar</span></Button><Button onClick={save} disabled={!form?.price}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}>
+        footer={<><Button variant="secondary" onClick={() => setShowForm(false)}><span>Cancelar</span></Button><Button onClick={save} disabled={!form?.supplier_id}>{editingId ? 'Guardar cambios' : 'Crear'}</Button></>}>
         {form && (
           <div className="space-y-3">
             <Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required />
             <Select label="Producto" value={form.product_id} onChange={(v) => setForm({ ...form, product_id: v })} options={(products ?? []).filter((p) => p.supplier_id === form.supplier_id).map((p) => ({ value: p.id, label: p.name }))} />
-            <div className="grid grid-cols-2 gap-3"><Input label="Precio" required value={form.price} onChange={(v) => setForm({ ...form, price: v })} /><Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} /></div>
+            <div className="grid grid-cols-3 gap-3"><Input label="Precio" value={form.price} onChange={(v) => setForm({ ...form, price: v })} /><Input label="Moneda" value={form.currency} onChange={(v) => setForm({ ...form, currency: v })} /><Input label="Unidad" value={form.price_unit} onChange={(v) => setForm({ ...form, price_unit: v })} /></div>
+            <div className="grid grid-cols-2 gap-3"><Input label="Fecha del precio" value={form.price_date} onChange={(v) => setForm({ ...form, price_date: v })} /><Input label="Fuente" value={form.source} onChange={(v) => setForm({ ...form, source: v })} /></div>
             <Input label="Base de precio" value={form.price_basis} onChange={(v) => setForm({ ...form, price_basis: v })} />
             <Select label="Incoterm" value={form.incoterm} onChange={(v) => setForm({ ...form, incoterm: v as Incoterm })} options={INCOTERM_OPTIONS} />
             <div className="grid grid-cols-2 gap-3"><Input label="Punto de carga" value={form.loading_point} onChange={(v) => setForm({ ...form, loading_point: v })} /><Input label="Puerto" value={form.port} onChange={(v) => setForm({ ...form, port: v })} /></div>
