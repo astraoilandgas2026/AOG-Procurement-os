@@ -2,7 +2,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, ShieldCheck, CheckSquare, Package, FileText, Droplets, Fuel, Pickaxe, ArrowRight } from 'lucide-react';
+import { Building2, ShieldCheck, CheckSquare, DollarSign, FileText, Droplets, Fuel, Pickaxe, ArrowRight } from 'lucide-react';
 import type { AppData } from '@/types';
 import { getProductFamily } from '@/utils/productFamilies';
 
@@ -109,12 +109,13 @@ export function DashboardPage() {
   const totalProducts = new Set(data.products.map((p) => getProductFamily(p))).size;
   const totalDocuments = data.documents.length;
   const totalDueDiligence = data.due_diligence.length;
+  const totalCommercialOffers = data.commercial_offers.length;
   const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
 
   const metrics = [
+    { label: 'Commercial Offers', value: totalCommercialOffers, icon: <DollarSign size={21} />, onClick: () => navigate('commercial') },
     { label: 'Proveedores', value: totalSuppliers, icon: <Building2 size={21} />, onClick: () => navigate('suppliers') },
     { label: 'Contactos', value: totalContacts, icon: <CheckSquare size={21} />, onClick: () => navigate('contacts') },
-    { label: 'Productos', value: totalProducts, icon: <Package size={21} />, onClick: () => navigate('products') },
     { label: 'Documentos', value: totalDocuments, icon: <FileText size={21} />, onClick: () => navigate('documents') },
     { label: 'Debida diligencia', value: totalDueDiligence, icon: <ShieldCheck size={21} />, onClick: () => navigate('due_diligence') },
   ];
