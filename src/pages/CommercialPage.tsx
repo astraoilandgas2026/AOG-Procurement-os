@@ -121,7 +121,7 @@ export function CommercialPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {prioritizedOffers.map((o) => (
-            <Card key={o.id}>
+            <Card key={o.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(o.supplier_id)}>
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -145,7 +145,7 @@ export function CommercialPage() {
                   <div>Vigencia: <span className="font-medium text-gray-900">{formatDate(o.commercial_validity)}</span></div>
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => openSheet(o)}><FileText size={14} /> Ficha comercial</Button><Button size="sm" variant="ghost" onClick={() => openEdit(o)}><Edit3 size={14} /> Editar</Button><Button size="sm" variant="ghost" onClick={() => remove(o.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); openSheet(o); }}><FileText size={14} /> Ficha comercial</Button><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); openEdit(o); }}><Edit3 size={14} /> Editar</Button><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(o.id); }}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
