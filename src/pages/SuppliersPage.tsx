@@ -13,7 +13,7 @@ import {
 } from '@/utils/statusHelpers';
 import { formatDate } from '@/utils/date';
 import {
-  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, Users, FlaskConical, DollarSign, Award, ShieldCheck, Clock, AlertTriangle,
+  Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, FlaskConical, Clock, AlertTriangle,
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle, Contact } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -642,10 +642,6 @@ function SupplierDetail({
     </div>
   );
 }
-function SummaryChip({ icon, label, value, danger = false }: { icon: ReactNode; label: string; value: number; danger?: boolean }) {
-  return <div className={`rounded-lg border p-3 ${danger ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'}`}><div className="flex items-center gap-2 text-xs text-gray-500">{icon}{label}</div><div className={`mt-1 text-xl font-bold ${danger ? 'text-red-700' : 'text-gray-900'}`}>{value}</div></div>;
-}
-
 function EmptyLine({ text }: { text: string }) {
   return <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500">{text}</p>;
 }
