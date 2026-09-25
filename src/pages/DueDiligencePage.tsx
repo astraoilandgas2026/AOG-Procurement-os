@@ -125,7 +125,10 @@ export function DueDiligencePage() {
 
       {/* DD Items */}
       <div className="mb-6">
-        <div className="mb-3 flex items-center justify-between gap-3">\n          <h2 className="text-sm font-semibold text-gray-700">Proveedores con debida diligencia</h2>\n          <span className="text-xs font-medium text-gray-500">{suppliersWithDD} proveedores</span>\n        </div>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-gray-700">Proveedores con debida diligencia</h2>
+          <span className="text-xs font-medium text-gray-500">{suppliersWithDD} proveedores</span>
+        </div>
         {!hasDD ? (
           <Card>
             <EmptyState
