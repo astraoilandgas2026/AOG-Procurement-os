@@ -82,11 +82,12 @@ function mapContact(r: Row): Contact {
 
 function mapProduct(r: Row): Product {
   return {
-    id: r.id as string, supplier_id: r.supplier_id as string,
+    id: r.id as string, domain_id: r.domain_id as string | undefined, supplier_id: r.supplier_id as string,
     name: r.name as string ?? '', feedstock_type: r.feedstock_type as Product['feedstock_type'] ?? 'other',
     origin: r.origin as string ?? '', composition: r.composition as string ?? '',
     available_volume: r.available_volume as string ?? '', unit: r.unit as string ?? 'MT',
     verification_status: r.verification_status as Product['verification_status'] ?? 'claimed',
+    commodity_category: r.commodity_category as string ?? 'feedstock',
     created_at: r.created_at as string ?? '', updated_at: r.updated_at as string ?? '',
   };
 }
@@ -103,7 +104,7 @@ function mapTechSpec(r: Row): TechnicalSpec {
 
 function mapOffer(r: Row): CommercialOffer {
   return {
-    id: r.id as string, supplier_id: r.supplier_id as string,
+    id: r.id as string, domain_id: r.domain_id as string | undefined, supplier_id: r.supplier_id as string,
     product_id: r.product_id as string ?? '',
     price: r.price as string ?? '', currency: r.currency as string ?? 'USD',
     price_basis: r.price_basis as string ?? '', incoterm: r.incoterm as CommercialOffer['incoterm'] ?? 'FOB',
@@ -113,6 +114,7 @@ function mapOffer(r: Row): CommercialOffer {
     recurring_quantity: r.recurring_quantity as string ?? '', certification_premium: r.certification_premium as string ?? '',
     commercial_validity: r.commercial_validity as string ?? '',
     verification_status: r.verification_status as CommercialOffer['verification_status'] ?? 'claimed',
+    price_unit: r.price_unit as string ?? 'MT', price_date: r.price_date as string ?? '', source: r.source as string ?? '',
     created_at: r.created_at as string ?? '', updated_at: r.updated_at as string ?? '',
   };
 }
