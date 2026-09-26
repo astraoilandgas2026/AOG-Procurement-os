@@ -44,46 +44,16 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 };
 
 function AstraMark({ size = 40 }: { size?: number }) {
-  const petals = [
-    ['red', '#E31E24', '#A6191D'],
-    ['orange', '#F58220', '#D95B10'],
-    ['yellow', '#FDB913', '#E5A00D'],
-    ['green', '#00A651', '#007A3D'],
-    ['blue', '#00AEEF', '#0072BC'],
-  ];
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="shrink-0">
-      <defs>
-        {petals.map(([id, a, b]) => (
-          <linearGradient key={id} id={`astra-brand-${id}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={a} />
-            <stop offset="100%" stopColor={b} />
-          </linearGradient>
-        ))}
-      </defs>
-      <g transform="translate(50 50)">
-        {[0, 72, 144, 216, 288].map((rotation, i) => (
-          <g key={rotation} transform={`rotate(${rotation})`}>
-            <path
-              d="M50 1 C56 4 61 9 64 16 C68 27 57 40 50 50 C43 40 32 27 36 16 C39 9 44 4 50 1Z"
-              transform="translate(-50 -50)"
-              fill={`url(#astra-brand-${petals[i][0]})`}
-            />
-            <path
-              d="M50 43 C46 34 43 25 46 16"
-              transform="translate(-50 -50)"
-              fill="none"
-              stroke="white"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </g>
-        ))}
-      </g>
-    </svg>
+    <img
+      src={`${import.meta.env.BASE_URL}astra-mark.svg`}
+      alt="Astra Oil and Gas"
+      width={size}
+      height={size}
+      className="shrink-0 object-contain"
+    />
   );
 }
-
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`flex items-center gap-2.5 ${compact ? 'h-10' : 'h-12'}`}>
