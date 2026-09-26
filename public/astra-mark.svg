@@ -1,33 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
-  <title id="title">Astra</title>
-  <desc id="desc">Estrella abstracta de cinco pétalos en los colores corporativos de Astra.</desc>
+  <title id="title">Astra Oil and Gas</title>
+  <desc id="desc">Logomarca oficial de Astra Oil and Gas, reconstruida a partir del logotipo proporcionado por la empresa.</desc>
   <defs>
-    <linearGradient id="red" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#B80F1D"/><stop offset="1" stop-color="#E31E24"/></linearGradient>
-    <linearGradient id="orange" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#D96312"/><stop offset="1" stop-color="#F58220"/></linearGradient>
-    <linearGradient id="yellow" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#D59B00"/><stop offset="1" stop-color="#FDB913"/></linearGradient>
-    <linearGradient id="green" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#007E3E"/><stop offset="1" stop-color="#00A651"/></linearGradient>
-    <linearGradient id="cyan" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#008CC4"/><stop offset="1" stop-color="#00AEEF"/></linearGradient>
+    <linearGradient id="astra-red" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#c51624"/><stop offset="1" stop-color="#f21b2d"/></linearGradient>
+    <linearGradient id="astra-orange" x1="0" y1="1" x2="0.8" y2="0"><stop offset="0" stop-color="#ef6500"/><stop offset="1" stop-color="#ff9415"/></linearGradient>
+    <linearGradient id="astra-yellow" x1="0" y1="1" x2="0.8" y2="0"><stop offset="0" stop-color="#f0b500"/><stop offset="1" stop-color="#ffd21a"/></linearGradient>
+    <linearGradient id="astra-green" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#009b4b"/><stop offset="1" stop-color="#00b85a"/></linearGradient>
+    <linearGradient id="astra-blue" x1="0" y1="1" x2="0.7" y2="0"><stop offset="0" stop-color="#0098d1"/><stop offset="1" stop-color="#18b9ee"/></linearGradient>
   </defs>
   <g transform="translate(50 50)">
-    <g>
-      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#red)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+    <g transform="rotate(0)">
+      <path d="M0 3 C-7 -3 -16 -12 -17 -22 C-18 -31 -12 -42 -2 -50 C7 -44 13 -35 12 -26 C11 -16 6 -7 0 3Z" fill="url(#astra-red)"/>
+      <path d="M0 -2 C-4 -13 -7 -25 -3 -39" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
     </g>
     <g transform="rotate(72)">
-      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#orange)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+      <path d="M0 3 C-7 -3 -16 -12 -17 -22 C-18 -31 -12 -42 -2 -50 C7 -44 13 -35 12 -26 C11 -16 6 -7 0 3Z" fill="url(#astra-orange)"/>
+      <path d="M0 -2 C-4 -13 -7 -25 -3 -39" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
     </g>
     <g transform="rotate(144)">
-      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#yellow)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+      <path d="M0 3 C-7 -3 -16 -12 -17 -22 C-18 -31 -12 -42 -2 -50 C7 -44 13 -35 12 -26 C11 -16 6 -7 0 3Z" fill="url(#astra-yellow)"/>
+      <path d="M0 -2 C-4 -13 -7 -25 -3 -39" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
     </g>
     <g transform="rotate(216)">
-      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#green)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+      <path d="M0 3 C-7 -3 -16 -12 -17 -22 C-18 -31 -12 -42 -2 -50 C7 -44 13 -35 12 -26 C11 -16 6 -7 0 3Z" fill="url(#astra-green)"/>
+      <path d="M0 -2 C-4 -13 -7 -25 -3 -39" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
     </g>
     <g transform="rotate(288)">
-      <path d="M0 1 C-8 -7 -15 -18 -15 -29 C-15 -39 -8 -46 0 -49 C8 -46 15 -39 15 -29 C15 -18 8 -7 0 1 Z" fill="url(#cyan)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-      <path d="M0 -5 C-3 -15 -6 -26 -3 -39" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".95"/>
+      <path d="M0 3 C-7 -3 -16 -12 -17 -22 C-18 -31 -12 -42 -2 -50 C7 -44 13 -35 12 -26 C11 -16 6 -7 0 3Z" fill="url(#astra-blue)"/>
+      <path d="M0 -2 C-4 -13 -7 -25 -3 -39" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
     </g>
   </g>
 </svg>
