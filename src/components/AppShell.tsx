@@ -43,36 +43,13 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   mining_commodities: { label: 'Mining Commodities', icon: <Pickaxe size={16} /> },
 };
 
-function AstraMark({ size = 40 }: { size?: number }) {
-  return (
-    <img
-      src={`${import.meta.env.BASE_URL}astra-mark.svg`}
-      alt="Astra Oil and Gas"
-      width={size}
-      height={size}
-      className="shrink-0 object-contain"
-    />
-  );
-}
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 ${compact ? 'h-10' : 'h-12'}`}>
-      <AstraMark size={compact ? 30 : 40} />
-      <div className="flex flex-col justify-center leading-none whitespace-nowrap">
-        <div
-          className={`font-bold text-black ${compact ? 'text-[18px] tracking-[0.09em]' : 'text-[23px] sm:text-[24px] tracking-[0.08em]'}`}
-          style={{ fontFamily: 'Arial Narrow, Helvetica Neue, Arial, sans-serif', transform: 'scaleX(1.02)', transformOrigin: 'left center' }}
-        >
-          ASTRA
-        </div>
-        <div
-          className={`mt-1 text-[#808080] ${compact ? 'text-[7px] tracking-[0.08em]' : 'text-[8px] sm:text-[9px] tracking-[0.07em]'}`}
-          style={{ fontFamily: 'Georgia, Times New Roman, serif' }}
-        >
-          Oil and Gas
-        </div>
-      </div>
-    </div>
+    <img
+      src={`${import.meta.env.BASE_URL}astra-logo.jpg`}
+      alt="Astra Oil and Gas"
+      className={`object-contain object-left ${compact ? 'h-10 w-[122px]' : 'h-12 w-[190px] sm:w-[210px]'}`}
+    />
   );
 }
 
