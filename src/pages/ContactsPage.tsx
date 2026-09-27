@@ -17,7 +17,7 @@ function emptyForm(supplierId: string): Omit<Contact, 'id' | 'created_at'> {
 }
 
 export function ContactsPage() {
-  const { procurementDomain } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
@@ -107,7 +107,7 @@ export function ContactsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {prioritizedContacts.map((c) => (
-            <Card key={c.id}>
+            <Card key={c.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(c.supplier_id)}>
               <CardBody>
                 <div className="flex items-start justify-between mb-2">
                   <div>
