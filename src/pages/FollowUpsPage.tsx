@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
@@ -25,6 +26,7 @@ function emptyForm(supplierId: string): Omit<FollowUp, 'id' | 'created_at' | 'up
 }
 
 export function FollowUpsPage() {
+  const { selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<FollowUp, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
@@ -80,7 +82,7 @@ export function FollowUpsPage() {
           {followUps.map((f) => {
             const overdue = f.status !== 'completed' && isOverdue(f.due_date);
             return (
-              <Card key={f.id}>
+              <Card key={f.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(f.supplier_id)}>
                 <CardBody>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -98,7 +100,7 @@ export function FollowUpsPage() {
                     <div className="flex flex-col items-end gap-2">
                       <Badge color={priorityColor(f.priority)}>{priorityLabel(f.priority)}</Badge>
                       <Badge color={followUpStatusColor(f.status)}>{followUpStatusLabel(f.status)}</Badge>
-                      <Button size="sm" variant="ghost" onClick={() => remove(f.id)}><Trash2 size={14} /></Button>
+                      <Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(f.id); }}><Trash2 size={14} /></Button>
                     </div>
                   </div>
                 </CardBody>
