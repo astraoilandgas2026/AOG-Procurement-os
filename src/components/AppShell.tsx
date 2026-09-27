@@ -47,7 +47,7 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
     <img
-      src={`${import.meta.env.BASE_URL}astra-logo.jpg`}
+      src={`${import.meta.env.BASE_URL}astra-logo.jpg?v=20260927`}
       alt="Astra Oil and Gas"
       className={`object-contain object-left ${compact ? 'h-10 w-[122px]' : 'h-12 w-[190px] sm:w-[210px]'}`}
     />
