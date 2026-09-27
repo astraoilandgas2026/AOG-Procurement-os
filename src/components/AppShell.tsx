@@ -44,6 +44,7 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 };
 
 /* Official Astra Oil and Gas logo asset */
+// Responsive official Astra brand mark
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   const src = `${import.meta.env.BASE_URL}astra-logo.svg?v=20260927b`;
   return (
