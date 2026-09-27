@@ -225,31 +225,17 @@ export function PageHeader({
 }
 
 function AstraLoadingMark({ size = 112 }: { size?: number }) {
-  const petals = [
-    ['red', '#E31E24', '#A6191D'],
-    ['orange', '#F58220', '#D95B10'],
-    ['yellow', '#FDB913', '#E5A00D'],
-    ['green', '#00A651', '#007A3D'],
-    ['blue', '#00AEEF', '#0072BC'],
-  ];
+  const src = `${import.meta.env.BASE_URL}astra-mark.svg?v=20260927e`;
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" className="animate-pulse">
-      <defs>
-        {petals.map(([id, a, b]) => (
-          <linearGradient key={id} id={`astra-loading-${id}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor={a} /><stop offset="100%" stopColor={b} />
-          </linearGradient>
-        ))}
-      </defs>
-      <g transform="translate(50 50)">
-        {[0, 72, 144, 216, 288].map((rotation, i) => (
-          <g key={rotation} transform={`rotate(${rotation})`}>
-            <path d="M0 -49 C6 -46 11 -40 14 -32 C18 -21 9 -8 0 0 C-9 -8 -18 -21 -14 -32 C-11 -40 -6 -46 0 -49Z" fill={`url(#astra-loading-${petals[i][0]})`} />
-            <path d="M0 -42 C-3 -33 -4 -24 -1 -14" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" />
-          </g>
-        ))}
-      </g>
-    </svg>
+    <img
+      src={src}
+      alt=""
+      width={size}
+      height={size}
+      aria-hidden="true"
+      className="animate-pulse object-contain"
+      draggable={false}
+    />
   );
 }
 export function LoadingSpinner() {
