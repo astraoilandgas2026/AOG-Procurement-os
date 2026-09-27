@@ -45,11 +45,13 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
 
 /* Official Astra Oil and Gas logo asset */
 function AstraLogo({ compact = false }: { compact?: boolean }) {
+  const src = `${import.meta.env.BASE_URL}astra-logo.svg?v=20260927b`;
   return (
     <img
-      src={`${import.meta.env.BASE_URL}astra-logo.jpg?v=20260927`}
+      src={src}
       alt="Astra Oil and Gas"
-      className={`object-contain object-left ${compact ? 'h-10 w-[122px]' : 'h-12 w-[190px] sm:w-[210px]'}`}
+      className={compact ? 'block h-auto w-[150px]' : 'block h-auto w-[220px] sm:w-[240px]'}
+      draggable={false}
     />
   );
 }

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" role="img" aria-labelledby="title desc">
+<title>Astra Oil and Gas</title><desc>Astra Oil and Gas logo</desc>
+<g transform="translate(150 18)"><g transform="translate(100 105)">
+<path d="M0 0 C-18 -42 -5 -92 24 -108 C43 -82 45 -48 24 -15 Z" fill="#e31d2f"/>
+<path d="M0 0 C-4 -45 21 -82 53 -91 C59 -60 46 -31 22 -9 Z" fill="#f47b20" transform="rotate(72)"/>
+<path d="M0 0 C-4 -45 21 -82 53 -91 C59 -60 46 -31 22 -9 Z" fill="#f4c542" transform="rotate(144)"/>
+<path d="M0 0 C-4 -45 21 -82 53 -91 C59 -60 46 -31 22 -9 Z" fill="#39a85a" transform="rotate(216)"/>
+<path d="M0 0 C-4 -45 21 -82 53 -91 C59 -60 46 -31 22 -9 Z" fill="#28a9df" transform="rotate(288)"/>
+</g></g>
+<text x="365" y="145" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="400" letter-spacing="4" fill="#111111">ASTRA</text>
+<text x="372" y="202" font-family="Georgia, Times New Roman, serif" font-size="42" font-weight="400" letter-spacing="2" fill="#777777">Oil and Gas</text>
+</svg>
