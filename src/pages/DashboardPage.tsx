@@ -8,27 +8,19 @@ import { getProductFamily } from '@/utils/productFamilies';
 
 const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
   title: string;
-  description: string;
   icon: typeof Droplets;
-  products: string;
 }> = {
   feedstock: {
     title: 'Feedstock',
-    description: 'Inteligencia de abastecimiento de materias primas para biodiésel y biocombustibles en LATAM.',
     icon: Droplets,
-    products: 'UCO / AVU · aceites vegetales · desgomados · off-spec · oleínas · ácidos grasos · acid oils · soapstock · retornos industriales · residuos oleaginosos',
   },
   energy_commodities: {
     title: 'Energy Commodities',
-    description: 'Inteligencia comercial para commodities energéticos convencionales y suministro físico.',
     icon: Fuel,
-    products: 'Gas · fuel oil · petcoke · diésel · crudo · otros commodities energéticos',
   },
   mining_commodities: {
     title: 'Mining Commodities',
-    description: 'Inteligencia de abastecimiento para commodities mineros, minerales y corrientes de carbón.',
     icon: Pickaxe,
-    products: 'Carbón · minerales · concentrados · commodities mineros y subproductos',
   },
 };
 
