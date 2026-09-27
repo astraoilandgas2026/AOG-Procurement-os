@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
@@ -24,6 +25,7 @@ function emptyForm(supplierId: string): Omit<LogisticsInfo, 'id' | 'created_at' 
 }
 
 export function LogisticsPage() {
+  const { selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<LogisticsInfo, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
@@ -77,7 +79,7 @@ export function LogisticsPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {logistics.map((l) => (
-            <Card key={l.id}>
+            <Card key={l.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(l.supplier_id)}>
               <CardBody>
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -96,7 +98,7 @@ export function LogisticsPage() {
                 </div>
                 {l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(l.id); }}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
