@@ -71,9 +71,17 @@ export function DashboardPage() {
   if (!procurementDomain) {
     return (
       <div className="space-y-8">
-        <div className="max-w-3xl">
-          <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
-          <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
+        <div className="flex flex-col items-start gap-5 max-w-3xl">
+          <img
+            src={`${import.meta.env.BASE_URL}astra-logo.svg?v=20260927d`}
+            alt="Astra Oil and Gas"
+            className="block h-auto w-[210px] sm:w-[240px]"
+            draggable={false}
+          />
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
+            <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
+          </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
           {(Object.keys(DOMAIN_CONTENT) as ProcurementDomain[]).map((key) => {
