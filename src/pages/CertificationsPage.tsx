@@ -34,7 +34,7 @@ function emptyForm(supplierId: string): Omit<Certification, 'id' | 'created_at'>
 }
 
 export function CertificationsPage() {
-  const { procurementDomain } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Certification, 'id' | 'created_at'> | null>(null);
 
@@ -101,7 +101,7 @@ export function CertificationsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {prioritizedCertifications.map((c) => (
-            <Card key={c.id}>
+            <Card key={c.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(c.supplier_id)}>
               <CardBody>
                 <div className="flex items-start justify-between mb-2">
                   <div>
@@ -118,7 +118,7 @@ export function CertificationsPage() {
                   {c.notes && <p className="mt-2 text-gray-500">{c.notes}</p>}
                 </div>
                 <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
-                  <Button size="sm" variant="ghost" onClick={() => remove(c.id)}><Trash2 size={14} /></Button>
+                  <Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(c.id); }}><Trash2 size={14} /></Button>
                 </div>
               </CardBody>
             </Card>
