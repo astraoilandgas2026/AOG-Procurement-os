@@ -17,7 +17,7 @@ function emptyForm(supplierId: string): Omit<Product, 'id' | 'created_at' | 'upd
 }
 
 export function ProductsPage() {
-  const { procurementDomain } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
@@ -63,7 +63,7 @@ export function ProductsPage() {
             }
 
             return (
-              <Card key={supplierId}>
+              <Card key={supplierId} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(supplierId)}>
                 <CardBody>
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div>
@@ -98,7 +98,7 @@ export function ProductsPage() {
                                   <td className="px-3 py-2 text-gray-600">{p.origin || '—'}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.available_volume ? `${p.available_volume} ${p.unit}` : '—'}</td>
                                   <td className="px-3 py-2"><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></td>
-                                  <td className="px-3 py-2 text-right"><Button size="sm" variant="ghost" onClick={() => remove(p.id)}><Trash2 size={14} /></Button></td>
+                                  <td className="px-3 py-2 text-right"><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(p.id); }}><Trash2 size={14} /></Button></td>
                                 </tr>
                               ))}
                             </tbody>
