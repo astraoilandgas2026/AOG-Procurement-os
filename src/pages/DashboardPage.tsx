@@ -85,8 +85,8 @@ export function DashboardPage() {
               <button key={key} onClick={() => selectDomain(key)} className="group text-left">
                 <Card className="h-full border-slate-200 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[var(--astra-orange)] group-hover:shadow-lg">
                   <CardBody className="p-5">
-                    <div className="flex items-start justify-between gap-5">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]"><Icon size={23} /></div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]"><Icon size={23} /></div>
                       <ArrowRight size={20} className="mt-1 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[var(--astra-orange)]" />
                     </div>
                     <h3 className="mt-4 text-lg font-bold text-[var(--astra-dark)]">{domain.title}</h3>
