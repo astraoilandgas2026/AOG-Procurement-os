@@ -43,6 +43,7 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   mining_commodities: { label: 'Mining Commodities', icon: <Pickaxe size={16} /> },
 };
 
+/* Official Astra Oil and Gas logo asset */
 function AstraLogo({ compact = false }: { compact?: boolean }) {
   return (
     <img
