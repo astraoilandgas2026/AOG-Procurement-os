@@ -72,12 +72,6 @@ export function DashboardPage() {
     return (
       <div className="space-y-8">
         <div className="flex flex-col items-start gap-5 max-w-3xl">
-          <img
-            src={`${import.meta.env.BASE_URL}astra-logo.svg?v=20260927d`}
-            alt="Astra Oil and Gas"
-            className="block h-auto w-[210px] sm:w-[240px]"
-            draggable={false}
-          />
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
             <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
