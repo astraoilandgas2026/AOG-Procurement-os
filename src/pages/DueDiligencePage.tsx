@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNav } from '@/context/NavContext';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import {
@@ -32,6 +33,7 @@ function emptyFlagForm(supplierId: string): Omit<RedFlag, 'id' | 'created_at'> {
 }
 
 export function DueDiligencePage() {
+  const { selectSupplier } = useNav();
   const [showDDForm, setShowDDForm] = useState(false);
   const [showFlagForm, setShowFlagForm] = useState(false);
   const [ddForm, setDDForm] = useState<Omit<VencimientoDiligenceItem, 'id' | 'created_at' | 'updated_at'> | null>(null);
@@ -141,7 +143,7 @@ export function DueDiligencePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {groupedDD.map(([supplierId, items]) => (
-              <Card key={supplierId}>
+              <Card key={supplierId} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => selectSupplier(supplierId)}>
                 <CardBody>
                   <div className="flex items-start justify-between mb-4">
                     <div>
