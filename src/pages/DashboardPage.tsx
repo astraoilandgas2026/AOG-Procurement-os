@@ -77,27 +77,27 @@ export function DashboardPage() {
             <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2.5 max-w-5xl mx-auto">
+        <div className="grid grid-cols-3 gap-2 max-w-3xl mx-auto w-full">
           {(Object.keys(DOMAIN_CONTENT) as ProcurementDomain[]).map((key) => {
             const domain = DOMAIN_CONTENT[key];
             const Icon = domain.icon;
             return (
               <button key={key} onClick={() => selectDomain(key)} className="group min-w-0 text-left">
-                <Card className="h-full min-w-0 border-slate-200 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[var(--astra-orange)] group-hover:shadow-lg">
-                  <CardBody className="p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]"><Icon size={17} /></div>
-                      <ArrowRight size={17} className="mt-0.5 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[var(--astra-orange)]" />
+                <Card className="h-[118px] w-full border-slate-200 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[var(--astra-orange)] group-hover:shadow-lg">
+                  <CardBody className="flex h-full flex-col justify-between p-3">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]">
+                        <Icon size={17} />
+                      </div>
+                      <ArrowRight size={15} className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[var(--astra-orange)]" />
                     </div>
-                    <h3 className="mt-2.5 text-sm font-bold text-[var(--astra-dark)]">{domain.title}</h3>
-                    <p className="mt-1 text-[11px] leading-4 text-slate-500">{domain.description}</p>
-                    <div className="mt-2 rounded-lg bg-slate-50 p-2 text-[10px] leading-3.5 text-slate-600">{domain.products}</div>
+                    <h3 className="text-[13px] font-bold leading-4 text-[var(--astra-dark)]">{domain.title}</h3>
                   </CardBody>
                 </Card>
               </button>
             );
           })}
-        </div>     </div>
+        </div>   </div>
     );
   }
 
