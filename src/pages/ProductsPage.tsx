@@ -53,7 +53,7 @@ function categoryLabel(domain: ProcurementDomain) {
 }
 
 export function ProductsPage() {
-  const { procurementDomain, selectSupplier } = useNav();
+  const { procurementDomain, selectedSupplierId, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
