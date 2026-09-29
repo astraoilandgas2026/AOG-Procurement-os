@@ -567,11 +567,11 @@ function EmptyLine({ text }: { text: string }) {
   return <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500">{text}</p>;
 }
 
-function DetailSection({ title, children }: { title: string; children: ReactNode }) {
+function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <Card>
       <CardBody>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">{title}</h3>
+        <div className="mb-3 flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-gray-900">{title}</h3>{action}</div>
         <div className="space-y-2">{children}</div>
       </CardBody>
     </Card>
