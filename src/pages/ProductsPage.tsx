@@ -148,7 +148,7 @@ export function ProductsPage() {
                                 <tr key={p.id} className="hover:bg-gray-50">
                                   <td className="px-3 py-2 font-medium text-gray-900"><div>{displayProductName(p.name)}</div>{p.commodity_category && p.commodity_category !== 'feedstock' && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-400">{productCategoryLabel(p.commodity_category)}</div>}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.origin || '—'}</td>
-                                  <td className="px-3 py-2 text-gray-600">{cleanProductVolume(p.available_volume) ? `${cleanProductVolume(p.available_volume)} ${p.unit || ''}`.trim() : '—'}</td>
+                                  <td className="px-3 py-2 text-gray-600">{cleanProductVolume(p.available_volume) ? cleanProductVolume(p.available_volume) : '—'}</td>
                                   <td className="px-3 py-2"><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></td>
                                   <td className="px-3 py-2 text-right"><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(p.id); }}><Trash2 size={14} /></Button></td>
                                 </tr>
