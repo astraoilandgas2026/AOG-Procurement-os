@@ -15,13 +15,58 @@ import { formatDate } from '@/utils/date';
 import {
   Building2, Plus, ArrowLeft, MapPin, FileText, Trash2, Edit3, FlaskConical, Clock, AlertTriangle,
 } from 'lucide-react';
-import type { Supplier, SupplierLifecycle, Contact } from '@/types';
-import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
+import type { Supplier, SupplierLifecycle, Contact, Product, FeedstockType, VerificationStatus, ProcurementDomain } from '@/types';
+import { FEEDSTOCK_LABELS, LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
 import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, productCategoryLabel } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
 const VERIFIED_PRIORITY = ['Renovar Oleos', 'FL Óleos', 'Olam Agro'];
+
+const FEEDSTOCK_OPTIONS = Object.entries(FEEDSTOCK_LABELS).map(([value, label]) => ({ value, label }));
+const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
+
+function productCategoryOptions(domain: ProcurementDomain) {
+  if (domain === 'feedstock') return FEEDSTOCK_OPTIONS;
+  if (domain === 'energy_commodities') return [
+    { value: 'crude_oil', label: 'Crudo' },
+    { value: 'refined_products', label: 'Productos refinados / derivados' },
+    { value: 'lng_natural_gas', label: 'LNG / Gas natural' },
+    { value: 'ngls', label: 'NGLs' },
+    { value: 'fuel_oil', label: 'Fuel Oil' },
+    { value: 'other_energy', label: 'Otro commodity energético' },
+  ];
+  return [
+    { value: 'ores_concentrates', label: 'Minerales / concentrados' },
+    { value: 'base_metals', label: 'Metales base' },
+    { value: 'precious_metals', label: 'Metales preciosos' },
+    { value: 'industrial_minerals', label: 'Minerales industriales' },
+    { value: 'coal', label: 'Carbón' },
+    { value: 'other_mining', label: 'Otro commodity minero' },
+  ];
+}
+
+function productCategoryLabelFor(domain: ProcurementDomain) {
+  return domain === 'feedstock' ? 'Tipo de feedstock' : 'Tipo de commodity';
+}
+
+function cleanProductVolume(value: string): string {
+  const raw = value.trim();
+  if (!raw) return '';
+  const numeric = raw.match(/^[~≈]?\\s*\\d[\\d.,]*(?:\\s*[-–]\\s*\\d[\\d.,]*)?\\s*(?:MT|KG|L|t|ton(?:eladas)?)\\s*(?:\\/\\s*(?:mes|month))?/i);
+  if (numeric) return numeric[0].trim();
+  if (/historical|historically|histórico|histórica|referencia histórica|activity reported|activity historically|collection,.*reported/i.test(raw)) return '';
+  return raw;
+}
+
+function cleanProductComposition(value: string): string {
+  const raw = value.trim();
+  if (!raw) return '';
+  return raw
+    .replace(/\\s*[—-]\\s*declarad[oa](?:;.*)?$/i, '')
+    .replace(/\\s*[—-]\\s*historical(?:ly)? reported.*$/i, '')
+    .trim();
+}
 
 const BRAZIL_INTERIOR_TERMS = [
   'paraná', 'parana', 'santa catarina', 'rio grande do sul', 'goiás', 'goias',
@@ -367,6 +412,10 @@ function SupplierDetail({
   const { navigate } = useNav();
   const [showContactForm, setShowContactForm] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [productForm, setProductForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
+  const [productError, setProductError] = useState('');
   const [contactForm, setContactForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
   const [contactError, setContactError] = useState('');
 
@@ -414,6 +463,29 @@ function SupplierDetail({
       refresh();
     } catch (err) {
       setContactError(err instanceof Error ? err.message : 'No fue posible guardar el contacto.');
+    }
+  };
+
+  const openProductEdit = (product: Product) => {
+    const { id, created_at, updated_at, ...rest } = product;
+    void id; void created_at; void updated_at;
+    setProductForm(rest);
+    setEditingProductId(product.id);
+    setProductError('');
+    setShowProductForm(true);
+  };
+
+  const saveProduct = async () => {
+    if (!productForm || !editingProductId || !productForm.name.trim()) return;
+    setProductError('');
+    try {
+      await getStore().products.update(editingProductId, productForm);
+      setShowProductForm(false);
+      setEditingProductId(null);
+      setProductForm(null);
+      refresh();
+    } catch (err) {
+      setProductError(err instanceof Error ? err.message : 'No fue posible guardar el producto.');
     }
   };
 
@@ -481,14 +553,19 @@ function SupplierDetail({
         {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
           <div key={p.id} className="rounded-lg border border-gray-100 p-3">
             <div className="flex items-start justify-between gap-2">
-              <div><div className="text-sm font-semibold text-gray-900">{displayProductName(p.name)}</div><div className="text-xs text-gray-500">{p.composition || 'Composición no registrada'}</div></div>
-              <Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-gray-900">{displayProductName(p.name)}</div>
+                <div className="text-xs text-gray-500">{cleanProductComposition(p.composition) || 'Composición no registrada'}</div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge>
+                <Button size="sm" variant="ghost" onClick={() => openProductEdit(p)}><Edit3 size={13} /> Editar producto</Button>
+              </div>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
               <span>{p.commodity_category && p.commodity_category !== 'feedstock' ? `Categoría: ${productCategoryLabel(p.commodity_category)}` : `Familia: ${PRODUCT_FAMILY_LABELS[getProductFamily(p)]}`}</span>
               <span>Origen: {p.origin || '—'}</span>
-              <span>Volumen documentado: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span>
-              <span>Verificación: {verificationLabel(p.verification_status)}</span>
+              <span>Volumen: {cleanProductVolume(p.available_volume) ? `${cleanProductVolume(p.available_volume)} ${p.unit || ''}`.trim() : '—'}</span>
             </div>
           </div>
         ))}
@@ -536,6 +613,42 @@ function SupplierDetail({
       </DetailSection>
 
 
+
+      <Modal
+        open={showProductForm}
+        onClose={() => setShowProductForm(false)}
+        title="Editar producto"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowProductForm(false)}>Cancelar</Button>
+            <Button onClick={saveProduct} disabled={!productForm?.name.trim()}>Guardar cambios</Button>
+          </>
+        }
+      >
+        {productError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{productError}</div>}
+        {productForm && (
+          <div className="space-y-3">
+            <Input label="Nombre del producto / variante" required value={productForm.name} onChange={(v) => setProductForm({ ...productForm, name: v })} />
+            <Select
+              label={productCategoryLabelFor(procurementDomain ?? 'feedstock')}
+              value={procurementDomain === 'feedstock' ? productForm.feedstock_type : (productForm.commodity_category || '')}
+              onChange={(v) => setProductForm({
+                ...productForm,
+                ...(procurementDomain === 'feedstock' ? { feedstock_type: v as FeedstockType, commodity_category: 'feedstock' } : { commodity_category: v }),
+              })}
+              options={productCategoryOptions(procurementDomain ?? 'feedstock')}
+              required={procurementDomain !== 'feedstock'}
+            />
+            <Input label="Origen" value={productForm.origin} onChange={(v) => setProductForm({ ...productForm, origin: v })} />
+            <TextArea label="Composición" value={productForm.composition} onChange={(v) => setProductForm({ ...productForm, composition: v })} />
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Volumen" value={productForm.available_volume} onChange={(v) => setProductForm({ ...productForm, available_volume: v })} />
+              <Input label="Unidad" value={productForm.unit} onChange={(v) => setProductForm({ ...productForm, unit: v })} />
+            </div>
+            <Select label="Estado de verificación" value={productForm.verification_status} onChange={(v) => setProductForm({ ...productForm, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} />
+          </div>
+        )}
+      </Modal>
 
       <Modal
         open={showContactForm}
