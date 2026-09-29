@@ -1,4 +1,5 @@
 name: Deploy AOG Procurement OS
+# Force deployment after verified frontend/data corrections.
 
 on:
   push:
