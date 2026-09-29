@@ -463,7 +463,7 @@ function SupplierDetail({
     try {
       if (!editingContactId) throw new Error('Contacto no seleccionado.');
       await getStore().contacts.update(editingContactId, contactForm);
-      const saved = await getStore().contacts.getBySupplier(supplier.supplier_id ?? supplier.id);
+      const saved = await getStore().contacts.getBySupplier(supplier.id);
       const persisted = saved.find((contact) => contact.id === editingContactId);
       if (!persisted || persisted.name !== contactForm.name || persisted.email !== contactForm.email) {
         throw new Error('El cambio de contacto no pudo ser verificado después de guardarlo.');
