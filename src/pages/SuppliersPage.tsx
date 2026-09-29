@@ -619,11 +619,11 @@ function SupplierDetail({
       <Modal
         open={showProductForm}
         onClose={() => setShowProductForm(false)}
-        title="Editar producto"
+        title="Editar producto y posición"
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowProductForm(false)}>Cancelar</Button>
-            <Button onClick={saveProduct} disabled={!productForm?.name.trim()}>Guardar cambios</Button>
+            <Button onClick={saveProduct} disabled={!productForm?.name.trim()}>Guardar producto</Button>
           </>
         }
       >
