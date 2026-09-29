@@ -194,6 +194,9 @@ export type DocumentType =
   | 'bill_of_lading'
   | 'inspection_report'
   | 'visit_report'
+  | 'company_profile'
+  | 'kyc'
+  | 'cis'
   | 'contract'
   | 'other';
 
@@ -210,6 +213,9 @@ export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
   bill_of_lading: 'Conocimiento de embarque',
   inspection_report: 'Informe de inspección',
   visit_report: 'Informe de visita',
+  company_profile: 'Company Profile',
+  kyc: 'KYC',
+  cis: 'CIS',
   contract: 'Contrato',
   other: 'Otro',
 };
