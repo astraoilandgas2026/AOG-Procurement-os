@@ -409,7 +409,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 function SupplierDetail({
   supplier, onBack, onEdit, onDelete,
 }: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
-  const { navigate } = useNav();
+  const { navigate, procurementDomain } = useNav();
   const [showContactForm, setShowContactForm] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -512,9 +512,11 @@ function SupplierDetail({
         <DetailRow label="Registro mercantil / referencia" value={supplier.cnae} />
         <DetailRow label="Administrador / representante" value={supplier.administrator} />
         <DetailRow label="Situación legal" value={supplier.legal_status} />
-        <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
-          CIS registrado en Evidencia y Documentos. PREKAMA USA LLC aparece en documentación histórica como entidad distinta; su relación corporativa con PREKAMA Verwaltungs GmbH no se presume sin KYC.
-        </div>
+        {procurementDomain === 'energy_commodities' && /PREKAMA/i.test(supplier.trading_name || supplier.legal_name || '') && (
+          <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
+            CIS registrado en Evidencia y Documentos. PREKAMA USA LLC aparece en documentación histórica como entidad distinta; su relación corporativa con PREKAMA Verwaltungs GmbH no se presume sin KYC.
+          </div>
+        )}
       </DetailSection>
 
       <DetailSection title="2. Operación y Capacidad">
