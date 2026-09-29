@@ -33,11 +33,14 @@ export function displayProductName(name: string): string {
   const raw = name.trim();
   if (!raw) return 'Producto sin nombre';
 
-  let value = raw;
+  let value = raw
+    .replace(/\bUCO\s*\/\s*AVU\b/gi, 'UCO')
+    .replace(/\bAVU\s*\/\s*UCO\b/gi, 'UCO')
+    .replace(/\bUsed Cooking Oil\b/gi, 'UCO')
+    .replace(/\bUsed Frying Oil\b/gi, 'UCO')
+    .replace(/\bRecovered Cooking Oil\b/gi, 'UCO');
+
   const replacements: Array<[RegExp, string]> = [
-    [/used cooking oil/gi, 'Aceite de cocina usado'],
-    [/used frying oil/gi, 'Aceite de fritura usado'],
-    [/recovered cooking oil/gi, 'Aceite de cocina recuperado'],
     [/vegetable oils?/gi, 'Aceites vegetales'],
     [/mixed vegetable feedstock/gi, 'Materia prima vegetal mixta'],
     [/mixed vegetable/gi, 'Vegetal mixto'],
@@ -58,9 +61,16 @@ export function displayProductName(name: string): string {
   ];
 
   for (const [pattern, replacement] of replacements) value = value.replace(pattern, replacement);
-  value = value.replace(/\bUCO\b/gi, 'UCO / AVU');
-  value = value.replace(/\bAVU\b/gi, 'UCO / AVU');
-  return value.replace(/\s{2,}/g, ' ').trim();
+
+  value = value
+    .replace(/\bAVU\b/gi, 'UCO')
+    .replace(/\bUCO\s*\/\s*UCO\b/gi, 'UCO')
+    .replace(/\bUCO\s*\/\s*AVU\b/gi, 'UCO')
+    .replace(/\s*\/\s*/g, ' / ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  return value;
 }
 
 export const COMMODITY_CATEGORY_LABELS: Record<string, string> = {
