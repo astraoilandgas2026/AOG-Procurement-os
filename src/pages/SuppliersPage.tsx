@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle, Contact } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
-import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, productCategoryLabel } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -484,7 +484,7 @@ function SupplierDetail({
               <Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
-              <span>Familia: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span>
+              <span>{p.commodity_category && p.commodity_category !== 'feedstock' ? `Categoría: ${productCategoryLabel(p.commodity_category)}` : `Familia: ${PRODUCT_FAMILY_LABELS[getProductFamily(p)]}`}</span>
               <span>Origen: {p.origin || '—'}</span>
               <span>Volumen documentado: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span>
               <span>Verificación: {verificationLabel(p.verification_status)}</span>
