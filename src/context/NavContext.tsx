@@ -68,8 +68,9 @@ export function NavProvider({ children }: { children: ReactNode }) {
   };
 
   const selectDomain = (domain: ProcurementDomain) => {
+    const hasDomain = Boolean(navigation.procurementDomain);
     commitNavigation({
-      currentPage: 'dashboard',
+      currentPage: hasDomain ? navigation.currentPage : 'dashboard',
       selectedSupplierId: null,
       procurementDomain: domain,
     });
