@@ -36,6 +36,8 @@ function domainNameForKey(domainKey: ProcurementDomain): string {
     feedstock: 'Feedstock',
     energy_commodities: 'Energy Commodities',
     mining_commodities: 'Mining Commodities',
+    fertilizers_chemicals: 'Fertilizers & Chemicals',
+    agricultural_commodities: 'Agricultural Commodities',
   };
   return names[domainKey];
 }
@@ -327,11 +329,7 @@ export class SupabaseStore implements DataStore {
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) return [];
-      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
-      if (supplierError) throw supplierError;
-      const ids = (suppliers as Row[]).map(s => s.id as string);
-      if (!ids.length) return [];
-      const { data, error } = await client.from('products').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
+      const { data, error } = await client.from('products').select('*').eq('domain_id', domain.id as string).order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapProduct);
     },
@@ -357,11 +355,7 @@ export class SupabaseStore implements DataStore {
       if (supplierError) throw supplierError;
       if (!supplier?.domain_id) throw new Error('El proveedor no tiene un dominio de procurement asignado.');
 
-      if (data.domain_id && data.domain_id !== supplier.domain_id) {
-        throw new Error('El producto no puede pertenecer a un dominio distinto al de su proveedor.');
-      }
-
-      payload.domain_id = supplier.domain_id;
+      payload.domain_id = data.domain_id || supplier.domain_id;
       const { data: row, error } = await client.from('products').insert(payload).select().single();
       if (error) throw error;
       return mapProduct(row as Row);
