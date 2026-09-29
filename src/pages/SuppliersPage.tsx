@@ -364,6 +364,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 function SupplierDetail({
   supplier, onBack, onEdit, onDelete,
 }: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
+  const { navigate } = useNav();
   const [showContactForm, setShowContactForm] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [contactForm, setContactForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
@@ -476,7 +477,7 @@ function SupplierDetail({
         )}
       </DetailSection>
 
-      <DetailSection title="4. Productos y Posiciones">
+      <DetailSection title="4. Productos y Posiciones" action={<Button size="sm" variant="secondary" onClick={() => navigate('products')}><Plus size={14} /> Agregar producto</Button>}>
         {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
           <div key={p.id} className="rounded-lg border border-gray-100 p-3">
             <div className="flex items-start justify-between gap-2">
