@@ -3,7 +3,7 @@ import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import {
   Building2, Users, Package, DollarSign, Award, FileText,
-  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe,
+  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat,
 } from 'lucide-react';
 
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
