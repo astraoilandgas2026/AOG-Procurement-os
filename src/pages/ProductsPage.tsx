@@ -4,7 +4,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Input, Select, Badge, Modal, PageHeader } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
-import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, type ProductFamily } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, productCategoryLabel, type ProductFamily } from '@/utils/productFamilies';
 import { Plus, Package, Trash2 } from 'lucide-react';
 import type { Product, FeedstockType, ProcurementDomain, VerificationStatus } from '@/types';
 import { FEEDSTOCK_LABELS, VERIFICATION_LABELS } from '@/types';
@@ -130,7 +130,7 @@ export function ProductsPage() {
                             <tbody className="divide-y divide-gray-100">
                               {familyProducts.map((p) => (
                                 <tr key={p.id} className="hover:bg-gray-50">
-                                  <td className="px-3 py-2 font-medium text-gray-900"><div>{displayProductName(p.name)}</div>{p.commodity_category && p.commodity_category !== 'feedstock' && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-400">{p.commodity_category.replaceAll('_', ' ')}</div>}</td>
+                                  <td className="px-3 py-2 font-medium text-gray-900"><div>{displayProductName(p.name)}</div>{p.commodity_category && p.commodity_category !== 'feedstock' && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-400">{productCategoryLabel(p.commodity_category)}</div>}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.origin || '—'}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.available_volume ? `${p.available_volume} ${p.unit}` : '—'}</td>
                                   <td className="px-3 py-2"><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></td>
