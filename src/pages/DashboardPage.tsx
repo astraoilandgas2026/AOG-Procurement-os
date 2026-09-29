@@ -47,24 +47,32 @@ export function DashboardPage() {
       suppliers: [], contacts: [], products: [], technical_specs: [], commercial_offers: [],
       certifications: [], documents: [], due_diligence: [], logistics: [], timeline: [], follow_ups: [], red_flags: [],
     };
+
     const store = getStore();
     const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
-    const all = await store.getAll();
-    const supplierIds = new Set(suppliers.map((s) => s.id));
-    const scoped = <T extends { supplier_id?: string }>(rows: T[]) => rows.filter((row) => !row.supplier_id || supplierIds.has(row.supplier_id));
+    const supplierIds = suppliers.map((supplier) => supplier.id);
+
+    const [contacts, products, documentsBySupplier, ddBySupplier, offersBySupplier] = await Promise.all([
+      store.contacts.getByDomainKey(procurementDomain),
+      store.products.getByDomainKey(procurementDomain),
+      Promise.all(supplierIds.map((id) => store.documents.getBySupplier(id))),
+      Promise.all(supplierIds.map((id) => store.dueDiligence.getBySupplier(id))),
+      Promise.all(supplierIds.map((id) => store.commercialOffers.getBySupplier(id))),
+    ]);
+
     return {
-      ...all,
       suppliers,
-      contacts: scoped(all.contacts),
-      products: scoped(all.products),
-      commercial_offers: scoped(all.commercial_offers),
-      certifications: scoped(all.certifications),
-      documents: scoped(all.documents),
-      due_diligence: scoped(all.due_diligence),
-      logistics: scoped(all.logistics),
-      timeline: scoped(all.timeline),
-      follow_ups: scoped(all.follow_ups),
-      red_flags: scoped(all.red_flags),
+      contacts,
+      products,
+      technical_specs: [],
+      commercial_offers: offersBySupplier.flat(),
+      certifications: [],
+      documents: documentsBySupplier.flat(),
+      due_diligence: ddBySupplier.flat(),
+      logistics: [],
+      timeline: [],
+      follow_ups: [],
+      red_flags: [],
     };
   }, [procurementDomain]);
 
