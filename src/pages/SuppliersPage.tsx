@@ -53,7 +53,7 @@ function productCategoryLabelFor(domain: ProcurementDomain) {
 function cleanProductVolume(value: string): string {
   const raw = value.trim();
   if (!raw) return '';
-  const numeric = raw.match(/^[~≈]?\\s*\\d[\\d.,]*(?:\\s*[-–]\\s*\\d[\\d.,]*)?\\s*(?:MT|KG|L|t|ton(?:eladas)?)\\s*(?:\\/\\s*(?:mes|month))?/i);
+  const numeric = raw.match(/^[~≈]?\s*\d[\d.,]*(?:\s*[-–]\s*\d[\d.,]*)?\s*(?:MT|KG|L|t|ton(?:eladas)?)\s*(?:\/\s*(?:mes|month))?/i);
   if (numeric) return numeric[0].trim();
   if (/historical|historically|histórico|histórica|referencia histórica|activity reported|activity historically|collection,.*reported/i.test(raw)) return '';
   return raw;
