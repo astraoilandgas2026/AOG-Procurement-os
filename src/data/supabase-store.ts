@@ -254,7 +254,31 @@ export class SupabaseStore implements DataStore {
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
       if (domainError) throw domainError;
       if (!domain) return [];
-      const { data, error } = await client.from('suppliers').select('*').eq('domain_id', domain.id as string).order('created_at', { ascending: false });
+
+      const { data: directSuppliers, error: directError } = await client
+        .from('suppliers')
+        .select('id')
+        .eq('domain_id', domain.id as string);
+      if (directError) throw directError;
+
+      const { data: domainProducts, error: productError } = await client
+        .from('products')
+        .select('supplier_id')
+        .eq('domain_id', domain.id as string);
+      if (productError) throw productError;
+
+      const ids = Array.from(new Set([
+        ...(directSuppliers as Row[]).map(row => row.id as string),
+        ...(domainProducts as Row[]).map(row => row.supplier_id as string),
+      ]));
+
+      if (!ids.length) return [];
+
+      const { data, error } = await client
+        .from('suppliers')
+        .select('*')
+        .in('id', ids)
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapSupplier);
     },
