@@ -29,6 +29,7 @@ export function DocumentsPage() {
   const openCrear = () => { setForm(emptyForm('')); setFile(null); setShowForm(true); };
   const save = async () => {
     if (!form || !form.supplier_id || !form.title) return;
+    try {
     const client = getSupabaseClient();
     if (!client) throw new Error('Supabase is not configured.');
     let storagePath = form.file_url || '';
@@ -45,6 +46,10 @@ export function DocumentsPage() {
       throw err;
     }
     setShowForm(false); setFile(null); refresh();
+    } catch (err) {
+      console.error('Error al cargar documento:', err);
+      alert(`No se pudo cargar el documento: ${err instanceof Error ? err.message : 'error desconocido'}`);
+    }
   };
   const remove = async (id: string) => {
     if (!confirm('¿Eliminar este documento y su archivo almacenado?')) return;
@@ -64,7 +69,7 @@ export function DocumentsPage() {
           {visibleDocs.map((d) => <tr key={d.id} className="cursor-pointer hover:bg-gray-50" onClick={() => selectSupplier(d.supplier_id)}><td className="px-4 py-3 font-medium text-gray-900">{d.title}</td><td className="px-4 py-3 text-gray-600">{DOCUMENT_TYPE_LABELS[d.doc_type]}</td><td className="px-4 py-3 text-gray-600">{supplierMap.get(d.supplier_id) ?? '—'}</td><td className="px-4 py-3"><Badge color={verificationColor(d.verification_status)}>{verificationLabel(d.verification_status)}</Badge></td><td className="px-4 py-3 text-gray-600">{formatDate(d.created_at)}</td><td className="px-4 py-3 text-right"><Button size="sm" variant="ghost" onClick={(event) => { event.stopPropagation(); remove(d.id); }}><Trash2 size={14} /></Button></td></tr>)}
         </tbody></table></div></Card>
       }
-      <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar documento" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.title || !form?.supplier_id}><Upload size={15} /> Upload</Button></>}>
+      <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar documento" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.title || !form?.supplier_id}><Upload size={15} /> Cargar</Button></>}>
         {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Título del documento" required value={form.title} onChange={(v) => setForm({ ...form, title: v })} /><Select label="Tipo de documento" value={form.doc_type} onChange={(v) => setForm({ ...form, doc_type: v as DocumentType })} options={DOC_TYPE_OPTIONS} /><TextArea label="Descripción" value={form.description} onChange={(v) => setForm({ ...form, description: v })} /><input type="file" className="block w-full text-sm" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /><Input label="Cargado por" value={form.uploaded_by} onChange={(v) => setForm({ ...form, uploaded_by: v })} /><Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /><p className="text-xs text-gray-400">Los archivos se almacenan en el bucket de documentos de Supabase. La vista previa aparece dentro del perfil del proveedor.</p></div>}
       </Modal>
     </div>
