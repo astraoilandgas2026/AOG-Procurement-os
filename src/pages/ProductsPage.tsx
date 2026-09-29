@@ -80,8 +80,14 @@ export function ProductsPage() {
     });
   }, [products, supplierMap]);
   if (!procurementDomain) return <ErrorState message="Selecciona un dominio de procurement antes de gestionar productos." />;
-  const openCrear = () => { setForm(emptyForm('')); setShowForm(true); };
-  const save = async () => { if (!form || !form.supplier_id || !form.name) return; await getStore().products.create(form); setShowForm(false); refresh(); };
+  const openCrear = () => { setForm(emptyForm(selectedSupplierId ?? '', procurementDomain)); setShowForm(true); };
+  const save = async () => {
+    if (!form || !form.supplier_id || !form.name) return;
+    if (procurementDomain !== 'feedstock' && !form.commodity_category) return;
+    await getStore().products.create(form);
+    setShowForm(false);
+    refresh();
+  };
   const remove = async (id: string) => { if (!confirm('¿Eliminar este producto?')) return; await getStore().products.remove(id); refresh(); };
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
@@ -150,8 +156,19 @@ export function ProductsPage() {
           })}
         </div>
       )}
-      <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar producto" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.name || !form?.supplier_id}>Crear</Button></>}>
-        {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Nombre del producto / variante" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} /><Select label="Tipo de feedstock" value={form.feedstock_type} onChange={(v) => setForm({ ...form, feedstock_type: v as FeedstockType })} options={FEEDSTOCK_OPTIONS} /><Input label="Origen" value={form.origin} onChange={(v) => setForm({ ...form, origin: v })} /><Input label="Composición" value={form.composition} onChange={(v) => setForm({ ...form, composition: v })} /><div className="grid grid-cols-2 gap-3"><Input label="Volumen disponible" value={form.available_volume} onChange={(v) => setForm({ ...form, available_volume: v })} /><Input label="Unidad" value={form.unit} onChange={(v) => setForm({ ...form, unit: v })} /></div><Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /></div>}
+      <Modal open={showForm} onClose={() => setShowForm(false)} title="Agregar producto" footer={<><Button variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button><Button onClick={save} disabled={!form?.name || !form?.supplier_id || (procurementDomain !== 'feedstock' && !form?.commodity_category)}>Crear</Button></>}>
+        {form && <div className="space-y-3"><Select label="Proveedor" value={form.supplier_id} onChange={(v) => setForm({ ...form, supplier_id: v })} options={(suppliers ?? []).map((s) => ({ value: s.id, label: s.legal_name || s.trading_name || 'Sin nombre' }))} required /><Input label="Nombre del producto / variante" required value={form.name} onChange={(v) => setForm({ ...form, name: v })} /><Select
+          label={categoryLabel(procurementDomain)}
+          value={procurementDomain === 'feedstock' ? form.feedstock_type : form.commodity_category}
+          onChange={(v) => setForm({
+            ...form,
+            ...(procurementDomain === 'feedstock'
+              ? { feedstock_type: v as FeedstockType, commodity_category: 'feedstock' }
+              : { commodity_category: v }),
+          })}
+          options={categoryOptions(procurementDomain)}
+          required={procurementDomain !== 'feedstock'}
+        /><Input label="Origen" value={form.origin} onChange={(v) => setForm({ ...form, origin: v })} /><Input label="Composición" value={form.composition} onChange={(v) => setForm({ ...form, composition: v })} /><div className="grid grid-cols-2 gap-3"><Input label="Volumen disponible" value={form.available_volume} onChange={(v) => setForm({ ...form, available_volume: v })} /><Input label="Unidad" value={form.unit} onChange={(v) => setForm({ ...form, unit: v })} /></div><Select label="Estado de verificación" value={form.verification_status} onChange={(v) => setForm({ ...form, verification_status: v as VerificationStatus })} options={VERIFICATION_OPTIONS} /></div>}
       </Modal>
     </div>
   );
