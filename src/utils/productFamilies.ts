@@ -62,3 +62,23 @@ export function displayProductName(name: string): string {
   value = value.replace(/\bAVU\b/gi, 'UCO / AVU');
   return value.replace(/\s{2,}/g, ' ').trim();
 }
+
+export const COMMODITY_CATEGORY_LABELS: Record<string, string> = {
+  crude_oil: 'Crudo',
+  refined_products: 'Productos refinados / derivados',
+  lng_natural_gas: 'LNG / Gas natural',
+  ngls: 'NGLs',
+  fuel_oil: 'Fuel Oil',
+  other_energy: 'Otro commodity energético',
+  ores_concentrates: 'Minerales / concentrados',
+  base_metals: 'Metales base',
+  precious_metals: 'Metales preciosos',
+  industrial_minerals: 'Minerales industriales',
+  coal: 'Carbón',
+  other_mining: 'Otro commodity minero',
+};
+
+export function productCategoryLabel(category: string | undefined): string {
+  if (!category || category === 'feedstock') return '';
+  return COMMODITY_CATEGORY_LABELS[category] || category.replaceAll('_', ' ');
+}

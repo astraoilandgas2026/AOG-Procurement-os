@@ -347,6 +347,21 @@ export class SupabaseStore implements DataStore {
     },
     create: async (data) => {
       const payload = strip(data as unknown as Record<string, unknown>, ['id', 'created_at', 'updated_at']);
+
+      const { data: supplier, error: supplierError } = await client
+        .from('suppliers')
+        .select('domain_id')
+        .eq('id', data.supplier_id)
+        .maybeSingle();
+
+      if (supplierError) throw supplierError;
+      if (!supplier?.domain_id) throw new Error('El proveedor no tiene un dominio de procurement asignado.');
+
+      if (data.domain_id && data.domain_id !== supplier.domain_id) {
+        throw new Error('El producto no puede pertenecer a un dominio distinto al de su proveedor.');
+      }
+
+      payload.domain_id = supplier.domain_id;
       const { data: row, error } = await client.from('products').insert(payload).select().single();
       if (error) throw error;
       return mapProduct(row as Row);

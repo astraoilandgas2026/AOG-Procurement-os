@@ -4,20 +4,56 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Input, Select, Badge, Modal, PageHeader } from '@/components/ui';
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
-import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, type ProductFamily } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, productCategoryLabel, type ProductFamily } from '@/utils/productFamilies';
 import { Plus, Package, Trash2 } from 'lucide-react';
-import type { Product, FeedstockType, VerificationStatus } from '@/types';
+import type { Product, FeedstockType, ProcurementDomain, VerificationStatus } from '@/types';
 import { FEEDSTOCK_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const FEEDSTOCK_OPTIONS = Object.entries(FEEDSTOCK_LABELS).map(([value, label]) => ({ value, label }));
+const ENERGY_COMMODITY_OPTIONS = [
+  { value: 'crude_oil', label: 'Crudo' },
+  { value: 'refined_products', label: 'Productos refinados / derivados' },
+  { value: 'lng_natural_gas', label: 'LNG / Gas natural' },
+  { value: 'ngls', label: 'NGLs' },
+  { value: 'fuel_oil', label: 'Fuel Oil' },
+  { value: 'other_energy', label: 'Otro commodity energético' },
+];
+const MINING_COMMODITY_OPTIONS = [
+  { value: 'ores_concentrates', label: 'Minerales / concentrados' },
+  { value: 'base_metals', label: 'Metales base' },
+  { value: 'precious_metals', label: 'Metales preciosos' },
+  { value: 'industrial_minerals', label: 'Minerales industriales' },
+  { value: 'coal', label: 'Carbón' },
+  { value: 'other_mining', label: 'Otro commodity minero' },
+];
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
-function emptyForm(supplierId: string): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
-  return { supplier_id: supplierId, name: '', feedstock_type: 'uco', origin: '', composition: '', available_volume: '', unit: 'MT', verification_status: 'claimed' };
+function emptyForm(supplierId: string, domain: ProcurementDomain): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
+  return {
+    supplier_id: supplierId,
+    name: '',
+    feedstock_type: domain === 'feedstock' ? 'uco' : 'other',
+    commodity_category: domain === 'feedstock' ? 'feedstock' : '',
+    origin: '',
+    composition: '',
+    available_volume: '',
+    unit: 'MT',
+    verification_status: 'claimed',
+  };
+}
+
+function categoryOptions(domain: ProcurementDomain) {
+  if (domain === 'feedstock') return FEEDSTOCK_OPTIONS;
+  if (domain === 'energy_commodities') return ENERGY_COMMODITY_OPTIONS;
+  return MINING_COMMODITY_OPTIONS;
+}
+
+function categoryLabel(domain: ProcurementDomain) {
+  return domain === 'feedstock' ? 'Tipo de feedstock' : 'Tipo de commodity';
 }
 
 export function ProductsPage() {
-  const { procurementDomain, selectSupplier } = useNav();
+  const { procurementDomain, selectedSupplierId, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
@@ -43,6 +79,7 @@ export function ProductsPage() {
       return rankA - rankB || a.supplierName.localeCompare(b.supplierName);
     });
   }, [products, supplierMap]);
+  if (!procurementDomain) return <ErrorState message="Selecciona un dominio de procurement antes de gestionar productos." />;
   const openCrear = () => { setForm(emptyForm('')); setShowForm(true); };
   const save = async () => { if (!form || !form.supplier_id || !form.name) return; await getStore().products.create(form); setShowForm(false); refresh(); };
   const remove = async (id: string) => { if (!confirm('¿Eliminar este producto?')) return; await getStore().products.remove(id); refresh(); };
@@ -94,7 +131,7 @@ export function ProductsPage() {
                             <tbody className="divide-y divide-gray-100">
                               {familyProducts.map((p) => (
                                 <tr key={p.id} className="hover:bg-gray-50">
-                                  <td className="px-3 py-2 font-medium text-gray-900"><div>{displayProductName(p.name)}</div>{p.commodity_category && p.commodity_category !== 'feedstock' && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-400">{p.commodity_category.replaceAll('_', ' ')}</div>}</td>
+                                  <td className="px-3 py-2 font-medium text-gray-900"><div>{displayProductName(p.name)}</div>{p.commodity_category && p.commodity_category !== 'feedstock' && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-gray-400">{productCategoryLabel(p.commodity_category)}</div>}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.origin || '—'}</td>
                                   <td className="px-3 py-2 text-gray-600">{p.available_volume ? `${p.available_volume} ${p.unit}` : '—'}</td>
                                   <td className="px-3 py-2"><Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge></td>

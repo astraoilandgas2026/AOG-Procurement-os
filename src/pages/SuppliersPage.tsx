@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import type { Supplier, SupplierLifecycle, Contact } from '@/types';
 import { LIFECYCLE_LABELS, VERIFICATION_LABELS } from '@/types';
-import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, productCategoryLabel } from '@/utils/productFamilies';
 
 const LIFECYCLE_OPTIONS = Object.entries(LIFECYCLE_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -364,6 +364,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
 function SupplierDetail({
   supplier, onBack, onEdit, onDelete,
 }: { supplier: Supplier; onBack: () => void; onEdit: () => void; onDelete: () => void; }) {
+  const { navigate } = useNav();
   const [showContactForm, setShowContactForm] = useState(false);
   const [editingContactId, setEditingContactId] = useState<string | null>(null);
   const [contactForm, setContactForm] = useState<Omit<Contact, 'id' | 'created_at'> | null>(null);
@@ -476,7 +477,7 @@ function SupplierDetail({
         )}
       </DetailSection>
 
-      <DetailSection title="4. Productos y Posiciones">
+      <DetailSection title="4. Productos y Posiciones" action={<Button size="sm" variant="secondary" onClick={() => navigate('products')}><Plus size={14} /> Agregar producto</Button>}>
         {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
           <div key={p.id} className="rounded-lg border border-gray-100 p-3">
             <div className="flex items-start justify-between gap-2">
@@ -484,7 +485,7 @@ function SupplierDetail({
               <Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge>
             </div>
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
-              <span>Familia: {PRODUCT_FAMILY_LABELS[getProductFamily(p)]}</span>
+              <span>{p.commodity_category && p.commodity_category !== 'feedstock' ? `Categoría: ${productCategoryLabel(p.commodity_category)}` : `Familia: ${PRODUCT_FAMILY_LABELS[getProductFamily(p)]}`}</span>
               <span>Origen: {p.origin || '—'}</span>
               <span>Volumen documentado: {p.available_volume || '—'} {p.available_volume ? p.unit : ''}</span>
               <span>Verificación: {verificationLabel(p.verification_status)}</span>
@@ -566,11 +567,11 @@ function EmptyLine({ text }: { text: string }) {
   return <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-500">{text}</p>;
 }
 
-function DetailSection({ title, children }: { title: string; children: ReactNode }) {
+function DetailSection({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <Card>
       <CardBody>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">{title}</h3>
+        <div className="mb-3 flex items-center justify-between gap-3"><h3 className="text-sm font-semibold text-gray-900">{title}</h3>{action}</div>
         <div className="space-y-2">{children}</div>
       </CardBody>
     </Card>
