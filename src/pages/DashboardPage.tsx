@@ -2,7 +2,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, ShieldCheck, CheckSquare, DollarSign, FileText, Droplets, Fuel, Pickaxe, ArrowRight } from 'lucide-react';
+import { Building2, ShieldCheck, CheckSquare, DollarSign, FileText, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, ArrowRight } from 'lucide-react';
 import type { AppData } from '@/types';
 import { getProductFamily } from '@/utils/productFamilies';
 
