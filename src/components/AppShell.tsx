@@ -41,6 +41,8 @@ const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }>
   feedstock: { label: 'Feedstock', icon: <Droplets size={16} /> },
   energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
   mining_commodities: { label: 'Mining Commodities', icon: <Pickaxe size={16} /> },
+  fertilizers_chemicals: { label: 'Fertilizers & Chemicals', icon: <FlaskConical size={16} /> },
+  agricultural_commodities: { label: 'Agricultural Commodities', icon: <Wheat size={16} /> },
 };
 
 /* Official Astra Oil and Gas logo asset */
