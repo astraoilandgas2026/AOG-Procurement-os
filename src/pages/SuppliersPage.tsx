@@ -200,13 +200,19 @@ export function SuppliersPage() {
     try {
       if (editing && editingSupplierId) {
         await getStore().suppliers.update(editingSupplierId, form);
+        const saved = await getStore().suppliers.getById(editingSupplierId);
+        if (!saved || saved.legal_status !== form.legal_status) {
+          throw new Error('El cambio no pudo ser verificado después de guardarlo.');
+        }
       } else {
         if (!procurementDomain) throw new Error('Selecciona un dominio antes de crear un proveedor.');
-        await getStore().suppliers.createForDomain(procurementDomain, form);
+        const created = await getStore().suppliers.createForDomain(procurementDomain, form);
+        const saved = await getStore().suppliers.getById(created.id);
+        if (!saved) throw new Error('El proveedor fue creado pero no pudo ser leído después del guardado.');
       }
       setShowForm(false);
       setEditingSupplierId(null);
-      refresh();
+      await refresh();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'No fue posible guardar los cambios.');
     }
@@ -457,10 +463,15 @@ function SupplierDetail({
     try {
       if (!editingContactId) throw new Error('Contacto no seleccionado.');
       await getStore().contacts.update(editingContactId, contactForm);
+      const saved = await getStore().contacts.getBySupplier(supplier.supplier_id ?? supplier.id);
+      const persisted = saved.find((contact) => contact.id === editingContactId);
+      if (!persisted || persisted.name !== contactForm.name || persisted.email !== contactForm.email) {
+        throw new Error('El cambio de contacto no pudo ser verificado después de guardarlo.');
+      }
       setShowContactForm(false);
       setEditingContactId(null);
       setContactForm(null);
-      refresh();
+      await refresh();
     } catch (err) {
       setContactError(err instanceof Error ? err.message : 'No fue posible guardar el contacto.');
     }
@@ -480,10 +491,14 @@ function SupplierDetail({
     setProductError('');
     try {
       await getStore().products.update(editingProductId, productForm);
+      const saved = await getStore().products.getById(editingProductId);
+      if (!saved || saved.name !== productForm.name || saved.available_volume !== productForm.available_volume) {
+        throw new Error('El cambio de producto no pudo ser verificado después de guardarlo.');
+      }
       setShowProductForm(false);
       setEditingProductId(null);
       setProductForm(null);
-      refresh();
+      await refresh();
     } catch (err) {
       setProductError(err instanceof Error ? err.message : 'No fue posible guardar el producto.');
     }
