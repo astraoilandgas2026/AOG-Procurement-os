@@ -465,14 +465,15 @@ function SupplierDetail({
         store.redFlags.getBySupplier(supplier.id),
       ]);
 
+    const domainIds: Record<string, string> = {
+      feedstock: 'bee5a6ba-32f9-4345-85c0-a9d0ad916e80',
+      energy_commodities: '78abd43e-d1d9-4a6c-9057-32e81852c782',
+      mining_commodities: 'ec7ffba2-9a36-41ea-bb3d-8ed5dcc0a292',
+      fertilizers_chemicals: '910b9579-4d41-4d80-b889-441ac259e1de',
+      agricultural_commodities: 'ab28a3fd-555a-47b0-9306-59259cc80a9a',
+    };
     const products = procurementDomain
-      ? allProducts.filter(product => product.domain_id === supplier.domain_id || product.domain_id === ({
-          feedstock: 'bee5a6ba-32f9-4345-85c0-a9d0ad916e80',
-          energy_commodities: '78abd43e-d1d9-4a6c-9057-32e81852c782',
-          mining_commodities: 'ec7ffba2-9a36-41ea-bb3d-8ed5dcc0a292',
-          fertilizers_chemicals: '910b9579-4d41-4d80-b889-441ac259e1de',
-          agricultural_commodities: 'ab28a3fd-555a-47b0-9306-59259cc80a9a',
-        } as Record<string, string>)[procurementDomain])
+      ? allProducts.filter(product => product.domain_id === domainIds[procurementDomain])
       : allProducts;
 
     const specs = (await Promise.all(products.map(async product => ({
