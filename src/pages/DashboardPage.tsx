@@ -22,6 +22,14 @@ const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
     title: 'Mining Commodities',
     icon: Pickaxe,
   },
+  fertilizers_chemicals: {
+    title: 'Fertilizers & Chemicals',
+    icon: FlaskConical,
+  },
+  agricultural_commodities: {
+    title: 'Agricultural Commodities',
+    icon: Wheat,
+  },
 };
 
 const METRIC_ACCENTS = [
