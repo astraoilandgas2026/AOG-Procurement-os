@@ -21,16 +21,32 @@ const ENERGY_COMMODITY_OPTIONS = [
 const MINING_COMMODITY_OPTIONS = [
   { value: 'ores_concentrates', label: 'Minerales / concentrados' },
   { value: 'base_metals', label: 'Metales base' },
+  { value: 'metal_scrap', label: 'Chatarra metálica' },
   { value: 'precious_metals', label: 'Metales preciosos' },
   { value: 'industrial_minerals', label: 'Minerales industriales' },
   { value: 'coal', label: 'Carbón' },
   { value: 'other_mining', label: 'Otro commodity minero' },
+];
+const FERTILIZER_COMMODITY_OPTIONS = [
+  { value: 'nitrogen_fertilizers', label: 'Fertilizantes nitrogenados' },
+  { value: 'phosphate_fertilizers', label: 'Fertilizantes fosfatados' },
+  { value: 'potash_fertilizers', label: 'Fertilizantes potásicos' },
+  { value: 'compound_fertilizers', label: 'Fertilizantes compuestos' },
+  { value: 'fertilizer_raw_materials', label: 'Materias primas para fertilizantes' },
+  { value: 'industrial_gases', label: 'Gases industriales' },
+  { value: 'other_fertilizer_chemical', label: 'Otro fertilizante / químico' },
+];
+const AGRICULTURAL_COMMODITY_OPTIONS = [
+  { value: 'grains', label: 'Granos' },
+  { value: 'biomass_bioenergy', label: 'Biomasa / bioenergía' },
+  { value: 'other_agricultural', label: 'Otro commodity agrícola' },
 ];
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
 function emptyForm(supplierId: string, domain: ProcurementDomain): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
   return {
     supplier_id: supplierId,
+    domain_id: undefined,
     name: '',
     feedstock_type: domain === 'feedstock' ? 'uco' : 'other',
     commodity_category: domain === 'feedstock' ? 'feedstock' : '',
@@ -45,7 +61,9 @@ function emptyForm(supplierId: string, domain: ProcurementDomain): Omit<Product,
 function categoryOptions(domain: ProcurementDomain) {
   if (domain === 'feedstock') return FEEDSTOCK_OPTIONS;
   if (domain === 'energy_commodities') return ENERGY_COMMODITY_OPTIONS;
-  return MINING_COMMODITY_OPTIONS;
+  if (domain === 'mining_commodities') return MINING_COMMODITY_OPTIONS;
+  if (domain === 'fertilizers_chemicals') return FERTILIZER_COMMODITY_OPTIONS;
+  return AGRICULTURAL_COMMODITY_OPTIONS;
 }
 
 function categoryLabel(domain: ProcurementDomain) {
@@ -66,7 +84,7 @@ export function ProductsPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
-  const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
+  const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const supplierGroups = useMemo(() => {
     const map = new Map<string, Product[]>();
@@ -93,7 +111,7 @@ export function ProductsPage() {
   const save = async () => {
     if (!form || !form.supplier_id || !form.name) return;
     if (procurementDomain !== 'feedstock' && !form.commodity_category) return;
-    await getStore().products.create(form);
+    await getStore().products.create({ ...form, domain_id: procurementDomain });
     setShowForm(false);
     refresh();
   };
