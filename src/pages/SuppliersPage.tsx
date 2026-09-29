@@ -26,28 +26,57 @@ const VERIFIED_PRIORITY = ['Renovar Oleos', 'FL Óleos', 'Olam Agro'];
 const FEEDSTOCK_OPTIONS = Object.entries(FEEDSTOCK_LABELS).map(([value, label]) => ({ value, label }));
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
+const ENERGY_PRODUCT_OPTIONS = [
+  { value: 'crude_oil', label: 'Crudo' },
+  { value: 'refined_products', label: 'Productos refinados / derivados' },
+  { value: 'lng_natural_gas', label: 'LNG / Gas natural' },
+  { value: 'ngls', label: 'NGLs' },
+  { value: 'fuel_oil', label: 'Fuel Oil' },
+  { value: 'other_energy', label: 'Otro commodity energético' },
+];
+const MINING_PRODUCT_OPTIONS = [
+  { value: 'ores_concentrates', label: 'Minerales / concentrados' },
+  { value: 'base_metals', label: 'Metales base' },
+  { value: 'metal_scrap', label: 'Chatarra metálica' },
+  { value: 'precious_metals', label: 'Metales preciosos' },
+  { value: 'industrial_minerals', label: 'Minerales industriales' },
+  { value: 'coal', label: 'Carbón' },
+  { value: 'other_mining', label: 'Otro commodity minero' },
+];
+const FERTILIZER_PRODUCT_OPTIONS = [
+  { value: 'nitrogen_fertilizers', label: 'Fertilizantes nitrogenados' },
+  { value: 'phosphate_fertilizers', label: 'Fertilizantes fosfatados' },
+  { value: 'potash_fertilizers', label: 'Fertilizantes potásicos' },
+  { value: 'compound_fertilizers', label: 'Fertilizantes compuestos' },
+  { value: 'fertilizer_raw_materials', label: 'Materias primas para fertilizantes' },
+  { value: 'industrial_gases', label: 'Gases industriales' },
+  { value: 'other_fertilizer_chemical', label: 'Otro fertilizante / químico' },
+];
+const AGRICULTURAL_PRODUCT_OPTIONS = [
+  { value: 'grains', label: 'Granos' },
+  { value: 'biomass_bioenergy', label: 'Biomasa / bioenergía' },
+  { value: 'other_agricultural', label: 'Otro commodity agrícola' },
+];
+
 function productCategoryOptions(domain: ProcurementDomain) {
   if (domain === 'feedstock') return FEEDSTOCK_OPTIONS;
-  if (domain === 'energy_commodities') return [
-    { value: 'crude_oil', label: 'Crudo' },
-    { value: 'refined_products', label: 'Productos refinados / derivados' },
-    { value: 'lng_natural_gas', label: 'LNG / Gas natural' },
-    { value: 'ngls', label: 'NGLs' },
-    { value: 'fuel_oil', label: 'Fuel Oil' },
-    { value: 'other_energy', label: 'Otro commodity energético' },
-  ];
-  return [
-    { value: 'ores_concentrates', label: 'Minerales / concentrados' },
-    { value: 'base_metals', label: 'Metales base' },
-    { value: 'precious_metals', label: 'Metales preciosos' },
-    { value: 'industrial_minerals', label: 'Minerales industriales' },
-    { value: 'coal', label: 'Carbón' },
-    { value: 'other_mining', label: 'Otro commodity minero' },
-  ];
+  if (domain === 'energy_commodities') return ENERGY_PRODUCT_OPTIONS;
+  if (domain === 'mining_commodities') return MINING_PRODUCT_OPTIONS;
+  if (domain === 'fertilizers_chemicals') return FERTILIZER_PRODUCT_OPTIONS;
+  return AGRICULTURAL_PRODUCT_OPTIONS;
 }
 
 function productCategoryLabelFor(domain: ProcurementDomain) {
   return domain === 'feedstock' ? 'Tipo de feedstock' : 'Tipo de commodity';
+}
+
+function productEditorDomain(product: Product, fallback: ProcurementDomain): ProcurementDomain {
+  if (product.commodity_category === 'feedstock') return 'feedstock';
+  if (ENERGY_PRODUCT_OPTIONS.some(option => option.value === product.commodity_category)) return 'energy_commodities';
+  if (MINING_PRODUCT_OPTIONS.some(option => option.value === product.commodity_category)) return 'mining_commodities';
+  if (FERTILIZER_PRODUCT_OPTIONS.some(option => option.value === product.commodity_category)) return 'fertilizers_chemicals';
+  if (AGRICULTURAL_PRODUCT_OPTIONS.some(option => option.value === product.commodity_category)) return 'agricultural_commodities';
+  return fallback;
 }
 
 function cleanProductVolume(value: string): string {
@@ -647,13 +676,13 @@ function SupplierDetail({
           <div className="space-y-3">
             <Input label="Nombre del producto / variante" required value={productForm.name} onChange={(v) => setProductForm({ ...productForm, name: v })} />
             <Select
-              label={productCategoryLabelFor(procurementDomain ?? 'feedstock')}
+              label={productCategoryLabelFor(productEditorDomain(productForm, procurementDomain ?? 'feedstock'))}
               value={procurementDomain === 'feedstock' ? productForm.feedstock_type : (productForm.commodity_category || '')}
               onChange={(v) => setProductForm({
                 ...productForm,
                 ...(procurementDomain === 'feedstock' ? { feedstock_type: v as FeedstockType, commodity_category: 'feedstock' } : { commodity_category: v }),
               })}
-              options={productCategoryOptions(procurementDomain ?? 'feedstock')}
+              options={productCategoryOptions(productEditorDomain(productForm, procurementDomain ?? 'feedstock'))}
               required={procurementDomain !== 'feedstock'}
             />
             <Input label="Origen" value={productForm.origin} onChange={(v) => setProductForm({ ...productForm, origin: v })} />
