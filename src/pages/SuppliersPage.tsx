@@ -565,7 +565,7 @@ function SupplierDetail({
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
               <span>{p.commodity_category && p.commodity_category !== 'feedstock' ? `Categoría: ${productCategoryLabel(p.commodity_category)}` : `Familia: ${PRODUCT_FAMILY_LABELS[getProductFamily(p)]}`}</span>
               <span>Origen: {p.origin || '—'}</span>
-              <span>Volumen: {cleanProductVolume(p.available_volume) ? `${cleanProductVolume(p.available_volume)} ${p.unit || ''}`.trim() : '—'}</span>
+              <span>Volumen: {cleanProductVolume(p.available_volume) ? cleanProductVolume(p.available_volume) : '—'}</span>
             </div>
           </div>
         ))}
