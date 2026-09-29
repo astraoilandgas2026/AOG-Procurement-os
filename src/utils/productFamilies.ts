@@ -80,6 +80,17 @@ export const COMMODITY_CATEGORY_LABELS: Record<string, string> = {
   industrial_minerals: 'Minerales industriales',
   coal: 'Carbón',
   other_mining: 'Otro commodity minero',
+  metal_scrap: 'Chatarra metálica',
+  nitrogen_fertilizers: 'Fertilizantes nitrogenados',
+  phosphate_fertilizers: 'Fertilizantes fosfatados',
+  potash_fertilizers: 'Fertilizantes potásicos',
+  compound_fertilizers: 'Fertilizantes compuestos',
+  fertilizer_raw_materials: 'Materias primas para fertilizantes',
+  industrial_gases: 'Gases industriales',
+  other_fertilizer_chemical: 'Otro fertilizante / químico',
+  grains: 'Granos',
+  biomass_bioenergy: 'Biomasa / bioenergía',
+  other_agricultural: 'Otro commodity agrícola',
 };
 
 export function productCategoryLabel(category: string | undefined): string {
