@@ -3,7 +3,7 @@
 // Domain Types & Interfaces
 // ============================================================
 
-export type ProcurementDomain = 'feedstock' | 'energy_commodities' | 'mining_commodities';
+export type ProcurementDomain = 'feedstock' | 'energy_commodities' | 'mining_commodities' | 'fertilizers_chemicals' | 'agricultural_commodities';
 
 // --- Verification Model ---
 
