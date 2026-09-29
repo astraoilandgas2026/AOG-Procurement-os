@@ -6,14 +6,50 @@ import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Input, 
 import { verificationColor, verificationLabel } from '@/utils/statusHelpers';
 import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName, type ProductFamily } from '@/utils/productFamilies';
 import { Plus, Package, Trash2 } from 'lucide-react';
-import type { Product, FeedstockType, VerificationStatus } from '@/types';
+import type { Product, FeedstockType, ProcurementDomain, VerificationStatus } from '@/types';
 import { FEEDSTOCK_LABELS, VERIFICATION_LABELS } from '@/types';
 
 const FEEDSTOCK_OPTIONS = Object.entries(FEEDSTOCK_LABELS).map(([value, label]) => ({ value, label }));
+const ENERGY_COMMODITY_OPTIONS = [
+  { value: 'crude_oil', label: 'Crudo' },
+  { value: 'refined_products', label: 'Productos refinados / derivados' },
+  { value: 'lng_natural_gas', label: 'LNG / Gas natural' },
+  { value: 'ngls', label: 'NGLs' },
+  { value: 'fuel_oil', label: 'Fuel Oil' },
+  { value: 'other_energy', label: 'Otro commodity energético' },
+];
+const MINING_COMMODITY_OPTIONS = [
+  { value: 'ores_concentrates', label: 'Minerales / concentrados' },
+  { value: 'base_metals', label: 'Metales base' },
+  { value: 'precious_metals', label: 'Metales preciosos' },
+  { value: 'industrial_minerals', label: 'Minerales industriales' },
+  { value: 'coal', label: 'Carbón' },
+  { value: 'other_mining', label: 'Otro commodity minero' },
+];
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
-function emptyForm(supplierId: string): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
-  return { supplier_id: supplierId, name: '', feedstock_type: 'uco', origin: '', composition: '', available_volume: '', unit: 'MT', verification_status: 'claimed' };
+function emptyForm(supplierId: string, domain: ProcurementDomain): Omit<Product, 'id' | 'created_at' | 'updated_at'> {
+  return {
+    supplier_id: supplierId,
+    name: '',
+    feedstock_type: domain === 'feedstock' ? 'uco' : 'other',
+    commodity_category: domain === 'feedstock' ? 'feedstock' : '',
+    origin: '',
+    composition: '',
+    available_volume: '',
+    unit: 'MT',
+    verification_status: 'claimed',
+  };
+}
+
+function categoryOptions(domain: ProcurementDomain) {
+  if (domain === 'feedstock') return FEEDSTOCK_OPTIONS;
+  if (domain === 'energy_commodities') return ENERGY_COMMODITY_OPTIONS;
+  return MINING_COMMODITY_OPTIONS;
+}
+
+function categoryLabel(domain: ProcurementDomain) {
+  return domain === 'feedstock' ? 'Tipo de feedstock' : 'Tipo de commodity';
 }
 
 export function ProductsPage() {
