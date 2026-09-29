@@ -59,6 +59,7 @@ export function ProductsPage() {
   const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
+  if (!procurementDomain) return <ErrorState message="Selecciona un dominio de procurement antes de gestionar productos." />;
   const supplierGroups = useMemo(() => {
     const map = new Map<string, Product[]>();
     for (const product of products ?? []) map.set(product.supplier_id, [...(map.get(product.supplier_id) ?? []), product]);
