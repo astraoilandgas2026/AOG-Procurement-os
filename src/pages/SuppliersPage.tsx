@@ -123,19 +123,17 @@ function translateSupplierText(value: string): string {
     [/\bprodução própria\b/gi, 'producción propia'],
     [/\bcapacidade teórica\b/gi, 'capacidad teórica'],
     [/\bcapacidade real\b/gi, 'capacidad real'],
-    [/\bestOque disponível\b/gi, 'existencias disponibles'],
-    [/\bestOque\b/gi, 'existencias'],
+    [/\bestoque disponível\b/gi, 'existencias disponibles'],
+    [/\bestoque\b/gi, 'existencias'],
     [/\bexportação\b/gi, 'exportación'],
-    [/\bembarque\b/gi, 'embarque'],
     [/\bcontato(s)?\b/gi, 'contacto$1'],
-    [/\bgerente\b/gi, 'gerente'],
-    [/\bsócio administrador\b/gi, 'socio administrador'],
     [/\btelefone\b/gi, 'teléfono'],
     [/\bcelular\b/gi, 'móvil'],
     [/\bendereço\b/gi, 'dirección'],
     [/\bmunicípio\b/gi, 'municipio'],
     [/\bdocumentação\b/gi, 'documentación'],
     [/\bcertificação\b/gi, 'certificación'],
+    [/\bdeclaração\b/gi, 'declaración'],
     [/\bdeclarado\b/gi, 'declarado'],
     [/\bdeclarada\b/gi, 'declarada'],
     [/\bconfirmado\b/gi, 'confirmado'],
@@ -144,8 +142,68 @@ function translateSupplierText(value: string): string {
     [/\bverificada\b/gi, 'verificada'],
     [/\bsem\b/gi, 'sin'],
     [/\bcom\b/gi, 'con'],
+    [/\bnão\b/gi, 'no'],
+    [/\bnão documentad[oa]\b/gi, 'no documentado'],
+    [/\bnão estabelecid[oa]\b/gi, 'no establecido'],
+    [/\ba definir\b/gi, 'por definir'],
+    [/\bapós\b/gi, 'después de'],
+    [/\bconfirmação\b/gi, 'confirmación'],
+    [/\bcarretas\b/gi, 'camiones'],
+    [/\bplanta em\b/gi, 'planta en'],
+    [/\bextração\b/gi, 'extracción'],
+    [/\bfiltração\b/gi, 'filtración'],
+    [/\benvasado\b/gi, 'envasado'],
+    [/\bestocagem\b/gi, 'almacenamiento'],
   ];
-  return replacements.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value);
+  return replacements.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value)
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s*;\s*/g, ' · ')
+    .trim();
+}
+
+function presentLegalAdministrator(value: string | null | undefined): string {
+  if (!value) return '';
+  return translateSupplierText(value)
+    .replace(/\bSócio-Administrador\b/gi, 'Socio administrador')
+    .replace(/\bSócia-Administradora\b/gi, 'Socia administradora')
+    .replace(/\bSócio\b/gi, 'Socio')
+    .replace(/\bSócia\b/gi, 'Socia')
+    .replace(/\bAdministrador\b/gi, 'Administrador')
+    .replace(/\bAdministradora\b/gi, 'Administradora')
+    .replace(/\s*[—-]\s*/g, ' — ')
+    .trim();
+}
+
+function presentLegalStatus(value: string | null | undefined): string {
+  if (!value) return '';
+  const translated = translateSupplierText(value)
+    .replace(/\bATIVA\b/gi, 'Activa')
+    .replace(/\bATIVO\b/gi, 'Activo')
+    .replace(/\bSOCIEDADE EMPRESÁRIA LIMITADA\b/gi, 'Sociedad Empresaria Limitada')
+    .replace(/\bSOCIEDADE DE RESPONSABILIDADE LIMITADA\b/gi, 'Sociedad de Responsabilidad Limitada')
+    .replace(/\bSOCIEDADE POR AÇÕES\b/gi, 'Sociedad por Acciones')
+    .replace(/\bSOCIEDADE ANÔNIMA\b/gi, 'Sociedad Anónima')
+    .replace(/\bSOCIEDADE SIMPLES\b/gi, 'Sociedad Simple')
+    .replace(/\bEXCLUÍDA DO SIMPLES NACIONAL\b/gi, 'Excluida del régimen Simples Nacional')
+    .replace(/\bNÃO OPTANTE PELO SIMPLES NACIONAL\b/gi, 'No acogida al régimen Simples Nacional')
+    .replace(/\bSIMPLES NACIONAL\b/gi, 'Simples Nacional')
+    .replace(/\bMATRIZ\b/gi, 'Matriz')
+    .replace(/\bFILIAL\b/gi, 'Sucursal')
+    .replace(/\bCAPITAL SOCIAL\b/gi, 'Capital social')
+    .replace(/\bFUNDA[DA]? EM\b/gi, 'Fundada en')
+    .replace(/\bME\b/g, 'Microempresa')
+    .replace(/\bEPP\b/g, 'Empresa de pequeño porte')
+    .replace(/\bdados cadastrais públicos verificados em\b/gi, 'datos registrales públicos verificados en')
+    .replace(/\bempresa argentina\b/gi, 'empresa argentina')
+    .replace(/\bcurrent registry status requires verification\b/gi, 'el estado registral actual requiere verificación')
+    .replace(/\bregistry status requires verification\b/gi, 'el estado registral requiere verificación')
+    .replace(/\bincorporation in\b/gi, 'constitución en')
+    .replace(/\bfounded in\b/gi, 'fundada en')
+    .replace(/\bpublic website states\b/gi, 'el sitio web público indica')
+    .replace(/\bentity continuity \/ registry reconciliation pending\b/gi, 'continuidad de la entidad y conciliación registral pendientes')
+    .replace(/\s*;\s*/g, ' · ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 function presentSupplierText(value: string | null | undefined): string {
@@ -247,8 +305,7 @@ function emptySupplierForm(): Omit<Supplier, 'id' | 'created_at' | 'updated_at'>
     facility: '', operation_status: '', theoretical_capacity: '',
     real_production: '', available_volume: '', volume_to_astra: '',
     trial_volume: '', recurring_volume: '', infrastructure: '',
-    lifecycle: 'prospect',
-  };
+    lifecycle: 'prospect',  };
 }
 
 export function SuppliersPage() {
@@ -497,8 +554,7 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
           <a href={downloadUrl} className="rounded-md bg-[var(--astra-blue)] px-2.5 py-1.5 text-xs font-medium text-white">Descargar</a>
         </div>
       </div>
-      {isImage ? <img src={url} alt={doc.title} className="max-h-[520px] w-full rounded-md bg-white object-contain" /> :
-       isPdf ? <iframe src={`${url}#toolbar=1&navpanes=0&view=FitH`} title={doc.title || fileName} loading="eager" className="h-[520px] w-full rounded-md border border-gray-200 bg-white" /> :
+      {isImage ? <img src={url} alt={doc.title} className="max-h-[520px] w-full rounded-md bg-white object-contain" /> :       isPdf ? <iframe src={`${url}#toolbar=1&navpanes=0&view=FitH`} title={doc.title || fileName} loading="eager" className="h-[520px] w-full rounded-md border border-gray-200 bg-white" /> :
        isVideo ? <video src={url} controls className="max-h-[520px] w-full rounded-md" /> :
        <div className="rounded-md border border-dashed border-gray-200 bg-white p-5 text-center text-xs text-gray-500">Vista previa no disponible para este formato. Usa “Abrir” o “Descargar”.</div>}
     </div>
@@ -747,8 +803,7 @@ function SupplierDetail({
         }
       >
         {productError && <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{productError}</div>}
-        {productForm && (
-          <div className="space-y-3">
+        {productForm && (          <div className="space-y-3">
             <Input label="Nombre del producto / variante" required value={productForm.name} onChange={(v) => setProductForm({ ...productForm, name: v })} />
             <Select
               label={productCategoryLabelFor(productEditorDomain(productForm, procurementDomain ?? 'feedstock'))}
