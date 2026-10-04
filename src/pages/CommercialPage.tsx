@@ -46,7 +46,7 @@ export function CommercialPage() {
     }, [procurementDomain]
   );
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
-  const { data: products } = useAsync(() => getStore().products.getAll(), []);
+  const { data: products } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const supplierLifecycleMap = new Map((suppliers ?? []).map((s) => [s.id, s.lifecycle]));
