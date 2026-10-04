@@ -83,7 +83,9 @@ export function ProductsPage() {
   const { procurementDomain, selectedSupplierId, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<Product, 'id' | 'created_at' | 'updated_at'> | null>(null);
-  const { data: products, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
+  const { data: rawProducts, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().products.getByDomainKey(procurementDomain) : getStore().products.getAll(), [procurementDomain]);
+  // Soapstock/borra is intentionally excluded from the commercial product surface for now.
+  const products = useMemo(() => (rawProducts ?? []).filter((product) => product.feedstock_type !== 'soapstock' && !/\bsoapstock\b|\bborra\b/i.test(product.name)), [rawProducts]);
   const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const supplierGroups = useMemo(() => {
