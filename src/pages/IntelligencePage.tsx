@@ -1,4 +1,5 @@
 import { useAsync } from '@/data/useDataStore';
+import { useNav } from '@/context/NavContext';
 import { getStore } from '@/data/store';
 import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Badge,
@@ -11,7 +12,27 @@ import { FEEDSTOCK_LABELS } from '@/types';
 import { Network, Building2, Package, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export function IntelligencePage() {
-  const { data, loading, error } = useAsync(() => getStore().getAll(), []);
+  const { procurementDomain } = useNav();
+  const { data, loading, error } = useAsync(async () => {
+    const store = getStore();
+    const data = await store.getAll();
+    if (!procurementDomain) return data;
+    const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
+    const ids = new Set(suppliers.map((s) => s.id));
+    return {
+      ...data,
+      suppliers: data.suppliers.filter((s) => ids.has(s.id)),
+      contacts: data.contacts.filter((x) => ids.has(x.supplier_id)),
+      products: data.products.filter((x) => ids.has(x.supplier_id)),
+      commercial_offers: data.commercial_offers.filter((x) => ids.has(x.supplier_id)),
+      certifications: data.certifications.filter((x) => ids.has(x.supplier_id)),
+      documents: data.documents.filter((x) => ids.has(x.supplier_id)),
+      due_diligence: data.due_diligence.filter((x) => ids.has(x.supplier_id)),
+      logistics: data.logistics.filter((x) => ids.has(x.supplier_id)),
+      follow_ups: data.follow_ups.filter((x) => ids.has(x.supplier_id)),
+      red_flags: data.red_flags.filter((x) => ids.has(x.supplier_id)),
+    };
+  }, [procurementDomain]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorState message={error} />;
