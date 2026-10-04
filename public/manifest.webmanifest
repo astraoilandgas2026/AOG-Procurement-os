@@ -1,0 +1,20 @@
+{
+  "name": "Astra Oil & Gas — Procurement Intelligence OS",
+  "short_name": "Astra Procurement",
+  "description": "Astra Oil & Gas procurement intelligence platform.",
+  "lang": "es",
+  "start_url": "/AOG-Procurement-os/",
+  "scope": "/AOG-Procurement-os/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1D1D1B",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/AOG-Procurement-os/astra-favicon.svg",
+      "sizes": "235x235",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
