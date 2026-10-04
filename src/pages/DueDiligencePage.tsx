@@ -33,16 +33,16 @@ function emptyFlagForm(supplierId: string): Omit<RedFlag, 'id' | 'created_at'> {
 }
 
 export function DueDiligencePage() {
-  const { selectSupplier } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
   const [showDDForm, setShowDDForm] = useState(false);
   const [showFlagForm, setShowFlagForm] = useState(false);
   const [ddForm, setDDForm] = useState<Omit<VencimientoDiligenceItem, 'id' | 'created_at' | 'updated_at'> | null>(null);
   const [flagForm, setFlagForm] = useState<Omit<RedFlag, 'id' | 'created_at'> | null>(null);
 
   const { data: ddItems, loading, error, refresh } = useAsync(
-    () => getStore().dueDiligence.getAll(), []
+    () => procurementDomain ? getStore().dueDiligence.getByDomainKey(procurementDomain) : getStore().dueDiligence.getAll(), [procurementDomain]
   );
-  const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
+  const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
@@ -114,7 +114,7 @@ export function DueDiligencePage() {
     <div>
       <PageHeader
         title="Debida Diligencia"
-        subtitle="Verificación and risk assessment"
+        subtitle="Verificación de proveedores, evidencia y riesgos"
         action={
           hasSuppliers && (
             <div className="flex gap-2">
@@ -150,8 +150,8 @@ export function DueDiligencePage() {
                       <h3 className="text-base font-semibold text-gray-900">{supplierMap.get(supplierId) ?? 'Proveedor sin nombre'}</h3>
                       <p className="text-xs text-gray-500">Información de DD consolidada en un único perfil</p>
                     </div>
-                    <Badge color={items.every((item) => item.status === 'completed') ? 'green' : 'yellow'}>
-                      {items.filter((item) => item.status === 'completed').length}/{items.length} categorías completas
+                    <Badge color={items.every((item) => item.status === 'physically_verified' || item.status === 'not_applicable') ? 'green' : 'yellow'}>
+                      {items.filter((item) => item.status === 'physically_verified' || item.status === 'not_applicable').length}/{items.length} categorías completas
                     </Badge>
                   </div>
 
