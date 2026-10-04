@@ -89,14 +89,14 @@ export function IntelligencePage() {
 
                 {/* Entity counts */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-                  <IntelChip icon={<Package size={14} />} label="Products" count={products.length} />
-                  <IntelChip icon={<Building2 size={14} />} label="Contacts" count={contacts.length} />
-                  <IntelChip icon={<ShieldCheck size={14} />} label="DD Items" count={ddItems.length} />
-                  <IntelChip icon={<ShieldCheck size={14} />} label="Certs" count={certs.length} />
-                  <IntelChip icon={<ShieldCheck size={14} />} label="Offers" count={offers.length} />
-                  <IntelChip icon={<AlertTriangle size={14} />} label="Red Flags" count={flags.length} highlight={flags.length > 0} />
-                  <IntelChip icon={<ShieldCheck size={14} />} label="Follow-ups" count={followUps.length} />
-                  <IntelChip icon={<ShieldCheck size={14} />} label="Docs" count={docs.length} />
+                  <IntelChip icon={<Package size={14} />} label="Productos" count={products.length} />
+                  <IntelChip icon={<Building2 size={14} />} label="Contactos" count={contacts.length} />
+                  <IntelChip icon={<ShieldCheck size={14} />} label="Elementos de DD" count={ddItems.length} />
+                  <IntelChip icon={<ShieldCheck size={14} />} label="Certificaciones" count={certs.length} />
+                  <IntelChip icon={<ShieldCheck size={14} />} label="Ofertas" count={offers.length} />
+                  <IntelChip icon={<AlertTriangle size={14} />} label="Alertas de riesgo" count={flags.length} highlight={flags.length > 0} />
+                  <IntelChip icon={<ShieldCheck size={14} />} label="Seguimientos" count={followUps.length} />
+                  <IntelChip icon={<ShieldCheck size={14} />} label="Documentos" count={docs.length} />
                 </div>
 
                 {/* Products breakdown */}
