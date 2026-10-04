@@ -39,13 +39,12 @@ export function CertificationsPage() {
   const [form, setForm] = useState<Omit<Certification, 'id' | 'created_at'> | null>(null);
 
   const { data: certs, loading, error, refresh } = useAsync(
-    () => getStore().certifications.getAll(), []
+    () => procurementDomain ? getStore().certifications.getByDomainKey(procurementDomain) : getStore().certifications.getAll(), [procurementDomain]
   );
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
 
   const domainSuppliers = suppliers ?? [];
-  const domainSupplierIds = new Set(domainSuppliers.map((s) => s.id));
-  const visibleCerts = (certs ?? []).filter((c) => domainSupplierIds.has(c.supplier_id));
+  const visibleCerts = certs ?? [];
   const supplierMap = new Map(domainSuppliers.map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
   const prioritizedCertifications = [...visibleCerts].sort((a, b) => {
