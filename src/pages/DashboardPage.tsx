@@ -49,15 +49,13 @@ export function DashboardPage() {
     };
 
     const store = getStore();
-    const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
-    const supplierIds = suppliers.map((supplier) => supplier.id);
-
-    const [contacts, products, documentsBySupplier, ddBySupplier, offersBySupplier] = await Promise.all([
+    const [suppliers, contacts, products, documents, due_diligence, commercial_offers] = await Promise.all([
+      store.suppliers.getByDomainKey(procurementDomain),
       store.contacts.getByDomainKey(procurementDomain),
       store.products.getByDomainKey(procurementDomain),
-      Promise.all(supplierIds.map((id) => store.documents.getBySupplier(id))),
-      Promise.all(supplierIds.map((id) => store.dueDiligence.getBySupplier(id))),
-      Promise.all(supplierIds.map((id) => store.commercialOffers.getBySupplier(id))),
+      store.documents.getByDomainKey(procurementDomain),
+      store.dueDiligence.getByDomainKey(procurementDomain),
+      store.commercialOffers.getByDomainKey(procurementDomain),
     ]);
 
     return {
@@ -65,10 +63,10 @@ export function DashboardPage() {
       contacts,
       products,
       technical_specs: [],
-      commercial_offers: offersBySupplier.flat(),
+      commercial_offers,
       certifications: [],
-      documents: documentsBySupplier.flat(),
-      due_diligence: ddBySupplier.flat(),
+      documents,
+      due_diligence,
       logistics: [],
       timeline: [],
       follow_ups: [],
