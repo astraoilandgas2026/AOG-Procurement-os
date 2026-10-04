@@ -460,6 +460,19 @@ export class SupabaseStore implements DataStore {
 
   certifications: CertificationRepository = {
     getAll: async () => {
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
+      if (supplierError) throw supplierError;
+      const ids = (suppliers as Row[]).map(row => row.id as string);
+      if (!ids.length) return [];
+      const { data, error } = await client.from('certifications').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapCert);
+    },
       const { data, error } = await client.from('certifications').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapCert);
