@@ -1,12 +1,15 @@
 import type { FeedstockType, Product } from '@/types';
 
-export type ProductFamily = 'uco' | 'vegetable_oils' | 'off_spec' | 'acid_oils_fatty_acids' | 'secondary_residues' | 'refined_petroleum' | 'crude_oil' | 'lng_natural_gas' | 'other_energy';
+export type ProductFamily = 'uco' | 'vegetable_oils' | 'degummed_oils' | 'off_spec' | 'oleins' | 'fatty_acids' | 'acid_oils' | 'secondary_residues' | 'refined_petroleum' | 'crude_oil' | 'lng_natural_gas' | 'other_energy';
 
 export const PRODUCT_FAMILY_LABELS: Record<ProductFamily, string> = {
   uco: 'UCO / AVU',
   vegetable_oils: 'Aceites vegetales / materia prima vegetal mixta',
   off_spec: 'Aceites fuera de especificación',
-  acid_oils_fatty_acids: 'Aceites ácidos / ácidos grasos / borra',
+  degummed_oils: 'Aceites desgomados',
+  oleins: 'Oleínas',
+  fatty_acids: 'Ácidos grasos',
+  acid_oils: 'Aceites ácidos',
   secondary_residues: 'Subproductos / residuos de extracción',
   refined_petroleum: 'Productos refinados / derivados del petróleo',
   crude_oil: 'Crudos',
@@ -24,7 +27,11 @@ export function getProductFamily(product: Pick<Product, 'feedstock_type' | 'name
   const type = product.feedstock_type as FeedstockType;
   if (type === 'uco' || /uco|used cooking|used frying|recovered cooking|avu/.test(name)) return 'uco';
   if (type === 'off_spec_oil' || /off[- ]spec/.test(name)) return 'off_spec';
-  if (type === 'fatty_acids' || type === 'acid_oils' || type === 'soapstock' || /acid oil|fatty acid|soapstock|borra/.test(name)) return 'acid_oils_fatty_acids';
+  if (type === 'fatty_acids' || /fatty acids?|ácidos grasos/.test(name)) return 'fatty_acids';
+  if (type === 'acid_oils' || /acid oil|aceite ácido/.test(name)) return 'acid_oils';
+  if (type === 'soapstock' || /soapstock|borra/.test(name)) return 'secondary_residues';
+  if (type === 'degummed_oil' || /degummed|desgomado/.test(name)) return 'degummed_oils';
+  if (type === 'oleins' || /olein|oleína/.test(name)) return 'oleins';
   if (type === 'oilseed_residues' || /residue|residues|açaí|andiroba|murumuru|patauá|extraction/.test(name)) return 'secondary_residues';
   return 'vegetable_oils';
 }
