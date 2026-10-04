@@ -1,4 +1,5 @@
 import { useAsync } from '@/data/useDataStore';
+import { useNav } from '@/context/NavContext';
 import { getStore } from '@/data/store';
 import {
   Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Badge,
@@ -8,7 +9,8 @@ import { formatDateTime } from '@/utils/date';
 import { Clock } from 'lucide-react';
 
 export function TimelinePage() {
-  const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
+  const { procurementDomain } = useNav();
+  const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const { data: timeline, loading, error } = useAsync(
     () => getStore().timeline.getBySupplier(''), []
   );
