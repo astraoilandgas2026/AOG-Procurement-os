@@ -67,7 +67,7 @@ function productCategoryOptions(domain: ProcurementDomain) {
 }
 
 function productCategoryLabelFor(domain: ProcurementDomain) {
-  return domain === 'feedstock' ? 'Tipo de feedstock' : 'Tipo de commodity';
+  return domain === 'feedstock' ? 'Tipo de materia prima' : 'Tipo de commodity';
 }
 
 function productEditorDomain(product: Product, fallback: ProcurementDomain): ProcurementDomain {
