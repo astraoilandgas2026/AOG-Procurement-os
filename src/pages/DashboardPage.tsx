@@ -114,6 +114,22 @@ export function DashboardPage() {
   };
 
   const rankedOffers = Array.from(offersBySupplier.values()).sort((a, b) => {
+    const supplierA = suppliers.find(s => s.id === a.supplier_id);
+    const supplierB = suppliers.find(s => s.id === b.supplier_id);
+    const priceA = numericPrice(a.price);
+    const priceB = numericPrice(b.price);
+    const nameA = supplierName(supplierA || {} as Supplier);
+    const nameB = supplierName(supplierB || {} as Supplier);
+    const highlightRank = (name: string, price: number | null) => {
+      if (isPrioritySupplier(name)) return 0;
+      if (price !== null && price >= 750 && price <= 790) return 1;
+      if (isVerisSupplier(name)) return 2;
+      return 3;
+    };
+    const ha = highlightRank(nameA, priceA);
+    const hb = highlightRank(nameB, priceB);
+    if (ha !== hb) return ha - hb;
+
     const ra = offerRank(a);
     const rb = offerRank(b);
     return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2];
