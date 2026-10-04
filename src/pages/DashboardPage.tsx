@@ -2,7 +2,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, DollarSign, FileText, Package, ShieldAlert, ArrowRight, Target, Layers3 } from 'lucide-react';
+import { Building2, DollarSign, FileText, Package, ShieldAlert, ArrowRight, Target, Layers3, BadgeCheck } from 'lucide-react';
 import type { AppData } from '@/types';
 import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
 
@@ -83,6 +83,17 @@ export function DashboardPage() {
     familyCounts.set(family, (familyCounts.get(family) ?? 0) + 1);
   });
   const topFamilies = Array.from(familyCounts.entries()).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const supplierById = new Map(suppliers.map(s => [s.id, s]));
+  const productById = new Map(products.map(p => [p.id, p]));
+  const offerBoard = data.commercial_offers
+    .map(offer => ({ offer, supplier: supplierById.get(offer.supplier_id), product: productById.get(offer.product_id) }))
+    .filter(item => item.supplier && item.product)
+    .sort((a, b) => {
+      const ap = Number.parseFloat(String(a.offer.price).replace(/[^0-9.,-]/g, '').replace(/,(?=\\d{3}(?:\\D|$))/g, '').replace(',', '.'));
+      const bp = Number.parseFloat(String(b.offer.price).replace(/[^0-9.,-]/g, '').replace(/,(?=\\d{3}(?:\\D|$))/g, '').replace(',', '.'));
+      return (Number.isFinite(ap) ? ap : Number.POSITIVE_INFINITY) - (Number.isFinite(bp) ? bp : Number.POSITIVE_INFINITY);
+    })
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -108,6 +119,42 @@ export function DashboardPage() {
           <div className="mt-4 text-xs text-slate-500">{suppliers.length} proveedores · {products.length} registros de producto · {data.documents.length} documentos.</div>
         </CardBody></Card>
       </div>
+
+      <Card><CardBody>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-[var(--astra-dark)]">Offer Board</h3>
+            <p className="text-xs text-slate-500">Ofertas registradas, ordenadas por precio cuando es comparable</p>
+          </div>
+          <button onClick={() => navigate('commercial')} className="text-xs font-semibold text-[var(--astra-orange)]">Ver comercial</button>
+        </div>
+        {offerBoard.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-left text-xs">
+              <thead><tr className="border-b border-slate-100 text-[10px] uppercase tracking-wider text-slate-400">
+                <th className="px-2 py-2 font-semibold">Proveedor</th>
+                <th className="px-2 py-2 font-semibold">Producto</th>
+                <th className="px-2 py-2 font-semibold">Precio</th>
+                <th className="px-2 py-2 font-semibold">Incoterm</th>
+                <th className="px-2 py-2 font-semibold">Estado</th>
+              </tr></thead>
+              <tbody>
+                {offerBoard.map(({ offer, supplier, product }) => (
+                  <tr key={offer.id} className="border-b border-slate-50 last:border-0">
+                    <td className="px-2 py-2 font-semibold text-slate-700">{supplier?.trading_name || supplier?.legal_name}</td>
+                    <td className="px-2 py-2 text-slate-600">{getProductFamily(product!) && (PRODUCT_FAMILY_LABELS[getProductFamily(product!) as keyof typeof PRODUCT_FAMILY_LABELS] || product?.name)}</td>
+                    <td className="px-2 py-2 font-semibold text-[var(--astra-dark)]">{offer.currency} {offer.price} <span className="font-normal text-slate-400">{offer.price_unit || ''}</span></td>
+                    <td className="px-2 py-2 text-slate-600">{offer.incoterm || '—'}</td>
+                    <td className="px-2 py-2"><span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600"><BadgeCheck size={12}/>{offer.verification_status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState icon={<DollarSign size={24}/>} title="Sin ofertas registradas" message="Las ofertas aparecerán aquí cuando estén conectadas al universo seleccionado." />
+        )}
+      </CardBody></Card>
     </div>
   );
 }
