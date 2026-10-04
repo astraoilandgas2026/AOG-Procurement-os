@@ -302,7 +302,7 @@ export function SuppliersPage() {
           <EmptyState
             icon={<Building2 size={28} />}
             title="No hay proveedores registrados"
-            message="Registra tu primer proveedor para construir inteligencia de procurement: identidad, operación, productos, ofertas, certificaciones y DD."
+            message="Registra tu primer proveedor para construir inteligencia de compras: identidad, operación, productos, ofertas, certificaciones y DD."
             action={<Button onClick={openCreate}><Plus size={16} /> Agregar proveedor</Button>}
           />
         </Card>
@@ -552,7 +552,7 @@ function SupplierDetail({
           <div>
             <div className="flex flex-wrap items-center gap-2"><h1 className="text-xl font-bold text-gray-900">{supplier.legal_name}</h1><Badge color={lifecycleColor(supplier.lifecycle)}>{lifecycleLabel(supplier.lifecycle)}</Badge></div>
             {supplier.trading_name && <p className="text-sm text-gray-500">{supplier.trading_name}</p>}
-            <p className="mt-1 text-xs text-gray-400">Perfil de inteligencia de procurement</p>
+            <p className="mt-1 text-xs text-gray-400">Perfil de inteligencia de compras</p>
           </div>
         </div>
         <div className="flex items-center gap-2"><Button variant="secondary" onClick={onEdit}><Edit3 size={16} /> Editar</Button><Button variant="danger" onClick={onDelete}><Trash2 size={16} /></Button></div>
@@ -569,7 +569,7 @@ function SupplierDetail({
         <DetailRow label="Situación legal" value={supplier.legal_status} />
         {procurementDomain === 'energy_commodities' && /PREKAMA/i.test(supplier.trading_name || supplier.legal_name || '') && (
           <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
-            CIS registrado en Evidencia y Documentos. PREKAMA USA LLC aparece en documentación histórica como entidad distinta; su relación corporativa con PREKAMA Verwaltungs GmbH no se presume sin KYC.
+            CIS registrado en Evidencia y Documentos. PREKAMA USA LLC aparece en documentación histórica como entidad distinta; su relación corporativa con PREKAMA Verwaltungs GmbH no se presume sin debida diligencia.
           </div>
         )}
       </DetailSection>
@@ -774,15 +774,15 @@ function SupplierForm({
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Identity</h4>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Identidad</h4>
         <div className="grid grid-cols-2 gap-3">
           <Input label="Razón social" required value={form.legal_name} onChange={(v) => update('legal_name', v)} />
           <Input label="Nombre comercial" value={form.trading_name} onChange={(v) => update('trading_name', v)} />
           <Input label="País" value={form.country} onChange={(v) => update('country', v)} />
           <Input label="Ciudad" value={form.city} onChange={(v) => update('city', v)} />
           <Input label="Tax ID (CNPJ/RUT)" value={form.tax_id} onChange={(v) => update('tax_id', v)} />
-          <Input label="CNAE / Activity" value={form.cnae} onChange={(v) => update('cnae', v)} />
-          <Input label="Administrator" value={form.administrator} onChange={(v) => update('administrator', v)} />
+          <Input label="CNAE / Actividad" value={form.cnae} onChange={(v) => update('cnae', v)} />
+          <Input label="Administrador / representante" value={form.administrator} onChange={(v) => update('administrator', v)} />
           <Input label="Situación legal" value={form.legal_status} onChange={(v) => update('legal_status', v)} />
         </div>
         <div className="mt-3">
@@ -808,9 +808,9 @@ function SupplierForm({
       </div>
 
       <div>
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Lifecycle</h4>
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Ciclo del proveedor</h4>
         <Select
-          label="Supplier Lifecycle"
+          label="Ciclo del proveedor"
           value={form.lifecycle}
           onChange={(v) => update('lifecycle', v as SupplierLifecycle)}
           options={LIFECYCLE_OPTIONS}
