@@ -84,7 +84,6 @@ export function DashboardPage() {
   });
   const topFamilies = Array.from(familyCounts.entries()).sort((a,b) => b[1]-a[1]).slice(0, 6);
 
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
