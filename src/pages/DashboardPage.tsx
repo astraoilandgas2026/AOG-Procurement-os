@@ -2,43 +2,25 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, ShieldCheck, CheckSquare, DollarSign, FileText, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, ArrowRight } from 'lucide-react';
+import { Building2, DollarSign, FileText, Package, ShieldAlert, ArrowRight, Target, Layers3 } from 'lucide-react';
 import type { AppData } from '@/types';
-import { getProductFamily } from '@/utils/productFamilies';
+import { getProductFamily, PRODUCT_FAMILY_LABELS } from '@/utils/productFamilies';
 
-const DOMAIN_CONTENT: Record<Exclude<ProcurementDomain, never>, {
-  title: string;
-  icon: typeof Droplets;
-}> = {
-  feedstock: {
-    title: 'Feedstock',
-    icon: Droplets,
-  },
-  energy_commodities: {
-    title: 'Energy Commodities',
-    icon: Fuel,
-  },
-  mining_commodities: {
-    title: 'Mining Commodities',
-    icon: Pickaxe,
-  },
-  fertilizers_chemicals: {
-    title: 'Fertilizers & Chemicals',
-    icon: FlaskConical,
-  },
-  agricultural_commodities: {
-    title: 'Agricultural Commodities',
-    icon: Wheat,
-  },
+const DOMAIN_LABELS: Record<ProcurementDomain, string> = {
+  feedstock: 'Feedstock',
+  energy_commodities: 'Energy',
+  mining_commodities: 'Metals & Mining',
+  fertilizers_chemicals: 'Fertilizers & Chemicals',
+  agricultural_commodities: 'Agricultural',
 };
 
-const METRIC_ACCENTS = [
-  { key: 'red', line: 'bg-[var(--astra-red)]', soft: 'bg-red-50', text: 'text-[var(--astra-red)]' },
-  { key: 'blue', line: 'bg-[var(--astra-blue)]', soft: 'bg-blue-50', text: 'text-[var(--astra-blue)]' },
-  { key: 'green', line: 'bg-[var(--astra-green)]', soft: 'bg-green-50', text: 'text-[var(--astra-green)]' },
-  { key: 'orange', line: 'bg-[var(--astra-orange)]', soft: 'bg-orange-50', text: 'text-[var(--astra-orange)]' },
-  { key: 'yellow', line: 'bg-[var(--astra-yellow)]', soft: 'bg-yellow-50', text: 'text-[var(--astra-yellow)]' },
-] as const;
+const DOMAIN_ICONS: Record<ProcurementDomain, typeof Package> = {
+  feedstock: Package,
+  energy_commodities: Package,
+  mining_commodities: Package,
+  fertilizers_chemicals: Package,
+  agricultural_commodities: Package,
+};
 
 export function DashboardPage() {
   const { navigate, procurementDomain, selectDomain } = useNav();
@@ -47,7 +29,6 @@ export function DashboardPage() {
       suppliers: [], contacts: [], products: [], technical_specs: [], commercial_offers: [],
       certifications: [], documents: [], due_diligence: [], logistics: [], timeline: [], follow_ups: [], red_flags: [],
     };
-
     const store = getStore();
     const [suppliers, contacts, products, documents, due_diligence, commercial_offers] = await Promise.all([
       store.suppliers.getByDomainKey(procurementDomain),
@@ -57,53 +38,20 @@ export function DashboardPage() {
       store.dueDiligence.getByDomainKey(procurementDomain),
       store.commercialOffers.getByDomainKey(procurementDomain),
     ]);
-
-    return {
-      suppliers,
-      contacts,
-      products,
-      technical_specs: [],
-      commercial_offers,
-      certifications: [],
-      documents,
-      due_diligence,
-      logistics: [],
-      timeline: [],
-      follow_ups: [],
-      red_flags: [],
-    };
+    return { suppliers, contacts, products, technical_specs: [], commercial_offers, certifications: [], documents, due_diligence, logistics: [], timeline: [], follow_ups: [], red_flags: [] };
   }, [procurementDomain]);
 
   if (!procurementDomain) {
     return (
       <div className="space-y-8">
-        <div className="flex flex-col items-start gap-5 max-w-3xl">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">Resumen</h2>
-            <p className="mt-2 text-sm text-slate-500">Elige el área de commodities con la que quieres trabajar.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 max-w-3xl mx-auto w-full">
-          {(Object.keys(DOMAIN_CONTENT) as ProcurementDomain[]).map((key) => {
-            const domain = DOMAIN_CONTENT[key];
-            const Icon = domain.icon;
-            return (
-              <button key={key} onClick={() => selectDomain(key)} className="group min-w-0 text-left">
-                <Card className="h-[118px] w-full border-slate-200 transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[var(--astra-orange)] group-hover:shadow-lg">
-                  <CardBody className="flex h-full flex-col justify-between p-3">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]">
-                        <Icon size={17} />
-                      </div>
-                      <ArrowRight size={15} className="shrink-0 text-slate-300 transition-transform group-hover:translate-x-1 group-hover:text-[var(--astra-orange)]" />
-                    </div>
-                    <h3 className="text-[13px] font-bold leading-4 text-[var(--astra-dark)]">{domain.title}</h3>
-                  </CardBody>
-                </Card>
-              </button>
-            );
+        <div><h2 className="text-3xl font-bold tracking-tight text-[var(--astra-dark)]">AOG Command Center</h2><p className="mt-2 text-sm text-slate-500">Selecciona el universo de commodities que quieres operar.</p></div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {(Object.keys(DOMAIN_LABELS) as ProcurementDomain[]).map((key) => {
+            const Icon = DOMAIN_ICONS[key];
+            return <button key={key} onClick={() => selectDomain(key)} className="text-left"><Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-lg"><CardBody className="flex min-h-[118px] flex-col justify-between p-4"><div className="flex items-center justify-between"><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--astra-orange-soft)] text-[var(--astra-orange)]"><Icon size={18}/></div><ArrowRight size={16} className="text-slate-300"/></div><span className="text-sm font-bold text-[var(--astra-dark)]">{DOMAIN_LABELS[key]}</span></CardBody></Card></button>;
           })}
-        </div>   </div>
+        </div>
+      </div>
     );
   }
 
@@ -111,60 +59,54 @@ export function DashboardPage() {
   if (error) return <ErrorState message={error} />;
   if (!data) return null;
 
-  const totalSuppliers = data.suppliers.length;
-  const totalContacts = data.contacts.length;
-  const totalProducts = new Set(data.products.map((p) => getProductFamily(p))).size;
-  const totalDocuments = data.documents.length;
-  const totalDueDiligence = new Set(data.due_diligence.map((d) => d.supplier_id)).size;
-  const totalCommercialOffers = data.commercial_offers.length;
-  const isEmpty = totalSuppliers === 0 && totalProducts === 0 && totalDocuments === 0;
+  const suppliers = data.suppliers;
+  const products = data.products.filter(p => p.feedstock_type !== 'soapstock' && !/\bsoapstock\b|\bborra\b/i.test(p.name));
+  const activeDeals = suppliers.filter(s => ['active', 'trial', 'recurring'].includes(s.lifecycle)).length;
+  const openOpportunities = suppliers.filter(s => s.lifecycle === 'prospect').length;
+  const supplyPipeline = new Set(products.map(getProductFamily)).size;
+  const commodityExposure = new Set(products.map(p => p.commodity_category || p.feedstock_type)).size;
+  const documentsMissing = Math.max(0, data.due_diligence.filter(d => d.status === 'pending').length);
+  const alerts = data.due_diligence.filter(d => ['rejected'].includes(d.status)).length;
 
   const metrics = [
-    { label: 'Commercial Offers', value: totalCommercialOffers, icon: <DollarSign size={21} />, onClick: () => navigate('commercial') },
-    { label: 'Proveedores', value: totalSuppliers, icon: <Building2 size={21} />, onClick: () => navigate('suppliers') },
-    { label: 'Contactos', value: totalContacts, icon: <CheckSquare size={21} />, onClick: () => navigate('contacts') },
-    { label: 'Documentos', value: totalDocuments, icon: <FileText size={21} />, onClick: () => navigate('documents') },
-    { label: 'Debida diligencia', value: totalDueDiligence, icon: <ShieldCheck size={21} />, onClick: () => navigate('due_diligence') },
+    { label: 'Active Deals', value: activeDeals, icon: <Target size={20}/>, onClick: () => navigate('suppliers') },
+    { label: 'Open Opportunities', value: openOpportunities, icon: <Building2 size={20}/>, onClick: () => navigate('suppliers') },
+    { label: 'Supply Pipeline', value: supplyPipeline, suffix: 'familias', icon: <Layers3 size={20}/>, onClick: () => navigate('products') },
+    { label: 'Commodity Exposure', value: commodityExposure, suffix: 'categorías', icon: <Package size={20}/>, onClick: () => navigate('products') },
+    { label: 'Documents Missing', value: documentsMissing, icon: <FileText size={20}/>, onClick: () => navigate('documents') },
+    { label: 'Alerts', value: alerts, icon: <ShieldAlert size={20}/>, onClick: () => navigate('due_diligence') },
   ];
 
-  if (isEmpty) {
-    return (
-      <Card>
-        <EmptyState icon={<Building2 size={28} />} title="Aún no hay inteligencia de procurement" message="Registra el primer proveedor. El resumen se completará a medida que incorpores proveedores, productos, ofertas comerciales y debida diligencia." />
-      </Card>
-    );
-  }
+  const familyCounts = new Map<string, number>();
+  products.forEach(p => {
+    const family = getProductFamily(p);
+    familyCounts.set(family, (familyCounts.get(family) ?? 0) + 1);
+  });
+  const topFamilies = Array.from(familyCounts.entries()).sort((a,b) => b[1]-a[1]).slice(0, 6);
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--astra-orange)]">{DOMAIN_CONTENT[procurementDomain].title}</p>
-        
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--astra-orange)]">{DOMAIN_LABELS[procurementDomain]}</p><h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--astra-dark)]">Command Center</h2><p className="mt-1 text-sm text-slate-500">Estado comercial y supply intelligence de {DOMAIN_LABELS[procurementDomain]}.</p></div>
+        <button onClick={() => navigate('commercial')} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Ver ofertas <ArrowRight size={14}/></button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {metrics.map((m, index) => {
-          const accent = METRIC_ACCENTS[index];
-          return (
-            <button key={m.label} onClick={m.onClick} className="group text-left">
-              <Card className="relative h-full overflow-hidden border-slate-200 transition-all duration-200 group-hover:-translate-y-1 group-hover:border-slate-300 group-hover:shadow-lg">
-                <div className={`absolute inset-x-0 top-0 h-1 ${accent.line}`} />
-                <CardBody className="flex h-full min-h-[148px] flex-col justify-between p-5 pt-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${accent.soft} ${accent.text}`}>
-                      {m.icon}
-                    </div>
-                    <ArrowRight size={17} className="mt-1 text-slate-300 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-slate-500" />
-                  </div>
-                  <div className="mt-7">
-                    <div className="text-4xl font-semibold tracking-tight text-[var(--astra-dark)]">{m.value}</div>
-                    <div className="mt-1 text-sm font-medium text-slate-600">{m.label}</div>
-                  </div>
-                </CardBody>
-              </Card>
-            </button>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+        {metrics.map(m => <button key={m.label} onClick={m.onClick} className="text-left"><Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-md"><CardBody className="min-h-[132px] p-4"><div className="flex items-start justify-between text-[var(--astra-orange)]">{m.icon}<ArrowRight size={14} className="text-slate-300"/></div><div className="mt-5 text-3xl font-semibold tracking-tight text-[var(--astra-dark)]">{m.value}</div><div className="mt-1 text-xs font-semibold text-slate-600">{m.label}</div>{m.suffix && <div className="text-[10px] text-slate-400">{m.suffix}</div>}</CardBody></Card></button>)}
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card><CardBody><div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-[var(--astra-dark)]">Supply Pipeline</h3><p className="text-xs text-slate-500">Familias comerciales activas</p></div><button onClick={() => navigate('products')} className="text-xs font-semibold text-[var(--astra-orange)]">Productos</button></div>
+          {topFamilies.length ? <div className="space-y-2">{topFamilies.map(([family,count]) => <div key={family} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2"><span className="text-sm text-slate-700">{PRODUCT_FAMILY_LABELS[family as keyof typeof PRODUCT_FAMILY_LABELS] || family}</span><span className="text-xs font-semibold text-slate-500">{count} proveedores/productos</span></div>)}</div> : <EmptyState icon={<Package size={24}/>} title="Sin supply registrado" message="Agrega productos para construir el pipeline." />}
+        </CardBody></Card>
+
+        <Card><CardBody><div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-[var(--astra-dark)]">Commercial Control</h3><p className="text-xs text-slate-500">Lo que requiere atención comercial</p></div><button onClick={() => navigate('commercial')} className="text-xs font-semibold text-[var(--astra-orange)]">Comercial</button></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-slate-50 p-3"><DollarSign size={17} className="text-[var(--astra-orange)]"/><div className="mt-2 text-2xl font-semibold">{data.commercial_offers.length}</div><div className="text-xs text-slate-500">Ofertas registradas</div></div>
+            <div className="rounded-lg bg-slate-50 p-3"><ShieldAlert size={17} className="text-[var(--astra-orange)]"/><div className="mt-2 text-2xl font-semibold">{alerts}</div><div className="text-xs text-slate-500">Alertas DD</div></div>
+          </div>
+          <div className="mt-4 text-xs text-slate-500">{suppliers.length} proveedores · {products.length} registros de producto · {data.documents.length} documentos.</div>
+        </CardBody></Card>
       </div>
     </div>
   );
