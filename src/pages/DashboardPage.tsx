@@ -145,35 +145,26 @@ export function DashboardPage() {
 
   // Una oportunidad abierta debe tener una oferta comercial con precio definido.
   // Un proveedor prospecto sin precio todavía no es una oportunidad abierta.
-  const pricedOffersBySupplier = new Map(
-    data.commercial_offers
-      .filter(o => numericPrice(o.price) !== null)
-      .map(o => [o.supplier_id, o])
-  );
-  const opportunityCandidates = suppliers.filter(s => pricedOffersBySupplier.has(s.id));
-  const openOpportunities = opportunityCandidates.sort((a, b) => {
-    const oa = offersBySupplier.get(a.id);
-    const ob = offersBySupplier.get(b.id);
-    const opportunityHighlightRank = (supplier: Supplier, offer?: typeof data.commercial_offers[number]) => {
-      const name = supplierName(supplier);
-      const price = numericPrice(offer?.price);
-      if (isPrioritySupplier(name)) return 0;
-      if (price !== null && price >= 750 && price <= 790) return 1;
-      if (isVerisSupplier(name)) return 2;
-      return 3;
-    };
-    const ha = opportunityHighlightRank(a, oa);
-    const hb = opportunityHighlightRank(b, ob);
-    if (ha !== hb) return ha - hb;
-    if (oa && ob) {
-      const ra = offerRank(oa);
-      const rb = offerRank(ob);
+  const openOpportunities = data.commercial_offers
+    .filter(o => numericPrice(o.price) !== null)
+    .sort((a, b) => {
+      const supplierA = suppliers.find(s => s.id === a.supplier_id);
+      const supplierB = suppliers.find(s => s.id === b.supplier_id);
+      const nameA = supplierName(supplierA || {} as Supplier);
+      const nameB = supplierName(supplierB || {} as Supplier);
+      const highlightRank = (name: string, price: number | null) => {
+        if (procurementDomain === 'feedstock' && isPrioritySupplier(name)) return 0;
+        if (procurementDomain === 'feedstock' && price !== null && price >= 750 && price <= 790) return 1;
+        if (procurementDomain === 'feedstock' && isVerisSupplier(name)) return 2;
+        return 3;
+      };
+      const ha = highlightRank(nameA, numericPrice(a.price));
+      const hb = highlightRank(nameB, numericPrice(b.price));
+      if (ha !== hb) return ha - hb;
+      const ra = offerRank(a);
+      const rb = offerRank(b);
       return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2];
-    }
-    if (oa) return -1;
-    if (ob) return 1;
-    return prioritySupplier(supplierName(a)) - prioritySupplier(supplierName(b));
-  }).slice(0, 12);
+    });
 
   const supplyBySupplier = Array.from(new Map(
     products.map(product => [product.supplier_id, {
@@ -223,17 +214,18 @@ export function DashboardPage() {
     }
 
     if (drilldown === 'active') return <div className="space-y-2">{activeDeals.map(s => <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-200 p-3"><div><div className="text-sm font-semibold">{supplierName(s)}</div><div className="text-xs text-slate-500">Estado: {s.lifecycle === 'active' ? 'Activo' : s.lifecycle === 'trial' ? 'Prueba' : 'Recurrente'}</div></div><Button size="sm" variant="ghost" onClick={() => { setDrilldown(null); navigate('suppliers'); }}>Ver proveedor</Button></div>)}</div>;
-    if (drilldown === 'opportunities') return <div className="space-y-2">{openOpportunities.map(s => {
-      const offer = offersBySupplier.get(s.id);
-      const price = numericPrice(offer?.price);
-      const inTarget = price !== null && price >= 750 && price <= 790;
-      const priority = isPrioritySupplier(supplierName(s));
-      const veris = isVerisSupplier(supplierName(s));
+    if (drilldown === 'opportunities') return <div className="space-y-2">{openOpportunities.map(offer => {
+      const supplier = suppliers.find(s => s.id === offer.supplier_id);
+      const name = supplierName(supplier || {} as Supplier);
+      const price = numericPrice(offer.price);
+      const inTarget = procurementDomain === 'feedstock' && price !== null && price >= 750 && price <= 790;
+      const priority = procurementDomain === 'feedstock' && isPrioritySupplier(name);
+      const veris = procurementDomain === 'feedstock' && isVerisSupplier(name);
       const highlight = inTarget || priority;
-      return <button key={s.id} onClick={() => selectSupplier(s.id)} className={`w-full text-left rounded-lg border p-3 transition-shadow hover:shadow-md ${highlight ? 'border-red-300 bg-red-50/40' : veris ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200'}`}>
+      return <button key={offer.id} onClick={() => supplier && selectSupplier(supplier.id)} className={`w-full text-left rounded-lg border p-3 transition-shadow hover:shadow-md ${highlight ? 'border-red-300 bg-red-50/40' : veris ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200'}`}>
         <div className="flex items-start justify-between gap-3">
-          <div><div className="text-sm font-semibold">{supplierName(s)}</div><div className="text-xs text-slate-500">{offer ? displayProductName(products.find(p => p.id === offer.product_id)?.name || 'Oferta comercial') : (s.country || 'País no informado')}</div></div>
-          <div className="text-right">{offer ? <div className={`text-sm font-bold ${highlight ? 'text-red-600' : veris ? 'text-amber-700' : 'text-[var(--astra-dark)]'}`}>{offer.price} {offer.currency || 'USD'} / {offer.price_unit || 'MT'}</div> : <div className="text-xs text-slate-400">Precio no informado</div>}{offer && <div className="text-[10px] text-slate-500">{offer.incoterm || 'Incoterm N/D'}</div>}</div>
+          <div><div className="text-sm font-semibold">{name}</div><div className="text-xs text-slate-500">{displayProductName(products.find(p => p.id === offer.product_id)?.name || 'Oferta comercial')}</div></div>
+          <div className="text-right"><div className={`text-sm font-bold ${highlight ? 'text-red-600' : veris ? 'text-amber-700' : 'text-[var(--astra-dark)]'}`}>{offer.price} {offer.currency || 'USD'} / {offer.price_unit || 'MT'}</div><div className="text-[10px] text-slate-500">{offer.incoterm || 'Incoterm N/D'}</div></div>
         </div>
       </button>;
     })}</div>;
