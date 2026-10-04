@@ -3,7 +3,7 @@ import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Modal } from '@/components/ui';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
-import { Building2, DollarSign, FileText, Package, ShieldAlert, ArrowRight, Target, Layers3, Plus } from 'lucide-react';
+import { Building2, DollarSign, Package, ArrowRight, Target, Layers3, Plus, Award } from 'lucide-react';
 import type { AppData, Supplier, Product } from '@/types';
 import { getProductFamily, PRODUCT_FAMILY_LABELS, displayProductName } from '@/utils/productFamilies';
 
@@ -15,7 +15,7 @@ const DOMAIN_LABELS: Record<ProcurementDomain, string> = {
   agricultural_commodities: 'Agrícola',
 };
 
-type Drilldown = 'active' | 'opportunities' | 'supply' | 'exposure' | 'documents' | 'alerts' | null;
+type Drilldown = 'active' | 'opportunities' | 'supply' | 'exposure' | 'iscc' | null;
 
 function supplierName(s: Supplier) {
   return s.legal_name || s.trading_name || 'Proveedor sin nombre';
@@ -31,15 +31,16 @@ export function DashboardPage() {
       certifications: [], documents: [], due_diligence: [], logistics: [], timeline: [], follow_ups: [], red_flags: [],
     };
     const store = getStore();
-    const [suppliers, contacts, products, documents, due_diligence, commercial_offers] = await Promise.all([
+    const [suppliers, contacts, products, documents, due_diligence, commercial_offers, certifications] = await Promise.all([
       store.suppliers.getByDomainKey(procurementDomain),
       store.contacts.getByDomainKey(procurementDomain),
       store.products.getByDomainKey(procurementDomain),
       store.documents.getByDomainKey(procurementDomain),
       store.dueDiligence.getByDomainKey(procurementDomain),
       store.commercialOffers.getByDomainKey(procurementDomain),
+      store.certifications.getByDomainKey(procurementDomain),
     ]);
-    return { suppliers, contacts, products, technical_specs: [], commercial_offers, certifications: [], documents, due_diligence, logistics: [], timeline: [], follow_ups: [], red_flags: [] };
+    return { suppliers, contacts, products, technical_specs: [], commercial_offers, certifications, documents, due_diligence, logistics: [], timeline: [], follow_ups: [], red_flags: [] };
   }, [procurementDomain]);
 
   if (!procurementDomain) {
@@ -70,15 +71,13 @@ export function DashboardPage() {
   const supplyPipeline = products;
   const commodityExposure = Array.from(new Map(products.map(p => [p.commodity_category || p.feedstock_type, p])).values());
   const documentsMissing = Math.max(0, data.due_diligence.filter(d => d.status === 'pending').length);
-  const alerts = data.due_diligence.filter(d => d.status === 'rejected').length;
+  const isccCertifications = data.certifications.filter(c => /iscc/i.test(c.cert_type) && c.status === 'active');
 
   const metrics = [
     { key: 'active' as Drilldown, label: 'Operaciones activas', value: activeDeals.length, icon: <Target size={20}/> },
     { key: 'opportunities' as Drilldown, label: 'Oportunidades abiertas', value: openOpportunities.length, icon: <Building2 size={20}/> },
     { key: 'supply' as Drilldown, label: 'Suministro', value: supplyPipeline.length, suffix: 'productos', icon: <Layers3 size={20}/> },
     { key: 'exposure' as Drilldown, label: 'Exposición por materia prima', value: commodityExposure.length, suffix: 'categorías', icon: <Package size={20}/> },
-    { key: 'documents' as Drilldown, label: 'Documentos pendientes', value: documentsMissing, icon: <FileText size={20}/> },
-    { key: 'alerts' as Drilldown, label: 'Alertas', value: alerts, icon: <ShieldAlert size={20}/> },
   ];
 
   const familyCounts = new Map<string, number>();
@@ -93,8 +92,7 @@ export function DashboardPage() {
     opportunities: 'Oportunidades abiertas',
     supply: 'Suministro registrado',
     exposure: 'Exposición por materia prima',
-    documents: 'Documentos pendientes',
-    alerts: 'Alertas de debida diligencia',
+    iscc: 'Certificaciones ISCC',
   };
 
   const renderDrilldown = () => {
@@ -111,16 +109,11 @@ export function DashboardPage() {
     if (drilldown === 'exposure' && commodityExposure.length === 0) {
       return <EmptyState icon={<Package size={28}/>} title="Sin exposición registrada" message="La exposición se calcula únicamente sobre productos registrados." />;
     }
-    if (drilldown === 'documents' && documentsMissing === 0) {
-      return <EmptyState icon={<FileText size={28}/>} title="No hay documentos pendientes" message="No hay elementos de debida diligencia marcados como pendientes." />;
-    }
-    if (drilldown === 'alerts' && alerts === 0) {
-      return <EmptyState icon={<ShieldAlert size={28}/>} title="Sin alertas" message="No hay alertas de debida diligencia rechazadas en este universo." />;
-    }
 
     if (drilldown === 'active') return <div className="space-y-2">{activeDeals.map(s => <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-200 p-3"><div><div className="text-sm font-semibold">{supplierName(s)}</div><div className="text-xs text-slate-500">Estado: {s.lifecycle === 'active' ? 'Activo' : s.lifecycle === 'trial' ? 'Prueba' : 'Recurrente'}</div></div><Button size="sm" variant="ghost" onClick={() => { setDrilldown(null); navigate('suppliers'); }}>Ver proveedor</Button></div>)}</div>;
     if (drilldown === 'opportunities') return <div className="space-y-2">{openOpportunities.map(s => <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-200 p-3"><div><div className="text-sm font-semibold">{supplierName(s)}</div><div className="text-xs text-slate-500">{s.country || 'País no informado'} · Prospecto</div></div><Button size="sm" variant="ghost" onClick={() => { setDrilldown(null); navigate('suppliers'); }}>Ver proveedor</Button></div>)}</div>;
     if (drilldown === 'supply') return <div className="space-y-2">{supplyPipeline.map(p => <div key={p.id} className="rounded-lg border border-slate-200 p-3"><div className="text-sm font-semibold">{displayProductName(p.name)}</div><div className="mt-1 text-xs text-slate-500">{p.commodity_category || p.feedstock_type} · {p.available_volume || 'Volumen no informado'}</div></div>)}</div>;
+    if (drilldown === 'iscc') return <div className="space-y-2">{isccCertifications.map(cert => <div key={cert.id} className="rounded-lg border border-slate-200 p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-sm font-semibold">ISCC</div><div className="text-xs text-slate-500">{supplierName(suppliers.find(s => s.id === cert.supplier_id) || {} as Supplier)}</div></div><div className="text-right"><div className="text-xs font-semibold">{cert.cert_number || 'Número no informado'}</div><div className="text-[10px] text-slate-400">Vence: {cert.expiration_date || '—'}</div></div></div></div>)}</div>;
     if (drilldown === 'exposure') return <div className="space-y-2">{commodityExposure.map(p => <div key={p.id} className="rounded-lg border border-slate-200 p-3"><div className="text-sm font-semibold">{p.commodity_category || p.feedstock_type}</div><div className="text-xs text-slate-500">Representado por: {displayProductName(p.name)}</div></div>)}</div>;
     if (drilldown === 'documents') return <div className="space-y-2">{data.due_diligence.filter(d => d.status === 'pending').map(d => <div key={d.id} className="rounded-lg border border-slate-200 p-3"><div className="text-sm font-semibold">{d.category}</div><div className="text-xs text-slate-500">Proveedor: {supplierName(suppliers.find(s => s.id === d.supplier_id) ?? { legal_name: '', trading_name: '', id: '', country: '', city: '', address: '', tax_id: '', cnae: '', administrator: '', legal_status: '', facility: '', operation_status: '', theoretical_capacity: '', real_production: '', available_volume: '', volume_to_astra: '', trial_volume: '', recurring_volume: '', infrastructure: '', lifecycle: 'prospect', created_at: '', updated_at: '' })}</div></div>)}</div>;
     return <div className="space-y-2">{data.due_diligence.filter(d => d.status === 'rejected').map(d => <div key={d.id} className="rounded-lg border border-red-200 bg-red-50/30 p-3"><div className="text-sm font-semibold">{d.category}</div><div className="text-xs text-slate-600">{d.findings || 'Sin detalle registrado'}</div></div>)}</div>;
@@ -137,17 +130,22 @@ export function DashboardPage() {
         {metrics.map(m => <button key={m.key} onClick={() => setDrilldown(m.key)} className="text-left"><Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-md"><CardBody className="min-h-[132px] p-4"><div className="flex items-start justify-between text-[var(--astra-orange)]">{m.icon}<ArrowRight size={14} className="text-slate-300"/></div><div className="mt-5 text-3xl font-semibold tracking-tight text-[var(--astra-dark)]">{m.value}</div><div className="mt-1 text-xs font-semibold text-slate-600">{m.label}</div>{m.suffix && <div className="text-[10px] text-slate-400">{m.suffix}</div>}</CardBody></Card></button>)}
       </div>
 
+      <Card>
+        <CardBody>
+          <div className="mb-4 flex items-center justify-between">
+            <div><h3 className="font-semibold text-[var(--astra-dark)]">Ofertas comerciales</h3><p className="text-xs text-slate-500">Ofertas definidas, precios y productos disponibles</p></div>
+            <button onClick={() => navigate('commercial')} className="text-xs font-semibold text-[var(--astra-orange)]">Ver todas</button>
+          </div>
+          {data.commercial_offers.length ? <div className="grid grid-cols-1 gap-3 md:grid-cols-2">{data.commercial_offers.slice(0,6).map(o => <div key={o.id} onClick={() => navigate('commercial')} className="cursor-pointer rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div><div className="text-base font-bold text-[var(--astra-dark)]">{o.price || 'N/D'} {o.currency || ''}{o.price_unit ? ` / ${o.price_unit}` : ''}</div><div className="mt-1 text-sm font-semibold text-slate-700">{displayProductName(products.find(p => p.id === o.product_id)?.name || 'Producto no informado')}</div></div><span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold">{o.incoterm}</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500"><div>Proveedor: <span className="font-semibold text-slate-700">{supplierName(suppliers.find(s => s.id === o.supplier_id) || {} as Supplier)}</span></div><div>Volumen: <span className="font-semibold text-slate-700">{o.offered_volume || '—'}</span></div></div></div>)}</div> : <EmptyState icon={<DollarSign size={24}/>} title="No hay ofertas comerciales registradas" message="Agrega una oferta comercial para comenzar." action={<Button onClick={() => navigate('commercial')}><Plus size={16}/> Agregar oferta</Button>} />}
+        </CardBody>
+      </Card>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card><CardBody><div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-[var(--astra-dark)]">Suministro</h3><p className="text-xs text-slate-500">Familias comerciales registradas</p></div><button onClick={() => setDrilldown('supply')} className="text-xs font-semibold text-[var(--astra-orange)]">Ver detalle</button></div>
           {topFamilies.length ? <div className="space-y-2">{topFamilies.map(([family,count]) => <div key={family} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2"><span className="text-sm text-slate-700">{PRODUCT_FAMILY_LABELS[family as keyof typeof PRODUCT_FAMILY_LABELS] || family}</span><span className="text-xs font-semibold text-slate-500">{count} registros</span></div>)}</div> : <EmptyState icon={<Package size={24}/>} title="Sin suministro registrado" message="Agrega productos para construir el suministro." />}
         </CardBody></Card>
-
-        <Card><CardBody><div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-[var(--astra-dark)]">Control comercial</h3><p className="text-xs text-slate-500">Lo que requiere atención comercial</p></div><button onClick={() => navigate('commercial')} className="text-xs font-semibold text-[var(--astra-orange)]">Ver ofertas</button></div>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => navigate('commercial')} className="rounded-lg bg-slate-50 p-3 text-left hover:bg-slate-100"><DollarSign size={17} className="text-[var(--astra-orange)]"/><div className="mt-2 text-2xl font-semibold">{data.commercial_offers.length}</div><div className="text-xs text-slate-500">Ofertas registradas</div></button>
-            <button onClick={() => setDrilldown('alerts')} className="rounded-lg bg-slate-50 p-3 text-left hover:bg-slate-100"><ShieldAlert size={17} className="text-[var(--astra-orange)]"/><div className="mt-2 text-2xl font-semibold">{alerts}</div><div className="text-xs text-slate-500">Alertas de DD</div></button>
-          </div>
-          <div className="mt-4 text-xs text-slate-500">{suppliers.length} proveedores · {products.length} productos · {data.documents.length} documentos.</div>
+        <Card><CardBody><div className="mb-4 flex items-center justify-between"><div><h3 className="font-semibold text-[var(--astra-dark)]">Certificaciones ISCC</h3><p className="text-xs text-slate-500">Proveedores con ISCC activa</p></div><button onClick={() => setDrilldown('iscc')} className="text-xs font-semibold text-[var(--astra-orange)]">Ver ISCC</button></div>
+          {isccCertifications.length ? <div className="space-y-2">{isccCertifications.slice(0,5).map(cert => <div key={cert.id} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2"><span className="text-sm font-semibold">{supplierName(suppliers.find(s => s.id === cert.supplier_id) || {} as Supplier)}</span><span className="text-xs text-slate-500">ISCC · {cert.cert_number || 'N/D'}</span></div>)}</div> : <EmptyState icon={<Award size={24}/>} title="Sin ISCC activa registrada" message="Registra certificaciones ISCC para mostrarlas aquí." />}
         </CardBody></Card>
       </div>
 
