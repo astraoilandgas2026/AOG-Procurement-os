@@ -124,6 +124,17 @@ export function DashboardPage() {
   const openOpportunities = opportunityCandidates.sort((a, b) => {
     const oa = offersBySupplier.get(a.id);
     const ob = offersBySupplier.get(b.id);
+    const opportunityHighlightRank = (supplier: Supplier, offer?: typeof data.commercial_offers[number]) => {
+      const name = supplierName(supplier);
+      const price = numericPrice(offer?.price);
+      if (isPrioritySupplier(name)) return 0;
+      if (price !== null && price >= 750 && price <= 790) return 1;
+      if (isVerisSupplier(name)) return 2;
+      return 3;
+    };
+    const ha = opportunityHighlightRank(a, oa);
+    const hb = opportunityHighlightRank(b, ob);
+    if (ha !== hb) return ha - hb;
     if (oa && ob) {
       const ra = offerRank(oa);
       const rb = offerRank(ob);
