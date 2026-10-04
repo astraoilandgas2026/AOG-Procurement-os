@@ -31,15 +31,19 @@ export function DashboardPage() {
       certifications: [], documents: [], due_diligence: [], logistics: [], timeline: [], follow_ups: [], red_flags: [],
     };
     const store = getStore();
-    const [suppliers, contacts, products, documents, due_diligence, commercial_offers, certifications] = await Promise.all([
+    const [suppliers, contacts, products, documents, due_diligence, commercialOffers, certifications] = await Promise.all([
       store.suppliers.getByDomainKey(procurementDomain),
       store.contacts.getByDomainKey(procurementDomain),
       store.products.getByDomainKey(procurementDomain),
       store.documents.getByDomainKey(procurementDomain),
       store.dueDiligence.getByDomainKey(procurementDomain),
-      store.commercialOffers.getByDomainKey(procurementDomain),
+      store.commercialOffers.getAll(),
       store.certifications.getByDomainKey(procurementDomain),
     ]);
+    // Las ofertas se vinculan al proveedor; usar el dominio del proveedor evita
+    // perder ofertas antiguas o creadas sin domain_id, especialmente en Energía.
+    const supplierIds = new Set(suppliers.map(s => s.id));
+    const commercial_offers = commercialOffers.filter(o => supplierIds.has(o.supplier_id));
     return { suppliers, contacts, products, technical_specs: [], commercial_offers, certifications, documents, due_diligence, logistics: [], timeline: [], follow_ups: [], red_flags: [] };
   }, [procurementDomain]);
 
