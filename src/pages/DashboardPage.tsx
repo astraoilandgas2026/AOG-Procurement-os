@@ -117,27 +117,31 @@ export function DashboardPage() {
     return [productPriority(product, price), prioritySupplier(supplier), price ?? Number.POSITIVE_INFINITY] as const;
   };
 
-  const rankedOffers = Array.from(offersBySupplier.values()).sort((a, b) => {
-    const supplierA = suppliers.find(s => s.id === a.supplier_id);
-    const supplierB = suppliers.find(s => s.id === b.supplier_id);
-    const priceA = numericPrice(a.price);
-    const priceB = numericPrice(b.price);
-    const nameA = supplierName(supplierA || {} as Supplier);
-    const nameB = supplierName(supplierB || {} as Supplier);
-    const highlightRank = (name: string, price: number | null) => {
-      if (isPrioritySupplier(name)) return 0;
-      if (price !== null && price >= 750 && price <= 790) return 1;
-      if (isVerisSupplier(name)) return 2;
-      return 3;
-    };
-    const ha = highlightRank(nameA, priceA);
-    const hb = highlightRank(nameB, priceB);
-    if (ha !== hb) return ha - hb;
+  // El bloque inferior muestra ofertas reales, no una sola oferta por proveedor.
+  // Antes se deduplicaba por proveedor y eso ocultaba ofertas, especialmente en Energía.
+  const rankedOffers = data.commercial_offers
+    .filter(o => numericPrice(o.price) !== null)
+    .sort((a, b) => {
+      const supplierA = suppliers.find(s => s.id === a.supplier_id);
+      const supplierB = suppliers.find(s => s.id === b.supplier_id);
+      const priceA = numericPrice(a.price);
+      const priceB = numericPrice(b.price);
+      const nameA = supplierName(supplierA || {} as Supplier);
+      const nameB = supplierName(supplierB || {} as Supplier);
+      const highlightRank = (name: string, price: number | null) => {
+        if (isPrioritySupplier(name)) return 0;
+        if (price !== null && price >= 750 && price <= 790) return 1;
+        if (isVerisSupplier(name)) return 2;
+        return 3;
+      };
+      const ha = highlightRank(nameA, priceA);
+      const hb = highlightRank(nameB, priceB);
+      if (ha !== hb) return ha - hb;
 
-    const ra = offerRank(a);
-    const rb = offerRank(b);
-    return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2];
-  });
+      const ra = offerRank(a);
+      const rb = offerRank(b);
+      return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2];
+    });
 
   // Una oportunidad abierta debe tener una oferta comercial con precio definido.
   // Un proveedor prospecto sin precio todavía no es una oportunidad abierta.
