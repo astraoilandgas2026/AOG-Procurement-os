@@ -10,14 +10,16 @@ import {
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} /> },
-  { key: 'contacts', label: 'Contactos', icon: <Users size={17} /> },
-  { key: 'products', label: 'Productos', icon: <Package size={17} /> },
-  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} /> },
-  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} /> },
-  { key: 'documents', label: 'Documentos', icon: <FileText size={17} /> },
-  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} /> },
+  { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Procurement' },
+  { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Procurement' },
+  { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Procurement' },
+  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Comercial' },
+  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Evidence & DD' },
+  { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Evidence & DD' },
+  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Evidence & DD' },
 ];
+
+const groups = ['Procurement', 'Comercial', 'Evidence & DD'];
 
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   dashboard: { title: 'Command Center', subtitle: 'Visión operativa de procurement e inteligencia comercial' },
