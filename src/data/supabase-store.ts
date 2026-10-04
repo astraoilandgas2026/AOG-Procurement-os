@@ -460,6 +460,10 @@ export class SupabaseStore implements DataStore {
 
   certifications: CertificationRepository = {
     getAll: async () => {
+      const { data, error } = await client.from('certifications').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapCert);
+    },
     getByDomainKey: async (domainKey: ProcurementDomain) => {
       const domainName = domainNameForKey(domainKey);
       const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
@@ -470,10 +474,6 @@ export class SupabaseStore implements DataStore {
       const ids = (suppliers as Row[]).map(row => row.id as string);
       if (!ids.length) return [];
       const { data, error } = await client.from('certifications').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data as Row[]).map(mapCert);
-    },
-      const { data, error } = await client.from('certifications').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapCert);
     },
