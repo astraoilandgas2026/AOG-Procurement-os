@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
+import { InstallAppButton } from '@/components/InstallAppButton';
 import {
   Building2, Users, Package, DollarSign, Award, FileText,
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat,
@@ -123,7 +124,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               </>
             )}
           </div>
-          {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
+          <div className="flex items-center gap-2">
+            <InstallAppButton />
+            {procurementDomain && <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-[var(--astra-dark)]">{DOMAIN_META[procurementDomain].icon}{DOMAIN_META[procurementDomain].label}</div>}
+          </div>
         </header>
         {procurementDomain && (
           <nav className="flex md:hidden min-w-0 overflow-x-auto border-b border-[var(--astra-border)] bg-white px-3 py-2">
