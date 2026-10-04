@@ -426,6 +426,15 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapOffer);
     },
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data, error } = await client.from('commercial_offers').select('*').eq('domain_id', domain.id as string).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapOffer);
+    },
     getBySupplier: async (supplierId: string) => {
       const { data, error } = await client.from('commercial_offers').select('*').eq('supplier_id', supplierId);
       if (error) throw error;
@@ -484,6 +493,19 @@ export class SupabaseStore implements DataStore {
       if (error) throw error;
       return (data as Row[]).map(mapDoc);
     },
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
+      if (supplierError) throw supplierError;
+      const ids = (suppliers as Row[]).map(row => row.id as string);
+      if (!ids.length) return [];
+      const { data, error } = await client.from('documents').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapDoc);
+    },
     getBySupplier: async (supplierId: string) => {
       const { data, error } = await client.from('documents').select('*').eq('supplier_id', supplierId);
       if (error) throw error;
@@ -510,6 +532,19 @@ export class SupabaseStore implements DataStore {
   dueDiligence: DueDiligenceRepository = {
     getAll: async () => {
       const { data, error } = await client.from('due_diligence').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data as Row[]).map(mapDD);
+    },
+    getByDomainKey: async (domainKey: ProcurementDomain) => {
+      const domainName = domainNameForKey(domainKey);
+      const { data: domain, error: domainError } = await client.from('procurement_domains').select('id').eq('name', domainName).maybeSingle();
+      if (domainError) throw domainError;
+      if (!domain) return [];
+      const { data: suppliers, error: supplierError } = await client.from('suppliers').select('id').eq('domain_id', domain.id as string);
+      if (supplierError) throw supplierError;
+      const ids = (suppliers as Row[]).map(row => row.id as string);
+      if (!ids.length) return [];
+      const { data, error } = await client.from('due_diligence').select('*').in('supplier_id', ids).order('created_at', { ascending: false });
       if (error) throw error;
       return (data as Row[]).map(mapDD);
     },
