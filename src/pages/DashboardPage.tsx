@@ -139,8 +139,14 @@ export function DashboardPage() {
     return ra[0] - rb[0] || ra[1] - rb[1] || ra[2] - rb[2];
   });
 
-  const offerSupplierIds = new Set(data.commercial_offers.map(o => o.supplier_id));
-  const opportunityCandidates = suppliers.filter(s => s.lifecycle === 'prospect' || offerSupplierIds.has(s.id));
+  // Una oportunidad abierta debe tener una oferta comercial con precio definido.
+  // Un proveedor prospecto sin precio todavía no es una oportunidad abierta.
+  const pricedOffersBySupplier = new Map(
+    data.commercial_offers
+      .filter(o => numericPrice(o.price) !== null)
+      .map(o => [o.supplier_id, o])
+  );
+  const opportunityCandidates = suppliers.filter(s => pricedOffersBySupplier.has(s.id));
   const openOpportunities = opportunityCandidates.sort((a, b) => {
     const oa = offersBySupplier.get(a.id);
     const ob = offersBySupplier.get(b.id);
