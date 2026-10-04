@@ -19,7 +19,7 @@ const NavContext = createContext<NavContextValue | null>(null);
 const INITIAL_STATE: NavigationState = {
   currentPage: 'dashboard',
   selectedSupplierId: null,
-  procurementDomain: null,
+  procurementDomain: 'feedstock',
 };
 
 function readHistoryState(): NavigationState {
