@@ -88,6 +88,70 @@ function cleanProductVolume(value: string): string {
   return raw;
 }
 
+function translateSupplierText(value: string): string {
+  if (!value) return value;
+  const replacements: Array<[RegExp, string]> = [
+    [/\bfornecedor(es)?\b/gi, 'proveedor$1'],
+    [/\bfornecedora(s)?\b/gi, 'proveedora$1'],
+    [/\batividade(s)?\b/gi, 'actividad$1'],
+    [/\bcapacidade(s)?\b/gi, 'capacidad$1'],
+    [/\bprodução\b/gi, 'producción'],
+    [/\bproducoes\b/gi, 'producciones'],
+    [/\bdisponível\b/gi, 'disponible'],
+    [/\bdisponibilidade\b/gi, 'disponibilidad'],
+    [/\bvolume disponível\b/gi, 'volumen disponible'],
+    [/\bvolume\b/gi, 'volumen'],
+    [/\bmensal\b/gi, 'mensual'],
+    [/\bmês\b/gi, 'mes'],
+    [/\bóleo de cozinha usado\b/gi, 'aceite de cocina usado'],
+    [/\bóleo vegetal\b/gi, 'aceite vegetal'],
+    [/\bóleos vegetais\b/gi, 'aceites vegetales'],
+    [/\bóleo de soja\b/gi, 'aceite de soja'],
+    [/\bóleo de algodão\b/gi, 'aceite de algodón'],
+    [/\bácidos graxos\b/gi, 'ácidos grasos'],
+    [/\bácido graxo\b/gi, 'ácido graso'],
+    [/\bóleo ácido\b/gi, 'aceite ácido'],
+    [/\bóleos ácidos\b/gi, 'aceites ácidos'],
+    [/\bmistura\b/gi, 'mezcla'],
+    [/\bmisto\b/gi, 'mixto'],
+    [/\borigem\b/gi, 'origen'],
+    [/\bcomposição\b/gi, 'composición'],
+    [/\bqualidade\b/gi, 'calidad'],
+    [/\bespecificação\b/gi, 'especificación'],
+    [/\bespecificações\b/gi, 'especificaciones'],
+    [/\binstalação\b/gi, 'instalación'],
+    [/\bprodução própria\b/gi, 'producción propia'],
+    [/\bcapacidade teórica\b/gi, 'capacidad teórica'],
+    [/\bcapacidade real\b/gi, 'capacidad real'],
+    [/\bestOque disponível\b/gi, 'existencias disponibles'],
+    [/\bestOque\b/gi, 'existencias'],
+    [/\bexportação\b/gi, 'exportación'],
+    [/\bembarque\b/gi, 'embarque'],
+    [/\bcontato(s)?\b/gi, 'contacto$1'],
+    [/\bgerente\b/gi, 'gerente'],
+    [/\bsócio administrador\b/gi, 'socio administrador'],
+    [/\btelefone\b/gi, 'teléfono'],
+    [/\bcelular\b/gi, 'móvil'],
+    [/\bendereço\b/gi, 'dirección'],
+    [/\bmunicípio\b/gi, 'municipio'],
+    [/\bdocumentação\b/gi, 'documentación'],
+    [/\bcertificação\b/gi, 'certificación'],
+    [/\bdeclarado\b/gi, 'declarado'],
+    [/\bdeclarada\b/gi, 'declarada'],
+    [/\bconfirmado\b/gi, 'confirmado'],
+    [/\bconfirmada\b/gi, 'confirmada'],
+    [/\bverificado\b/gi, 'verificado'],
+    [/\bverificada\b/gi, 'verificada'],
+    [/\bsem\b/gi, 'sin'],
+    [/\bcom\b/gi, 'con'],
+  ];
+  return replacements.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value);
+}
+
+function presentSupplierText(value: string | null | undefined): string {
+  return value ? translateSupplierText(value) : '';
+}
+
 function cleanProductComposition(value: string): string {
   const raw = value.trim();
   if (!raw) return '';
@@ -565,8 +629,8 @@ function SupplierDetail({
         <DetailRow label="Ciudad" value={supplier.city} />
         <DetailRow label="Dirección registrada" value={supplier.address} />
         <DetailRow label="Registro mercantil / referencia" value={supplier.cnae} />
-        <DetailRow label="Administrador / representante" value={supplier.administrator} />
-        <DetailRow label="Situación legal" value={supplier.legal_status} />
+        <DetailRow label="Administrador / representante" value={presentSupplierText(supplier.administrator)} />
+        <DetailRow label="Situación legal" value={presentSupplierText(supplier.legal_status)} />
         {procurementDomain === 'energy_commodities' && /PREKAMA/i.test(supplier.trading_name || supplier.legal_name || '') && (
           <div className="mt-3 rounded-md border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
             CIS registrado en Evidencia y Documentos. PREKAMA USA LLC aparece en documentación histórica como entidad distinta; su relación corporativa con PREKAMA Verwaltungs GmbH no se presume sin debida diligencia.
@@ -575,15 +639,15 @@ function SupplierDetail({
       </DetailSection>
 
       <DetailSection title="2. Operación y Capacidad">
-        <DetailRow label="Estado operativo" value={supplier.operation_status} />
-        <DetailRow label="Instalación propia" value={supplier.facility} />
-        <DetailRow label="Capacidad teórica propia" value={supplier.theoretical_capacity} />
-        <DetailRow label="Producción real" value={supplier.real_production} />
-        <DetailRow label="Disponibilidad a nivel proveedor" value={supplier.available_volume} />
-        <DetailRow label="Volumen para Astra" value={supplier.volume_to_astra} />
-        <DetailRow label="Trial" value={supplier.trial_volume} />
-        <DetailRow label="Recurrencia" value={supplier.recurring_volume} />
-        <DetailRow label="Infraestructura" value={supplier.infrastructure} />
+        <DetailRow label="Estado operativo" value={presentSupplierText(supplier.operation_status)} />
+        <DetailRow label="Instalación propia" value={presentSupplierText(supplier.facility)} />
+        <DetailRow label="Capacidad teórica propia" value={presentSupplierText(supplier.theoretical_capacity)} />
+        <DetailRow label="Producción real" value={presentSupplierText(supplier.real_production)} />
+        <DetailRow label="Disponibilidad a nivel proveedor" value={presentSupplierText(supplier.available_volume)} />
+        <DetailRow label="Volumen para Astra" value={presentSupplierText(supplier.volume_to_astra)} />
+        <DetailRow label="Prueba" value={presentSupplierText(supplier.trial_volume)} />
+        <DetailRow label="Recurrencia" value={presentSupplierText(supplier.recurring_volume)} />
+        <DetailRow label="Infraestructura" value={presentSupplierText(supplier.infrastructure)} />
       </DetailSection>
 
       <DetailSection title="3. Relación y Contactos">
@@ -598,7 +662,7 @@ function SupplierDetail({
                 <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-gray-600 sm:grid-cols-2">
                   <span>Correo: {c.email || '—'}</span><span>Teléfono: {c.phone || '—'}</span><span>WhatsApp: {c.whatsapp || '—'}</span>
                 </div>
-                {c.notes && <p className="mt-2 text-xs text-gray-500">{c.notes}</p>}
+                {c.notes && <p className="mt-2 text-xs text-gray-500">{presentSupplierText(c.notes)}</p>}
                 <div className="mt-2 flex justify-end"><Button size="sm" variant="ghost" onClick={() => openContactEdit(c)}><Edit3 size={13} /> Editar contacto</Button></div>
               </div>
             ))}
@@ -612,7 +676,7 @@ function SupplierDetail({
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <div className="text-sm font-semibold text-gray-900">{displayProductName(p.name)}</div>
-                <div className="text-xs text-gray-500">{cleanProductComposition(p.composition) || 'Composición no registrada'}</div>
+                <div className="text-xs text-gray-500">{presentSupplierText(cleanProductComposition(p.composition)) || 'Composición no registrada'}</div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge color={verificationColor(p.verification_status)}>{verificationLabel(p.verification_status)}</Badge>
@@ -621,7 +685,7 @@ function SupplierDetail({
             </div>
             <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
               <span>{p.commodity_category && p.commodity_category !== 'feedstock' ? `Categoría: ${productCategoryLabel(p.commodity_category)}` : `Familia: ${PRODUCT_FAMILY_LABELS[getProductFamily(p)]}`}</span>
-              <span>Origen: {p.origin || '—'}</span>
+              <span>Origen: {presentSupplierText(p.origin) || '—'}</span>
               <span>Volumen: {cleanProductVolume(p.available_volume) ? cleanProductVolume(p.available_volume) : '—'}</span>
             </div>
           </div>
@@ -663,8 +727,8 @@ function SupplierDetail({
         {!data.logistics.length ? <EmptyLine text="Sin registro logístico." /> : data.logistics.map(l => (
           <div key={l.id} className="rounded-lg border border-gray-100 p-3">
             <div className="flex items-center justify-between gap-2"><span className="text-sm font-semibold text-gray-900">{l.port || l.loading_location || l.origin_location || 'Registro logístico'}</span><Badge color={verificationColor(l.export_readiness)}>{verificationLabel(l.export_readiness)}</Badge></div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {l.origin_location || '—'}</span><span>Carga: {l.loading_location || '—'}</span><span>Transporte: {l.transport_mode || '—'}</span><span>Contenedor: {l.container_type || '—'}</span><span>Embarque: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>
-            {l.notes && <p className="mt-2 text-xs text-gray-500">{l.notes}</p>}
+            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600"><span>Origen: {presentSupplierText(l.origin_location) || '—'}</span><span>Carga: {presentSupplierText(l.loading_location) || '—'}</span><span>Transporte: {l.transport_mode || '—'}</span><span>Contenedor: {l.container_type || '—'}</span><span>Embarque: {l.estimated_shipment_size || '—'}</span><span>Lead time: {l.lead_time || '—'}</span></div>
+            {l.notes && <p className="mt-2 text-xs text-gray-500">{presentSupplierText(l.notes)}</p>}
           </div>
         ))}
       </DetailSection>
