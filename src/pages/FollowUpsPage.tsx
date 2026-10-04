@@ -26,14 +26,21 @@ function emptyForm(supplierId: string): Omit<FollowUp, 'id' | 'created_at' | 'up
 }
 
 export function FollowUpsPage() {
-  const { selectSupplier } = useNav();
+  const { procurementDomain, selectSupplier } = useNav();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Omit<FollowUp, 'id' | 'created_at' | 'updated_at'> | null>(null);
 
   const { data: followUps, loading, error, refresh } = useAsync(
-    () => getStore().followUps.getAll(), []
+    async () => {
+      const store = getStore();
+      const followUps = await store.followUps.getAll();
+      if (!procurementDomain) return followUps;
+      const suppliers = await store.suppliers.getByDomainKey(procurementDomain);
+      const ids = new Set(suppliers.map((s) => s.id));
+      return followUps.filter((item) => ids.has(item.supplier_id));
+    }, [procurementDomain]
   );
-  const { data: suppliers } = useAsync(() => getStore().suppliers.getAll(), []);
+  const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
 
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
 
