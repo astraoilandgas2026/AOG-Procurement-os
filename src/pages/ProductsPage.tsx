@@ -44,13 +44,13 @@ const AGRICULTURAL_COMMODITY_OPTIONS = [
 const VERIFICATION_OPTIONS = Object.entries(VERIFICATION_LABELS).map(([value, label]) => ({ value, label }));
 
 const FEEDSTOCK_TABLES: Array<{ family: ProductFamily; label: string; description: string }> = [
-  { family: 'uco', label: 'UCO / AVU', description: 'Aceite de cocina usado y equivalentes normalizados' },
+  { family: 'uco', label: 'UCO / AVU', description: 'Aceite de cocina usado y corrientes equivalentes' },
   { family: 'fatty_acids', label: 'Ácidos grasos', description: 'Ácidos grasos y corrientes equivalentes' },
-  { family: 'acid_oils', label: 'Aceites ácidos', description: 'Acid oils y corrientes ácidas' },
+  { family: 'acid_oils', label: 'Aceites ácidos', description: 'Aceites ácidos y corrientes equivalentes' },
   { family: 'vegetable_oils', label: 'Aceites vegetales', description: 'Aceites vegetales y mezclas de origen vegetal' },
-  { family: 'degummed_oils', label: 'Aceites desgomados', description: 'Degummed oils' },
+  { family: 'degummed_oils', label: 'Aceites desgomados', description: 'Aceites desgomados' },
   { family: 'oleins', label: 'Oleínas', description: 'Oleínas y fracciones equivalentes' },
-  { family: 'off_spec', label: 'Fuera de especificación / otros', description: 'Off-spec y otras corrientes que no encajan en las familias principales' },
+  { family: 'off_spec', label: 'Fuera de especificación / otros', description: 'Fuera de especificación y otras corrientes no clasificadas' },
 ];
 
 const FEEDSTOCK_CANONICAL_NAMES: Partial<Record<FeedstockType, string>> = {
