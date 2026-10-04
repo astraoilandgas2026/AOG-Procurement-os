@@ -22,7 +22,7 @@ export function DocumentsPage() {
   const [showForm, setShowForm] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [form, setForm] = useState<Omit<DocumentRecord, 'id' | 'created_at'> | null>(null);
-  const { data: docs, loading, error, refresh } = useAsync(() => getStore().documents.getAll(), []);
+  const { data: docs, loading, error, refresh } = useAsync(() => procurementDomain ? getStore().documents.getByDomainKey(procurementDomain) : getStore().documents.getAll(), [procurementDomain]);
   const { data: suppliers } = useAsync(() => procurementDomain ? getStore().suppliers.getByDomainKey(procurementDomain) : getStore().suppliers.getAll(), [procurementDomain]);
   const supplierMap = new Map((suppliers ?? []).map((s) => [s.id, s.legal_name || s.trading_name || 'Desconocido']));
   const visibleDocs = procurementDomain ? (docs ?? []).filter((d) => supplierMap.has(d.supplier_id)) : (docs ?? []);
