@@ -10,24 +10,20 @@ import {
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Inteligencia' },
-  { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Inteligencia' },
-  { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Inteligencia' },
-  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Inteligencia' },
-  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Inteligencia' },
-  { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Inteligencia' },
-  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Inteligencia' },
-  { key: 'logistics', label: 'Logística', icon: <Truck size={17} />, group: 'Inteligencia' },
-  { key: 'timeline', label: 'Cronología', icon: <Clock size={17} />, group: 'Actividad' },
-  { key: 'follow_ups', label: 'Seguimientos', icon: <CheckSquare size={17} />, group: 'Actividad' },
-  { key: 'intelligence', label: 'Mapa de Inteligencia', icon: <Network size={17} />, group: 'Actividad' },
+  { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} /> },
+  { key: 'contacts', label: 'Contactos', icon: <Users size={17} /> },
+  { key: 'products', label: 'Productos', icon: <Package size={17} /> },
+  { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} /> },
+  { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} /> },
+  { key: 'documents', label: 'Documentos', icon: <FileText size={17} /> },
+  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} /> },
 ];
 
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
-  dashboard: { title: 'Resumen', subtitle: 'Visión general de inteligencia de procurement' },
+  dashboard: { title: 'Command Center', subtitle: 'Visión operativa de procurement e inteligencia comercial' },
   suppliers: { title: 'Proveedores', subtitle: 'Perfiles de inteligencia de proveedores' },
   contacts: { title: 'Contactos', subtitle: 'Directorio de contactos de proveedores' },
-  products: { title: 'Productos', subtitle: '' },
+  products: { title: 'Productos', subtitle: 'Familias y variantes comerciales normalizadas' },
   commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
   certifications: { title: 'Certificaciones', subtitle: 'Seguimiento de certificaciones y evidencia' },
   documents: { title: 'Documentos', subtitle: 'Gestión de evidencia y documentos' },
@@ -40,16 +36,16 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
 
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
   feedstock: { label: 'Feedstock', icon: <Droplets size={16} /> },
-  energy_commodities: { label: 'Energy Commodities', icon: <Fuel size={16} /> },
-  mining_commodities: { label: 'Mining Commodities', icon: <Pickaxe size={16} /> },
+  energy_commodities: { label: 'Energy', icon: <Fuel size={16} /> },
+  mining_commodities: { label: 'Metals & Mining', icon: <Pickaxe size={16} /> },
   fertilizers_chemicals: { label: 'Fertilizers & Chemicals', icon: <FlaskConical size={16} /> },
-  agricultural_commodities: { label: 'Agricultural Commodities', icon: <Wheat size={16} /> },
+  agricultural_commodities: { label: 'Agricultural', icon: <Wheat size={16} /> },
 };
 
 /* Official Astra Oil and Gas logo asset */
 // Responsive official Astra brand mark
 function AstraLogo({ compact = false }: { compact?: boolean }) {
-  const src = `${import.meta.env.BASE_URL}astra-logo.svg?v=20260927d`;
+  const src = `${import.meta.env.BASE_URL}astra-logo.svg?v=20261004a`;
   return (
     <img
       src={src}
@@ -63,7 +59,7 @@ function AstraLogo({ compact = false }: { compact?: boolean }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const { currentPage, navigate, procurementDomain, goToOverview, selectDomain } = useNav();
   const pageInfo = PAGE_TITLES[currentPage];
-  const groups = ['Inteligencia', 'Actividad'];
+
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -132,7 +128,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {procurementDomain && (
           <nav className="flex md:hidden min-w-0 overflow-x-auto border-b border-[var(--astra-border)] bg-white px-3 py-2">
             <div className="flex min-w-max items-center gap-1">
-              <button onClick={() => navigate('dashboard')} className={`mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold ${currentPage === 'dashboard' ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)]'}`}>Resumen</button>
+              <button onClick={() => navigate('dashboard')} className={`mr-1 shrink-0 rounded-md px-2.5 py-2 text-xs font-semibold ${currentPage === 'dashboard' ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)]'}`}>Command Center</button>
               {NAV_ITEMS.map((item) => (
                 <button key={item.key} onClick={() => navigate(item.key)}
                   className={`shrink-0 rounded-md px-2.5 py-2 text-xs font-medium ${currentPage === item.key ? 'bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'text-[var(--astra-muted)] hover:bg-slate-50'}`}>
