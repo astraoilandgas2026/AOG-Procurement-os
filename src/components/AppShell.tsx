@@ -4,7 +4,7 @@ import type { PageKey } from '@/types';
 import { InstallAppButton } from '@/components/InstallAppButton';
 import {
   Building2, Users, Package, DollarSign, Award, FileText,
-  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat,
+  ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, Archive,
 } from 'lucide-react';
 
 interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string; }
@@ -17,9 +17,10 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Evidence & DD' },
   { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Evidence & DD' },
   { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Evidence & DD' },
+  { key: 'astra_documentation', label: 'Documentación Astra', icon: <Archive size={17} />, group: 'Astra' },
 ];
 
-const groups = ['Procurement', 'Comercial', 'Evidence & DD'];
+const groups = ['Procurement', 'Comercial', 'Evidence & DD', 'Astra'];
 
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   dashboard: { title: 'Command Center', subtitle: 'Visión operativa de procurement e inteligencia comercial' },
@@ -34,6 +35,7 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   timeline: { title: 'Cronología', subtitle: 'Historial de interacciones con proveedores' },
   follow_ups: { title: 'Seguimientos', subtitle: 'Acciones pendientes y próximos pasos' },
   intelligence: { title: 'Mapa de Inteligencia', subtitle: 'Mapa de relaciones e inteligencia' },
+  astra_documentation: { title: 'Documentación Astra', subtitle: 'Documentación corporativa oficial y versiones vigentes' },
 };
 
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
