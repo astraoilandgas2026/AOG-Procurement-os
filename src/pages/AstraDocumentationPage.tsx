@@ -254,8 +254,7 @@ export function AstraDocumentationPage() {
           </div>
         </Card>
       )}
-    </div>
-      {previewDoc && (
+          {previewDoc && (
         <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del documento">
           <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
@@ -285,5 +284,7 @@ export function AstraDocumentationPage() {
           </div>
         </div>
       )}
+
+    </div>
   );
 }
