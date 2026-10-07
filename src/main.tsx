@@ -5,7 +5,7 @@ import './index.css';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {
+    navigator.serviceWorker.register('./sw.js?v=20261007a', { updateViaCache: 'none' }).catch(() => {
       // PWA support is progressive; app remains fully usable if SW registration fails.
     });
   });
