@@ -16,6 +16,7 @@ const PAGES: Record<PageKey, ComponentType> = {
   timeline: lazy(() => import('@/pages/TimelinePage').then(m => ({ default: m.TimelinePage }))),
   follow_ups: lazy(() => import('@/pages/FollowUpsPage').then(m => ({ default: m.FollowUpsPage }))),
   intelligence: lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.IntelligencePage }))),
+  astra_documentation: lazy(() => import('@/pages/AstraDocumentationPage').then(m => ({ default: m.AstraDocumentationPage }))),
 };
 
 function PageRenderer() {
