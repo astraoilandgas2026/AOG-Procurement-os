@@ -498,4 +498,5 @@ export type PageKey =
   | 'logistics'
   | 'timeline'
   | 'follow_ups'
-  | 'intelligence';
+  | 'intelligence'
+  | 'astra_documentation';
