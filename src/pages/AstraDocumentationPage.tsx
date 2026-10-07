@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Download, FileText, Trash2, Upload, History } from 'lucide-react';
+import { Download, Eye, FileText, Trash2, Upload, History, X } from 'lucide-react';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Badge, PageHeader } from '@/components/ui';
 import { getSupabaseClient } from '@/data/supabase-client';
 
@@ -42,6 +42,9 @@ export function AstraDocumentationPage() {
   const [title, setTitle] = useState('Company Profile');
   const [uploading, setUploading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<AstraDocument | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const client = getSupabaseClient();
 
@@ -120,6 +123,28 @@ export function AstraDocumentationPage() {
     } finally {
       setUploading(false);
     }
+  }
+
+  async function preview(doc: AstraDocument) {
+    if (!client) return;
+    setPreviewDoc(doc);
+    setPreviewUrl('');
+    setPreviewLoading(true);
+    setError('');
+    const { data, error: previewError } = await client.storage.from('astra-docs').createSignedUrl(doc.storage_path, 60 * 60);
+    if (previewError) {
+      setError(previewError.message);
+      setPreviewDoc(null);
+      setPreviewLoading(false);
+      return;
+    }
+    setPreviewUrl(data.signedUrl);
+    setPreviewLoading(false);
+  }
+
+  function closePreview() {
+    setPreviewDoc(null);
+    setPreviewUrl('');
   }
 
   async function download(doc: AstraDocument) {
@@ -217,6 +242,7 @@ export function AstraDocumentationPage() {
                     <td className="px-4 py-3 text-slate-600">{new Date(doc.created_at).toLocaleString('es-CL')}</td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => preview(doc)} title="Vista previa"><Eye size={15} /></Button>
                         <Button size="sm" variant="ghost" onClick={() => download(doc)} title="Descargar"><Download size={15} /></Button>
                         <Button size="sm" variant="ghost" onClick={() => remove(doc)} title="Eliminar"><Trash2 size={15} /></Button>
                       </div>
@@ -229,5 +255,35 @@ export function AstraDocumentationPage() {
         </Card>
       )}
     </div>
+      {previewDoc && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del documento">
+          <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+              <div className="min-w-0">
+                <div className="truncate font-semibold text-slate-900">{previewDoc.title}</div>
+                <div className="truncate text-xs text-slate-500">{previewDoc.file_name} · v{previewDoc.version}</div>
+              </div>
+              <Button size="sm" variant="ghost" onClick={closePreview} title="Cerrar"><X size={18} /></Button>
+            </div>
+            <div className="min-h-0 flex-1 bg-slate-100 p-2 sm:p-4">
+              {previewLoading ? (
+                <div className="flex h-full items-center justify-center"><LoadingSpinner /></div>
+              ) : previewUrl && previewDoc.mime_type === 'application/pdf' ? (
+                <iframe title="Vista previa PDF" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />
+              ) : previewUrl && previewDoc.mime_type.startsWith('image/') ? (
+                <div className="flex h-full items-center justify-center overflow-auto">
+                  <img src={previewUrl} alt={previewDoc.file_name} className="max-h-full max-w-full object-contain" />
+                </div>
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+                  <FileText size={40} className="text-slate-400" />
+                  <p className="max-w-md text-sm text-slate-600">Este formato no tiene visor nativo en el navegador. Puedes descargarlo sin cerrar la aplicación.</p>
+                  <Button onClick={() => download(previewDoc)}><Download size={15} /> Descargar</Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
   );
 }
