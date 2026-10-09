@@ -17,7 +17,7 @@ create table if not exists public.intelligence_reports (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint intelligence_reports_title_nonempty check (length(trim(title)) > 0),
-  constraint intelligence_reports_source_kind_check check (source_kind in ('authorized_link','public_pdf','internal_link'))
+  constraint intelligence_reports_source_kind_check check (source_kind in ('authorized_link','public_pdf','internal_link','other'))
 );
 create index if not exists intelligence_reports_report_date_idx on public.intelligence_reports (report_date desc);
 create index if not exists intelligence_reports_publisher_idx on public.intelligence_reports (publisher);
