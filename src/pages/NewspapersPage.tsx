@@ -27,8 +27,26 @@ const PUBLISHERS: [RegExp, string][] = [
 ];
 const detectPublisher = (text: string) => PUBLISHERS.find(([pattern]) => pattern.test(text))?.[1] ?? 'Por identificar';
 const detectSectors = (text: string): SectorKey[] => {
+  const normalized = text.toLowerCase().replace(/[._-]+/g, ' ');
+  // A document's core subject wins over incidental terms mentioned in its body.
+  if (/bunker\s*wire|bunkerwire|bunker fuel|marine fuel|vlsfo|hsfo/.test(normalized)) return ['energy_commodities'];
+  if (/weekly harvest report|crop progress report|wheat fob\s*(?:&|and)?\s*export basis|wheat export basis estimates/.test(normalized)) return ['agricultural_commodities'];
+  const scores = SECTORS.map(sector => ({
+    value: sector.value,
+    score: sector.keywords.reduce((total, keyword) => {
+      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\const detectSectors = (text: string): SectorKey[] => {
   const normalized = text.toLowerCase();
   return SECTORS.filter(s => s.keywords.some(keyword => normalized.includes(keyword))).map(s => s.value);
+};
+');
+      const matches = normalized.match(new RegExp('\\b' + escaped + '\\b', 'g'));
+      return total + (matches?.length ?? 0);
+    }, 0),
+  })).sort((a, b) => b.score - a.score);
+  const highest = scores[0]?.score ?? 0;
+  if (highest === 0) return [];
+  // Keep multiple sectors only when each has substantial evidence, not one incidental keyword.
+  return scores.filter(item => item.score >= Math.max(2, highest * 0.6)).map(item => item.value);
 };
 const dateLabel = (value: string) => value ? new Date(value + 'T12:00:00').toLocaleDateString('es-CL') : '—';
 const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim();
