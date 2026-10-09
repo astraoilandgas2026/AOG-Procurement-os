@@ -56,7 +56,7 @@ const detectPublisher = (title: string, sourceUrl = '') => {
   return null;
 };
 const emptyForm = (sectors: SectorKey[]): ReportForm => ({
-  title: '', publisher: 'Argus', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
+  title: '', publisher: 'Otro', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
   commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', created_by: 'Astra',
 });
@@ -115,7 +115,7 @@ export function IntelligenceReportsPage() {
 
   function startNew() {
     setEditingId(null);
-    setPublisherChoice('Argus');
+    setPublisherChoice('Otro');
     setCustomPublisher('');
     setForm(emptyForm(procurementDomain ? [procurementDomain] : []));
     setError('');
