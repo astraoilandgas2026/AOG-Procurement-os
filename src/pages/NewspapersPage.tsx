@@ -57,6 +57,7 @@ export function NewspapersPage() {
   const [publisherFilter, setPublisherFilter] = useState('all');
   const [form, setForm] = useState<NewspaperForm | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [sectorsManuallySelected, setSectorsManuallySelected] = useState(false);
 
   async function refresh() {
     if (!client) { setError('Supabase no está configurado.'); setLoading(false); return; }
@@ -75,9 +76,9 @@ export function NewspapersPage() {
       (!needle || [r.title, r.publisher, r.region, r.summary, r.key_findings, r.article_text, ...(r.topics ?? []), ...(r.sectors ?? [])].join(' ').toLowerCase().includes(needle)));
   }, [records, search, publisherFilter]);
 
-  function startNew() { setEditingId(null); setForm(emptyForm()); setError(''); setNotice(''); }
+  function startNew() { setEditingId(null); setSectorsManuallySelected(false); setForm(emptyForm()); setError(''); setNotice(''); }
   function startEdit(item: NewspaperRecord) {
-    setEditingId(item.id);
+    setEditingId(item.id); setSectorsManuallySelected(true);
     setForm({ title: item.title, publisher: item.publisher, published_date: item.published_date, sectors: item.sectors ?? [],
       topics: item.topics ?? [], region: item.region ?? '', summary: item.summary ?? '', key_findings: item.key_findings ?? '',
       article_text: item.article_text ?? '', source_url: item.source_url ?? '', access_note: item.access_note ?? '', created_by: item.created_by ?? 'Astra' });
@@ -93,7 +94,7 @@ export function NewspapersPage() {
         const publisher = detectPublisher(combined);
         if (publisher) next.publisher = publisher;
         const suggested = detectSectors(combined);
-        if (suggested.length && !current.sectors.length) next.sectors = suggested;
+        if (suggested.length && !sectorsManuallySelected) next.sectors = suggested;
       }
       return next;
     });
@@ -162,7 +163,7 @@ export function NewspapersPage() {
         <label className="text-sm font-medium text-slate-700 md:col-span-2">Enlace autorizado al artículo / edición
           <input type="url" value={form.source_url} onChange={e => update('source_url', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="https://…" />
         </label>
-        <div className="md:col-span-2"><p className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</p><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 rounded-md border border-slate-200 p-2 text-sm"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => update('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(x => x !== s.value))} />{s.label}</label>)}</div><p className="mt-1 text-xs text-slate-400">Los sectores se sugieren por palabras clave del título/texto. Revísalos: la sugerencia no sustituye una lectura del contenido.</p></div>
+        <div className="md:col-span-2"><p className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</p><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 rounded-md border border-slate-200 p-2 text-sm"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => { setSectorsManuallySelected(true); update('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(x => x !== s.value)); }} />{s.label}</label>)}</div><p className="mt-1 text-xs text-slate-400">Los sectores se sugieren por palabras clave del título/texto. Revísalos: la sugerencia no sustituye una lectura del contenido.</p></div>
         <label className="text-sm font-medium text-slate-700 md:col-span-2">Temas / commodities (separados por coma)
           <input value={form.topics.join(', ')} onChange={e => update('topics', e.target.value.split(',').map(x => x.trim()))} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Brent, biodiésel, tipos de interés, comercio…" />
         </label>
