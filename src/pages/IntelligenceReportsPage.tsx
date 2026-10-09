@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Download, Droplets, Eye, FileText, FlaskConical, Fuel, Newspaper, Pickaxe, Plus, Trash2, Wheat, type LucideIcon } from 'lucide-react';
+import { Download, Eye, FileText, Newspaper, Plus, Trash2 } from 'lucide-react';
 import { useNav } from '@/context/NavContext';
 import { getSupabaseClient } from '@/data/supabase-client';
 import { Badge, Button, Card, CardBody, EmptyState, LoadingSpinner, PageHeader } from '@/components/ui';
@@ -13,21 +13,6 @@ type Report = {
   created_by: string; created_at: string; updated_at: string;
 };
 type ReportForm = Omit<Report, 'id' | 'created_at' | 'updated_at'>;
-const SECTORS: { value: SectorKey; label: string }[] = [
-  { value: 'feedstock', label: 'Feedstock' },
-  { value: 'energy_commodities', label: 'Energy' },
-  { value: 'mining_commodities', label: 'Metals & Mining' },
-  { value: 'fertilizers_chemicals', label: 'Fertilizers & Chemicals' },
-  { value: 'agricultural_commodities', label: 'Agricultural' },
-];
-type SectorCardInfo = { value: SectorKey; subtitle: string; examples: string; Icon: LucideIcon };
-const SECTOR_CARDS: SectorCardInfo[] = [
-  { value: 'energy_commodities', subtitle: 'Fuel oil, crude, diesel, gas y LNG', examples: 'Precios, balances, flujos y perspectivas', Icon: Fuel },
-  { value: 'feedstock', subtitle: 'UCO / AVU, aceites vegetales, oleínas y acid oils', examples: 'Feedstock para biodiésel y mercados de aceites', Icon: Droplets },
-  { value: 'fertilizers_chemicals', subtitle: 'Fertilizantes, químicos y ácidos', examples: 'Oferta, demanda, precios y trade flows', Icon: FlaskConical },
-  { value: 'agricultural_commodities', subtitle: 'Granos, oleaginosas y agrícolas', examples: 'Cosechas, crushing, exportaciones y stocks', Icon: Wheat },
-  { value: 'mining_commodities', subtitle: 'Metales, minerales y concentrados', examples: 'Precios, producción y comercio', Icon: Pickaxe },
-];
 const isoWeekLabel = (value: string) => {
   if (!value) return '';
   const date = new Date(`${value}T12:00:00Z`);
@@ -93,9 +78,20 @@ const emptyForm = (sectors: SectorKey[]): ReportForm => ({
   commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', file_path: '', file_name: '', file_size: 0, mime_type: '', created_by: 'Astra',
 });
-const labelForSector = (value: string) => SECTORS.find(s => s.value === value)?.label ?? value;
 const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim();
 const formatFileSize = (bytes: number) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+type ReportGroup = { key: string; label: string; rank: number };
+const getReportGroup = (report: Report): ReportGroup => {
+  const titleAndFile = `${report.title || ''} ${report.file_name || ''}`.toLowerCase().replace(/[._-]+/g, ' ');
+  const publisher = (report.publisher || '').trim();
+  if (/harvest report|\bhr\s*26\s*09\s*30\b/.test(titleAndFile)) return { key: 'harvest-report', label: 'Harvest Report', rank: 3 };
+  if (/\bai\b|artificial intelligence/.test(titleAndFile)) return { key: 'ai', label: 'AI', rank: 2 };
+  if (/\bargus\b/.test(`${titleAndFile} ${publisher.toLowerCase()}`)) return { key: 'argus', label: 'Argus', rank: 1 };
+  if (/\bplatts\b|bunker\s+wire/.test(`${titleAndFile} ${publisher.toLowerCase()}`)) return { key: 'platts', label: 'Platts', rank: 0 };
+  if (/\beia\b/.test(titleAndFile)) return { key: 'publisher:eia', label: 'EIA', rank: 4 };
+  if (publisher && !/^por identificar$/i.test(publisher)) return { key: `publisher:${publisher.toLowerCase()}`, label: publisher, rank: 5 };
+  return { key: 'other', label: 'Otros', rank: 6 };
+};
 const detectReportSectors = (text: string): SectorKey[] => {
   const t = text.toLowerCase().replace(/[._-]+/g, ' ');
   // Publisher/commodity overrides stop incidental terms from assigning a report to unrelated sectors.
@@ -168,7 +164,7 @@ export function IntelligenceReportsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [selectedSector, setSelectedSector] = useState<string>('all');
+  const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [processingFile, setProcessingFile] = useState(false);
   const [fileMessage, setFileMessage] = useState('');
   const [previewReport, setPreviewReport] = useState<Report | null>(null);
@@ -194,7 +190,20 @@ export function IntelligenceReportsPage() {
     }
     return latest;
   }, [reports]);
-  const visibleReports = useMemo(() => reports.filter(r => selectedSector === 'all' || r.sectors?.includes(selectedSector as SectorKey)), [reports, selectedSector]);
+  const reportGroups = useMemo(() => {
+    const groups = new Map<string, ReportGroup & { count: number }>();
+    for (const report of reports) {
+      const group = getReportGroup(report);
+      const existing = groups.get(group.key);
+      if (existing) existing.count += 1;
+      else groups.set(group.key, { ...group, count: 1 });
+    }
+    return [...groups.values()].sort((a, b) => a.rank - b.rank || a.label.localeCompare(b.label));
+  }, [reports]);
+  const visibleReports = useMemo(
+    () => reports.filter(report => selectedGroup === 'all' || getReportGroup(report).key === selectedGroup),
+    [reports, selectedGroup],
+  );
   const duplicateLevels = useMemo(() => new Map(reports.map(report => [report.id, getDuplicateLevel(report, reports)])), [reports]);
 
   async function handlePdfSelection(file?: File) {
@@ -320,16 +329,18 @@ export function IntelligenceReportsPage() {
       <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={15} /> Agregar informe<input type="file" accept="application/pdf,.pdf" aria-label="Agregar informe PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
       {(processingFile || fileMessage) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Procesando PDF…' : fileMessage}</p>}
       {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">{error}</div>}
-      <section aria-label="Sectores de inteligencia"><div className="flex flex-wrap gap-2">
-        {SECTOR_CARDS.map(({ value }) => {
-          const count = reports.filter(r => r.sectors?.includes(value)).length;
-          const active = selectedSector === value;
-          return <button key={value} type="button" aria-pressed={active} onClick={() => setSelectedSector(active ? 'all' : value)} className={'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ' + (active ? 'border-slate-700 bg-slate-100 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}>
-            <span>{SECTORS.find(s => s.value === value)?.label}</span><span className="text-slate-400">{count}</span>
+      <section aria-label="Tipos de informes"><div className="flex flex-wrap gap-2">
+        <button type="button" aria-pressed={selectedGroup === 'all'} onClick={() => setSelectedGroup('all')} className={'inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold transition ' + (selectedGroup === 'all' ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}>
+          <span>Todos</span><span className={selectedGroup === 'all' ? 'text-slate-300' : 'text-slate-400'}>{reports.length}</span>
+        </button>
+        {reportGroups.map(group => {
+          const active = selectedGroup === group.key;
+          return <button key={group.key} type="button" aria-pressed={active} onClick={() => setSelectedGroup(active ? 'all' : group.key)} className={'inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-semibold transition ' + (active ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}>
+            <span>{group.label}</span><span className={active ? 'text-slate-300' : 'text-slate-400'}>{group.count}</span>
           </button>;
         })}
       </div></section>
-      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={selectedSector === 'all' ? 'La biblioteca está vacía' : 'No hay informes en este sector'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
+      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={reports.length === 0 ? 'La biblioteca está vacía' : 'No hay informes en este grupo'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
         <div className="space-y-2">
           {visibleReports.map(report => {
             const duplicateLevel = duplicateLevels.get(report.id);
