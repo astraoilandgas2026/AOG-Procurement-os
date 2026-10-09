@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Evidence & DD' },
   { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Evidence & DD' },
   { key: 'intelligence_reports', label: 'Intelligence Reports', icon: <Newspaper size={17} />, group: 'Intelligence' },
+  { key: 'newspapers', label: 'Diarios', icon: <Newspaper size={17} />, group: 'Intelligence' },
   { key: 'astra_documentation', label: 'Documentación Astra', icon: <Archive size={17} />, group: 'Astra' },
 ];
 
@@ -38,6 +39,7 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   intelligence: { title: 'Mapa de Inteligencia', subtitle: 'Mapa de relaciones e inteligencia' },
   astra_documentation: { title: 'Documentación Astra', subtitle: 'Documentación corporativa oficial y versiones vigentes' },
   intelligence_reports: { title: 'Intelligence Reports', subtitle: 'Biblioteca central de informes de mercado y publicaciones autorizadas' },
+  newspapers: { title: 'Diarios', subtitle: 'Prensa económica y global, artículos y señales relevantes para Astra' },
 };
 
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
