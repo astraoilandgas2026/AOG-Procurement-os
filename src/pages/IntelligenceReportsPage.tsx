@@ -341,7 +341,60 @@ export function IntelligenceReportsPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Intelligence Reports" subtitle="Una biblioteca central de informes de mercado, con acceso por sector y fuente." action={<Button onClick={startNew}><Plus size={16} /> Agregar informe</Button>} />
-      {formBlock}
+      {form && <Card><CardBody>
+        <div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">{editingId ? 'Editar informe' : 'Registrar nuevo informe'}</h2><button onClick={closeForm} aria-label="Cerrar formulario" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="text-sm font-medium text-slate-700 md:col-span-2">Título detectado automáticamente
+            <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly / S&P Global Platts…" />
+            <span className="mt-1 block text-xs font-normal text-slate-500">Detectamos Argus, S&P Global Platts y otras fuentes conocidas a partir del título o enlace. Revisa la fuente seleccionada antes de guardar.</span>
+          </label>
+          <label className="text-sm font-medium text-slate-700">Fuente detectada automáticamente
+            <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
+              <option value="Por identificar">Se detectará del PDF / Por identificar</option>{STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
+              {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+            {publisherChoice === 'Otro' && <input value={customPublisher} onChange={e => setCustomPublisher(e.target.value)} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Escribe el nombre de la fuente" />}
+          </label>
+          <label className="text-sm font-medium text-slate-700">Tipo de informe
+            <select value={form.report_category} onChange={e => updateForm('report_category', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">{REPORT_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}</select>
+          </label>
+          <label className="text-sm font-medium text-slate-700">Fecha de publicación detectada
+            <input type="date" required value={form.report_date} onChange={e => { updateForm('report_date', e.target.value); updateForm('period_label', isoWeekLabel(e.target.value)); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
+            <span className="mt-1 block text-xs font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span>
+          </label>
+          <fieldset className="md:col-span-2"><legend className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => updateForm('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(v => v !== s.value))} />{s.label}</label>)}
+          </div></fieldset>
+
+          <details className="rounded-md border border-slate-200 md:col-span-2">
+            <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700">Detalles opcionales del mercado (abrir si los necesitas)</summary>
+            <div className="grid gap-3 border-t border-slate-200 p-3 md:grid-cols-2">
+              <label className="text-sm font-medium text-slate-700">Commodities (separados por coma)
+                <input value={form.commodities.join(', ')} onChange={e => updateForm('commodities', e.target.value.split(',').map(v => v.trim()).filter(Boolean))} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="UCO, soybean oil, diesel…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Región / mercado
+                <input value={form.region} onChange={e => updateForm('region', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Europe, Brazil, Global…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700 md:col-span-2">Resumen ejecutivo
+                <textarea value={form.summary} onChange={e => updateForm('summary', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="¿Qué debe saber el equipo sin leer todo el informe?" />
+              </label>
+              <label className="text-sm font-medium text-slate-700 md:col-span-2">Señales / datos clave
+                <textarea value={form.key_findings} onChange={e => updateForm('key_findings', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Precios, cambios semanales, riesgos, perspectivas…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Tipo de acceso
+                <select value={form.source_kind} onChange={e => updateForm('source_kind', e.target.value as ReportForm['source_kind'])} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
+                  <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option><option value="other">Otro / por confirmar</option>
+                </select>
+              </label>
+              <label className="text-sm font-medium text-slate-700">Nota de acceso
+                <input value={form.access_note} onChange={e => updateForm('access_note', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Quién puede abrirlo o restricciones" />
+              </label>
+            </div>
+          </details>
+        </div>
+        <p className="mt-3 rounded-md bg-slate-50 p-3 text-xs text-slate-600">El PDF se guarda como archivo adjunto de Astra. La ficha se completa automáticamente con los datos que se puedan extraer; comprueba los campos detectados antes de guardar. Los PDF escaneados pueden requerir OCR.</p>
+        <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving || processingFile}>{saving ? 'Guardando…' : processingFile ? 'Leyendo PDF…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
+      </CardBody></Card>}
       <section aria-label="Sectores de inteligencia" className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-base font-semibold text-[var(--astra-dark)]">Explora por sector</h2><p className="mt-1 text-sm text-[var(--astra-muted)]">Selecciona un mercado para consultar los informes disponibles o solicitar uno nuevo.</p></div><button onClick={() => setSelectedSector('all')} className={`rounded-md border px-3 py-2 text-xs font-semibold ${selectedSector === 'all' ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>Ver todos los sectores</button></div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
