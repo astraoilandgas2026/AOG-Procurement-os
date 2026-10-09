@@ -308,13 +308,12 @@ export function IntelligenceReportsPage() {
       </div></section>
       {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={selectedSector === 'all' ? 'La biblioteca está vacía' : 'No hay informes en este sector'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
         <div className="space-y-2">
-          {visibleReports.map(report => <div key={report.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
-            <FileText size={17} className="shrink-0 text-slate-400" />
-            <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p></div>
-            <div className="flex shrink-0 items-center gap-1">
-              {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
-              {report.file_path && <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Download size={16} /></button>}
-              <button type="button" aria-label="Eliminar informe" title="Eliminar informe" onClick={() => void deleteReport(report)} className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
+          {visibleReports.map(report => <div key={report.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-slate-100 bg-white px-2 py-1.5 last:border-b-0">
+            <p className="min-w-0 truncate text-xs font-medium text-slate-700" title={displayReportTitle(report)}>{displayReportTitle(report)}</p>
+            <div className="flex shrink-0 items-center gap-0.5">
+              {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="inline-flex items-center rounded px-1.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100"><Eye size={14} /><span className="ml-1">Ver PDF</span></button>}
+              {report.file_path && <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(report)} className="rounded p-1.5 text-slate-500 hover:bg-slate-100"><Download size={14} /></button>}
+              <button type="button" aria-label="Eliminar informe" title="Eliminar informe" onClick={() => void deleteReport(report)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={14} /></button>
             </div>
           </div>)}
         </div>
