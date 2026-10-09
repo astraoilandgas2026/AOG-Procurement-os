@@ -136,6 +136,23 @@ const shortDate = (value: string) => {
   const parts = value.slice(0, 10).split('-');
   return parts.length === 3 ? parts[2] + ' ' + parts[1] + ' ' + parts[0].slice(-2) : '';
 };
+const normalizeDuplicateKey = (value: string) => value.toLowerCase().replace(/\.pdf$/i, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+type DuplicateLevel = 'duplicate' | 'possible';
+const getDuplicateLevel = (report: Report, allReports: Report[]): DuplicateLevel | null => {
+  const fileName = normalizeDuplicateKey(report.file_name || '');
+  const title = normalizeDuplicateKey(displayReportTitle(report));
+  const publisher = normalizeDuplicateKey(report.publisher || '');
+  const exactMatch = allReports.some(other => {
+    if (other.id === report.id) return false;
+    const otherFileName = normalizeDuplicateKey(other.file_name || '');
+    const sameFileName = !!fileName && fileName === otherFileName;
+    const sameIdentity = !!title && title === normalizeDuplicateKey(displayReportTitle(other)) && report.report_date === other.report_date && publisher === normalizeDuplicateKey(other.publisher || '');
+    return sameFileName || sameIdentity;
+  });
+  if (exactMatch) return 'duplicate';
+  const possibleMatch = allReports.some(other => other.id !== report.id && report.file_size > 0 && report.file_size === other.file_size && report.report_date === other.report_date && publisher !== '' && publisher === normalizeDuplicateKey(other.publisher || ''));
+  return possibleMatch ? 'possible' : null;
+};
 const displayReportTitle = (report: Report) => {
   const source = [report.title, report.file_name, report.publisher, report.summary].filter(Boolean).join(' ').toLowerCase();
   if (/bunker\s*wire|bunkerwire/.test(source)) return 'Bunker Wire Platts';
@@ -178,6 +195,7 @@ export function IntelligenceReportsPage() {
     return latest;
   }, [reports]);
   const visibleReports = useMemo(() => reports.filter(r => selectedSector === 'all' || r.sectors?.includes(selectedSector as SectorKey)), [reports, selectedSector]);
+  const duplicateLevels = useMemo(() => new Map(reports.map(report => [report.id, getDuplicateLevel(report, reports)])), [reports]);
 
   async function handlePdfSelection(file?: File) {
     if (!file || !client || processingFile || saving) return;
@@ -313,15 +331,20 @@ export function IntelligenceReportsPage() {
       </div></section>
       {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={selectedSector === 'all' ? 'La biblioteca está vacía' : 'No hay informes en este sector'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
         <div className="space-y-2">
-          {visibleReports.map(report => <div key={report.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
-            <FileText size={17} className="shrink-0 text-slate-400" />
+          {visibleReports.map(report => {
+            const duplicateLevel = duplicateLevels.get(report.id);
+            const rowStyle = duplicateLevel === 'duplicate' ? 'border-red-300 bg-red-50' : duplicateLevel === 'possible' ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white';
+            return <div key={report.id} className={'flex items-center gap-3 rounded-lg border px-3 py-2.5 shadow-sm ' + rowStyle}>
+            <FileText size={17} className={'shrink-0 ' + (duplicateLevel === 'duplicate' ? 'text-red-500' : duplicateLevel === 'possible' ? 'text-amber-600' : 'text-slate-400')} />
             <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p></div>
+            {duplicateLevel && <span className={'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ' + (duplicateLevel === 'duplicate' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800')}>{duplicateLevel === 'duplicate' ? 'Duplicado' : 'Posible duplicado'}</span>}
             <div className="flex shrink-0 items-center gap-1">
               {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
               {report.file_path && <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Download size={16} /></button>}
               <button type="button" aria-label="Eliminar informe" title="Eliminar informe" onClick={() => void deleteReport(report)} className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
             </div>
-          </div>)}
+          </div>;
+          })}
         </div>
       )}
       <p className="text-xs text-slate-400">{visibleReports.length} informe(s)</p>
