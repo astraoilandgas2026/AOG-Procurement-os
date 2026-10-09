@@ -358,7 +358,7 @@ export function IntelligenceReportsPage() {
           })}
         </div>
       )}
-      <p className="text-xs text-slate-400">{visibleReports.length} informe(s)</p>
+      <p className="text-xs text-slate-400">{visibleReports.length} {visibleReports.length === 1 ? 'informe' : 'informes'} — nuevos informes cada 48 horas</p>
       {previewReport && (
         <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del informe">
           <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
