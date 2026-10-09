@@ -500,4 +500,5 @@ export type PageKey =
   | 'follow_ups'
   | 'intelligence'
   | 'astra_documentation'
-  | 'intelligence_reports';
+  | 'intelligence_reports'
+  | 'newspapers';
