@@ -186,30 +186,35 @@ export function IntelligenceReportsPage() {
           <fieldset className="md:col-span-2"><legend className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => updateForm('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(v => v !== s.value))} />{s.label}</label>)}
           </div></fieldset>
-          <label className="text-sm font-medium text-slate-700">Commodities (separados por coma)
-            <input value={form.commodities.join(', ')} onChange={e => updateForm('commodities', e.target.value.split(',').map(v => v.trim()).filter(Boolean))} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Crude oil, diesel, LNG…" />
+          <label className="text-sm font-medium text-slate-700 md:col-span-2">Enlace autorizado al informe / PDF
+            <input value={form.source_url} onChange={e => updateForm('source_url', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Pega aquí el enlace autorizado (https://…)" />
+            <span className="mt-1 block text-xs font-normal text-slate-500">No necesitas subir el mismo archivo a cada sector: registra un enlace y selecciona los sectores relacionados.</span>
           </label>
-          <label className="text-sm font-medium text-slate-700">Región / mercado
-            <input value={form.region} onChange={e => updateForm('region', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Europe, Brazil, Global…" />
-          </label>
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm md:col-span-2"><span className="font-medium text-slate-700">Semana identificada automáticamente:</span> <span className="font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span><p className="mt-1 text-xs text-slate-500">Se calcula con la fecha de publicación; no tienes que escribirla manualmente.</p></div>
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Resumen ejecutivo
-            <textarea value={form.summary} onChange={e => updateForm('summary', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="¿Qué debe saber el equipo sin leer todo el informe?" />
-          </label>
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Señales / datos clave
-            <textarea value={form.key_findings} onChange={e => updateForm('key_findings', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Precios, cambios semanales, riesgos, perspectivas…" />
-          </label>
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Enlace autorizado al PDF o documento
-            <input value={form.source_url} onChange={e => updateForm('source_url', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="https://…" />
-          </label>
-          <label className="text-sm font-medium text-slate-700">Tipo de acceso
-            <select value={form.source_kind} onChange={e => updateForm('source_kind', e.target.value as ReportForm['source_kind'])} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
-              <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option>
-            </select>
-          </label>
-          <label className="text-sm font-medium text-slate-700">Nota de acceso
-            <input value={form.access_note} onChange={e => updateForm('access_note', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Quién puede abrirlo o restricciones" />
-          </label>
+          <details className="rounded-md border border-slate-200 md:col-span-2">
+            <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700">Detalles opcionales del mercado (abrir si los necesitas)</summary>
+            <div className="grid gap-3 border-t border-slate-200 p-3 md:grid-cols-2">
+              <label className="text-sm font-medium text-slate-700">Commodities (separados por coma)
+                <input value={form.commodities.join(', ')} onChange={e => updateForm('commodities', e.target.value.split(',').map(v => v.trim()).filter(Boolean))} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="UCO, soybean oil, diesel…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Región / mercado
+                <input value={form.region} onChange={e => updateForm('region', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Europe, Brazil, Global…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700 md:col-span-2">Resumen ejecutivo
+                <textarea value={form.summary} onChange={e => updateForm('summary', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="¿Qué debe saber el equipo sin leer todo el informe?" />
+              </label>
+              <label className="text-sm font-medium text-slate-700 md:col-span-2">Señales / datos clave
+                <textarea value={form.key_findings} onChange={e => updateForm('key_findings', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Precios, cambios semanales, riesgos, perspectivas…" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Tipo de acceso
+                <select value={form.source_kind} onChange={e => updateForm('source_kind', e.target.value as ReportForm['source_kind'])} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
+                  <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option>
+                </select>
+              </label>
+              <label className="text-sm font-medium text-slate-700">Nota de acceso
+                <input value={form.access_note} onChange={e => updateForm('access_note', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Quién puede abrirlo o restricciones" />
+              </label>
+            </div>
+          </details>
         </div>
         <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">No cargues aquí un PDF licenciado como archivo público. Guarda el enlace autorizado de Argus/Platts o de la ubicación interna aprobada para el equipo.</p>
         <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving}>{saving ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
