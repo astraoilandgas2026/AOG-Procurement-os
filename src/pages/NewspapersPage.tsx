@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Download, FileText, Newspaper, Plus, Trash2 } from 'lucide-react';
 import { getSupabaseClient } from '@/data/supabase-client';
 import { Badge, Button, Card, CardBody, EmptyState, LoadingSpinner, PageHeader } from '@/components/ui';
@@ -40,9 +40,7 @@ const detectSectors = (text: string): SectorKey[] => {
   // Keep multiple sectors only when each has substantial evidence, not one incidental keyword.
   return scores.filter(item => item.score >= Math.max(2, highest * 0.6)).map(item => item.value);
 };
-const dateLabel = (value: string) => value ? new Date(value + 'T12:00:00').toLocaleDateString('es-CL') : '—';
 const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim();
-const formatFileSize = (bytes: number) => bytes < 1024 * 1024 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 const detectPublicationDate = (text: string) => {
   const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
   if (iso) return iso[1] + '-' + iso[2].padStart(2, '0') + '-' + iso[3].padStart(2, '0');
