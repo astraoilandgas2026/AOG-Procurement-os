@@ -40,20 +40,20 @@ const isoWeekLabel = (value: string) => {
 };
 const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
 const detectPublicationDate = (text: string) => {
-  const iso = text.match(/\\b(20\\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\\d|3[01])\\b/);
+  const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
   if (iso) {
-    const candidate = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+    const candidate = \`\${iso[1]}-\${String(iso[2]).padStart(2, '0')}-\${String(iso[3]).padStart(2, '0')}\`;
     const d = new Date(candidate + 'T12:00:00Z');
     if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
   }
   const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
-  const dayFirst = text.match(/\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/i);
-  const monthFirst = text.match(/\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/i);
+  const dayFirst = text.match(/\b(0?[1-9]|[12]\d|3[01])\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d{2})\b/i);
+  const monthFirst = text.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(0?[1-9]|[12]\d|3[01]),?\s+(20\d{2})\b/i);
   const m = dayFirst ? months[dayFirst[2].toLowerCase()] : monthFirst ? months[monthFirst[1].toLowerCase()] : '';
   const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
   const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
   if (m && day && year) {
-    const candidate = `${year}-${m}-${String(day).padStart(2, '0')}`;
+    const candidate = \`\${year}-\${m}-\${String(day).padStart(2, '0')}\`;
     const d = new Date(candidate + 'T12:00:00Z');
     if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
   }
