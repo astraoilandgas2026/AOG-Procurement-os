@@ -87,8 +87,10 @@ const getReportGroup = (report: Report): ReportGroup => {
   if (/harvest report|\bhr\s*26\s*09\s*30\b/.test(titleAndFile)) return { key: 'harvest-report', label: 'Harvest Report', rank: 3 };
   if (/\bai\b|artificial intelligence/.test(titleAndFile)) return { key: 'ai', label: 'AI', rank: 2 };
   if (/\beia\b/.test(titleAndFile)) return { key: 'publisher:eia', label: 'EIA', rank: 4 };
-  if (/\bargus\b/.test(`${titleAndFile} ${publisher.toLowerCase()}`)) return { key: 'argus', label: 'Argus', rank: 1 };
+  // Latin American Wire Platts is a Platts publication; its publisher metadata may incorrectly say Argus.
+  if (/latin american wire/.test(titleAndFile)) return { key: 'platts', label: 'Platts', rank: 0 };
   if (/\bplatts\b|bunker\s+wire/.test(`${titleAndFile} ${publisher.toLowerCase()}`)) return { key: 'platts', label: 'Platts', rank: 0 };
+  if (/\bargus\b/.test(`${titleAndFile} ${publisher.toLowerCase()}`)) return { key: 'argus', label: 'Argus', rank: 1 };
   if (publisher && !/^por identificar$/i.test(publisher)) return { key: `publisher:${publisher.toLowerCase()}`, label: publisher, rank: 5 };
   return { key: 'other', label: 'Otros', rank: 6 };
 };
