@@ -34,20 +34,21 @@ const detectPublicationDate = (text: string): string | null => {
     return !Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100 &&
       d.getUTCMonth() + 1 === Number(month) && d.getUTCDate() === Number(day) ? candidate : null;
   };
-  const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
+  const dateText = text.replace(/_/g, '-').replace(/\b(20)\s+(\d)\s+(\d)\b/g, '$1$2$3').replace(/\s+([,./-])/g, '$1');
+  const iso = dateText.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
   if (iso) { const date = validDate(iso[1], iso[2], iso[3]); if (date) return date; }
-  const compact = text.match(/\b(20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b/);
+  const compact = dateText.match(/\b(20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b/);
   if (compact) { const date = validDate(compact[1], compact[2], compact[3]); if (date) return date; }
   const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12', enero:'01', febrero:'02', marzo:'03', abril:'04', mayo:'05', junio:'06', julio:'07', agosto:'08', septiembre:'09', setiembre:'09', octubre:'10', noviembre:'11', diciembre:'12' };
   const monthNames = 'January|February|March|April|May|June|July|August|September|October|November|December|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre';
-  const dayFirst = text.match(new RegExp('\\b(0?[1-9]|[12]\\d|3[01])\\s+(?:de\\s+)?(' + monthNames + ')(?:\\s+de)?\\s+(20\\d{2})\\b', 'i'));
-  const monthFirst = text.match(new RegExp('\\b(' + monthNames + ')\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b', 'i'));
+  const dayFirst = dateText.match(new RegExp('\\b(0?[1-9]|[12]\\d|3[01])\\s+(?:de\\s+)?(' + monthNames + ')(?:\\s+de)?\\s+(20\\d{2})\\b', 'i'));
+  const monthFirst = dateText.match(new RegExp('\\b(' + monthNames + ')\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b', 'i'));
   const m = dayFirst ? months[dayFirst[2].toLowerCase()] : monthFirst ? months[monthFirst[1].toLowerCase()] : '';
   const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
   const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
   if (m && day && year) { const date = validDate(year, m, day); if (date) return date; }
   // Filenames such as "Argus 30.09.pdf" contain the issue day/month without a year.
-  const dayMonth = text.match(/\b([0-3]?\d)[./-]([01]?\d)(?:[./-](20\d{2}|\d{2}))?\b/);
+  const dayMonth = dateText.match(/\b([0-3]?\d)[./-]([01]?\d)(?:[./-](20\d{2}|\d{2}))?\b/);
   if (dayMonth) {
     const y = dayMonth[3] ? Number(dayMonth[3].length === 2 ? `20${dayMonth[3]}` : dayMonth[3]) : new Date().getUTCFullYear();
     const date = validDate(y, dayMonth[2], dayMonth[1]);
@@ -289,7 +290,11 @@ export function IntelligenceReportsPage() {
       const combinedText = proposedTitle + ' ' + file.name + ' ' + fullText;
       const confirmedDate = CONFIRMED_DOCUMENT_DATES[file.name];
       // Prioridad: fecha confirmada explícitamente, fecha leída del documento, nombre/metadata y por último fecha actual.
-      const proposedDate = confirmedDate || detectPublicationDate(fullText) || detectPublicationDate(metadataTitle) || detectPublicationDate(file.name) || new Date().toISOString().slice(0, 10);
+      const proposedDate = confirmedDate || detectPublicationDate(fullText) || detectPublicationDate(metadataTitle) || detectPublicationDate(file.name);
+      if (!proposedDate) {
+        setFileMessage('No pude confirmar la fecha documental. No guardé el archivo con la fecha de hoy para evitar un dato incorrecto.');
+        return;
+      }
       const publisher = detectPublisher(combinedText) || 'Por identificar';
       const detectedSectors = detectReportSectors(combinedText);
       const sectors: SectorKey[] = detectedSectors.length ? detectedSectors : (procurementDomain ? [procurementDomain] : ['feedstock']);
