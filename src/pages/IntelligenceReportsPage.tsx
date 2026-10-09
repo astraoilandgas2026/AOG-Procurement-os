@@ -6,7 +6,7 @@ import { Badge, Button, Card, CardBody, EmptyState, ErrorState, LoadingSpinner, 
 
 type SectorKey = 'feedstock' | 'energy_commodities' | 'mining_commodities' | 'fertilizers_chemicals' | 'agricultural_commodities';
 type Report = {
-  id: string; title: string; publisher: string; report_date: string; sectors: SectorKey[];
+  id: string; title: string; publisher: string; report_category: string; report_date: string; sectors: SectorKey[];
   commodities: string[]; region: string; period_label: string; summary: string; key_findings: string;
   source_url: string; source_kind: 'authorized_link' | 'public_pdf' | 'internal_link' | 'other'; access_note: string;
   file_path: string; file_name: string; file_size: number; mime_type: string;
@@ -38,6 +38,18 @@ const isoWeekLabel = (value: string) => {
   const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
+const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
+const detectReportCategory = (text: string) => {
+  const t = text.toLowerCase();
+  if (/crushing|crush margin|crushings|stocks|inventories|ending stocks|carryout/.test(t)) return 'Crushing & stocks';
+  if (/harvest|crop progress|crop condition|planting|yield forecast|crop forecast/.test(t)) return 'Crop / harvest';
+  if (/price assessment|daily assessment|price index|price range|benchmark price|fob price|cfr price|price indication/.test(t)) return 'Price assessment';
+  if (/supply and demand|supply\/demand|balance sheet|production forecast|consumption forecast/.test(t)) return 'Supply & demand';
+  if (/outlook|forecast|market view|market report|weekly report|monthly report/.test(t)) return 'Market outlook';
+  if (/exports|imports|trade flows|shipment|cargo flows|export sales/.test(t)) return 'Trade flows';
+  if (/regulation|policy|mandate|legislation|compliance/.test(t)) return 'Regulatory / policy';
+  return 'Other';
+};
 const STANDARD_PUBLISHERS = ['Argus', 'S&P Global Platts', 'ICIS', 'IEA', 'EIA', 'USDA', 'FAO', 'World Bank', 'Fastmarkets', 'BloombergNEF', 'Rystad Energy', 'Wood Mackenzie', 'Kpler', 'Otro'];
 const detectPublisher = (title: string, sourceUrl = '') => {
   const text = (title + ' ' + sourceUrl).toLowerCase().replace(/[._-]+/g, ' ');
@@ -58,7 +70,7 @@ const detectPublisher = (title: string, sourceUrl = '') => {
   return null;
 };
 const emptyForm = (sectors: SectorKey[]): ReportForm => ({
-  title: '', publisher: 'Otro', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
+  title: '', publisher: 'Otro', report_category: 'Market outlook', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
   commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', file_path: '', file_name: '', file_size: 0, mime_type: '', created_by: 'Astra',
 });
@@ -165,7 +177,7 @@ export function IntelligenceReportsPage() {
     setPublisherChoice(isStandardPublisher ? report.publisher : 'Otro');
     setCustomPublisher(isStandardPublisher ? '' : report.publisher);
     setForm({
-      title: report.title, publisher: report.publisher, report_date: report.report_date,
+      title: report.title, publisher: report.publisher, report_category: report.report_category ?? 'Other', report_date: report.report_date,
       sectors: report.sectors ?? [], commodities: report.commodities ?? [], region: report.region ?? '',
       period_label: report.period_label ?? '', summary: report.summary ?? '', key_findings: report.key_findings ?? '',
       source_url: report.source_url ?? '', source_kind: report.source_kind ?? 'authorized_link',
@@ -206,6 +218,7 @@ export function IntelligenceReportsPage() {
       setForm(current => current ? {
         ...current,
         title: proposedTitle || current.title,
+        report_category: detectReportCategory(proposedTitle + ' ' + file.name + ' ' + fullText),
         sectors: suggestedSectors.length ? suggestedSectors : current.sectors,
         commodities: [...new Set([...(current.commodities ?? []), ...['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => fullText.toLowerCase().includes(term.toLowerCase()))])],
     if (!client || !form) return;'), 'i').test(fullText))])],
@@ -379,6 +392,9 @@ export function IntelligenceReportsPage() {
             </select>
             {publisherChoice === 'Otro' && <input value={customPublisher} onChange={e => setCustomPublisher(e.target.value)} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Escribe el nombre de la fuente" />}
           </label>
+          <label className="text-sm font-medium text-slate-700">Tipo de informe
+            <select value={form.report_category} onChange={e => updateForm('report_category', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">{REPORT_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}</select>
+          </label>
           <label className="text-sm font-medium text-slate-700">Fecha de publicación *
             <input type="date" required value={form.report_date} onChange={e => { updateForm('report_date', e.target.value); updateForm('period_label', isoWeekLabel(e.target.value)); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
             <span className="mt-1 block text-xs font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span>
@@ -433,7 +449,7 @@ export function IntelligenceReportsPage() {
             <div className="flex items-start gap-3">
               <div className="rounded-lg bg-slate-50 p-3 text-slate-600"><FileText size={22} /></div>
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{report.publisher || 'Fuente no indicada'}</span><Badge color="gray">{displayDate(report.report_date)}</Badge>{latestByPublisher.get(report.publisher.trim().toLowerCase()) === report.id && <Badge color="green">MÁS RECIENTE DE {report.publisher.toUpperCase()}</Badge>}<Badge color="blue">{report.period_label || isoWeekLabel(report.report_date)}</Badge></div>
+                <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{report.publisher || 'Fuente no indicada'}</span><Badge color="gray">{displayDate(report.report_date)}</Badge><Badge color="blue">{report.report_category || 'Other'}</Badge>{latestByPublisher.get(report.publisher.trim().toLowerCase()) === report.id && <Badge color="green">MÁS RECIENTE DE {report.publisher.toUpperCase()}</Badge>}<Badge color="blue">{report.period_label || isoWeekLabel(report.report_date)}</Badge></div>
                 <h3 className="mt-1 font-semibold text-slate-900">{report.title}</h3>
                 <div className="mt-2 flex flex-wrap gap-1.5">{(report.sectors ?? []).map(s => <Badge key={s} color="gray">{labelForSector(s)}</Badge>)}</div>
                 {(report.commodities?.length || report.region || report.period_label) ? <p className="mt-2 text-xs text-slate-500">{[report.commodities?.join(', '), report.region, report.period_label].filter(Boolean).join(' · ')}</p> : null}
