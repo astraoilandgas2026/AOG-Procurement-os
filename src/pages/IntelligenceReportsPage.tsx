@@ -23,25 +23,32 @@ const isoWeekLabel = (value: string) => {
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
 const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
-const detectPublicationDate = (text: string) => {
-  const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
-  if (iso) {
-    const candidate = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+const detectPublicationDate = (text: string): string | null => {
+  const validDate = (year: string | number, month: string | number, day: string | number) => {
+    const candidate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const d = new Date(candidate + 'T12:00:00Z');
-    if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
-  }
+    return !Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100 &&
+      d.getUTCMonth() + 1 === Number(month) && d.getUTCDate() === Number(day) ? candidate : null;
+  };
+  const iso = text.match(/\\b(20\\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\\d|3[01])\\b/);
+  if (iso) { const date = validDate(iso[1], iso[2], iso[3]); if (date) return date; }
+  const compact = text.match(/\\b(20\\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\b/);
+  if (compact) { const date = validDate(compact[1], compact[2], compact[3]); if (date) return date; }
   const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
-  const dayFirst = text.match(/\b(0?[1-9]|[12]\d|3[01])\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d{2})\b/i);
-  const monthFirst = text.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(0?[1-9]|[12]\d|3[01]),?\s+(20\d{2})\b/i);
+  const dayFirst = text.match(/\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/i);
+  const monthFirst = text.match(/\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/i);
   const m = dayFirst ? months[dayFirst[2].toLowerCase()] : monthFirst ? months[monthFirst[1].toLowerCase()] : '';
   const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
   const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
-  if (m && day && year) {
-    const candidate = `${year}-${m}-${String(day).padStart(2, '0')}`;
-    const d = new Date(candidate + 'T12:00:00Z');
-    if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
+  if (m && day && year) { const date = validDate(year, m, day); if (date) return date; }
+  // Filenames such as "Argus 30.09.pdf" contain the issue day/month without a year.
+  const dayMonth = text.match(/\\b([0-3]?\\d)[./-]([01]?\\d)(?:[./-](20\\d{2}|\\d{2}))?\\b/);
+  if (dayMonth) {
+    const y = dayMonth[3] ? Number(dayMonth[3].length === 2 ? `20${dayMonth[3]}` : dayMonth[3]) : new Date().getUTCFullYear();
+    const date = validDate(y, dayMonth[2], dayMonth[1]);
+    if (date) return date;
   }
-  return new Date().toISOString().slice(0, 10);
+  return null;
 };
 const detectReportCategory = (text: string) => {
   const t = text.toLowerCase();
@@ -260,7 +267,7 @@ export function IntelligenceReportsPage() {
 
       const proposedTitle = metadataTitle || cleanFilenameTitle(file.name) || file.name;
       const combinedText = proposedTitle + ' ' + file.name + ' ' + fullText;
-      const proposedDate = fullText ? detectPublicationDate(fullText) : new Date().toISOString().slice(0, 10);
+      const proposedDate = detectPublicationDate(proposedTitle + ' ' + file.name) || detectPublicationDate(fullText) || new Date().toISOString().slice(0, 10);
       const publisher = detectPublisher(combinedText) || 'Por identificar';
       const detectedSectors = detectReportSectors(combinedText);
       const sectors: SectorKey[] = detectedSectors.length ? detectedSectors : (procurementDomain ? [procurementDomain] : ['feedstock']);
