@@ -39,6 +39,14 @@ const isoWeekLabel = (value: string) => {
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
 const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
+const detectPublicationDate = (text: string, file: File) => {
+  const metadataDates = [file.lastModified ? new Date(file.lastModified).toISOString().slice(0, 10) : ''];
+  const patterns = [/(20\\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\\d|3[01])/g, /\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/ig, /\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/ig];
+  for (const match of text.matchAll(patterns[0])) { const d = new Date(`${match[1]}-${String(match[2]).padStart(2,'0')}-${String(match[3]).padStart(2,'0')}T12:00:00Z`); if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return d.toISOString().slice(0,10); }
+  const months: Record<string,string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
+  for (const p of patterns.slice(1)) for (const match of text.matchAll(p)) { const dayFirst = /^\\d/.test(match[0]); const month = months[(dayFirst ? match[2] : match[1]).toLowerCase()]; const day = dayFirst ? match[1] : match[2]; const year = dayFirst ? match[3] : match[3]; const d = new Date(`${year}-${month}-${String(day).padStart(2,'0')}T12:00:00Z`); if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return d.toISOString().slice(0,10); }
+  return metadataDates[0] || new Date().toISOString().slice(0,10);
+};
 const detectReportCategory = (text: string) => {
   const t = text.toLowerCase();
   if (/crushing|crush margin|crushings|stocks|inventories|ending stocks|carryout/.test(t)) return 'Crushing & stocks';
@@ -70,7 +78,7 @@ const detectPublisher = (title: string, sourceUrl = '') => {
   return null;
 };
 const emptyForm = (sectors: SectorKey[]): ReportForm => ({
-  title: '', publisher: 'Otro', report_category: 'Market outlook', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
+  title: '', publisher: 'Por identificar', report_category: 'Market outlook', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
   commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', file_path: '', file_name: '', file_size: 0, mime_type: '', created_by: 'Astra',
 });
@@ -166,7 +174,7 @@ export function IntelligenceReportsPage() {
   function startNew() {
     setEditingId(null);
     setSelectedFile(null); setProcessingFile(false); setFileMessage('');
-    setPublisherChoice('Otro');
+    setPublisherChoice('Por identificar');
     setCustomPublisher('');
     setForm(emptyForm(procurementDomain ? [procurementDomain] : []));
     setError('');
@@ -209,6 +217,7 @@ export function IntelligenceReportsPage() {
       const extracted = await extractPdfContent(file);
       const fullText = extracted.text;
       const proposedTitle = extracted.title || cleanFilenameTitle(file.name);
+      const proposedDate = detectPublicationDate(fullText, file);
       const publisher = detectPublisher(proposedTitle + ' ' + file.name + ' ' + fullText, '');
       const suggestedSectors = detectReportSectors(proposedTitle + ' ' + file.name + ' ' + fullText);
       const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
@@ -218,17 +227,18 @@ export function IntelligenceReportsPage() {
       setForm(current => current ? {
         ...current,
         title: proposedTitle || current.title,
+        report_date: proposedDate,
+        period_label: isoWeekLabel(proposedDate),
         report_category: detectReportCategory(proposedTitle + ' ' + file.name + ' ' + fullText),
         sectors: suggestedSectors.length ? suggestedSectors : current.sectors,
         commodities: [...new Set([...(current.commodities ?? []), ...['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => fullText.toLowerCase().includes(term.toLowerCase()))])],
-    if (!client || !form) return;'), 'i').test(fullText))])],
         summary: current.summary.trim() ? current.summary : draftSummary,
         key_findings: current.key_findings.trim() ? current.key_findings : findings,
         file_name: file.name, file_size: file.size, mime_type: 'application/pdf',
         source_kind: 'internal_link',
       } : current);
       if (publisher) { setPublisherChoice(publisher); setCustomPublisher(''); }
-      else { setPublisherChoice('Otro'); setCustomPublisher(''); }
+      else { setPublisherChoice('Por identificar'); setCustomPublisher(''); }
       setFileMessage(fullText.length
         ? `PDF leído: ${fullText.length.toLocaleString('es-CL')} caracteres extraídos de hasta 80 páginas. Revisa y corrige la ficha antes de guardar.`
         : 'El PDF se adjuntará, pero no contiene texto extraíble (posiblemente es un escaneo). Requiere OCR para analizar el contenido.');
@@ -256,8 +266,7 @@ export function IntelligenceReportsPage() {
       catch { setError('El enlace debe ser una URL válida que empiece por https:// o http://.'); return; }
     }
     setSaving(true); setError('');
-    const finalPublisher = (publisherChoice === 'Otro' ? customPublisher : publisherChoice).trim();
-    if (!finalPublisher) { setError('Selecciona o escribe la fuente del informe.'); setSaving(false); return; }
+    const finalPublisher = (publisherChoice === 'Otro' ? customPublisher : publisherChoice).trim() || 'Por identificar';
     let uploadedPath = '';
     const oldFilePath = form.file_path;
     if (selectedFile) {
@@ -266,7 +275,7 @@ export function IntelligenceReportsPage() {
       if (uploadError) { setError('No se pudo adjuntar el PDF: ' + uploadError.message); setSaving(false); return; }
     }
     const payload = {
-      ...form, title: form.title.trim(), publisher: finalPublisher, period_label: isoWeekLabel(form.report_date),
+      ...form, title: effectiveTitle, publisher: finalPublisher, period_label: isoWeekLabel(form.report_date),
       source_url: form.source_url.trim(), updated_at: new Date().toISOString(),
       file_path: uploadedPath || form.file_path || '', file_name: selectedFile?.name ?? form.file_name ?? '',
       file_size: selectedFile?.size ?? form.file_size ?? 0, mime_type: selectedFile ? 'application/pdf' : (form.mime_type || ''),
@@ -387,7 +396,7 @@ export function IntelligenceReportsPage() {
           </label>
           <label className="text-sm font-medium text-slate-700">Fuente detectada / fuente del informe *
             <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
-              {STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
+              <option value="Por identificar">Se detectará del PDF / Por identificar</option>{STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
               {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
             </select>
             {publisherChoice === 'Otro' && <input value={customPublisher} onChange={e => setCustomPublisher(e.target.value)} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Escribe el nombre de la fuente" />}
@@ -409,10 +418,6 @@ export function IntelligenceReportsPage() {
             {fileMessage && <p role="status" className={`mt-2 rounded-md p-2 text-xs ${fileMessage.startsWith('No pude') || fileMessage.startsWith('El PDF se adjuntará') ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}`}>{fileMessage}</p>}
             {(selectedFile || form.file_name) && <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3"><FileText size={20} className="shrink-0 text-[var(--astra-red)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800">{selectedFile?.name ?? form.file_name}</p><p className="text-xs text-slate-500">{formatFileSize(selectedFile?.size ?? form.file_size)} · PDF · {selectedFile ? 'Pendiente de guardar' : 'Adjunto guardado'}</p></div>{!selectedFile && form.file_path && <Button size="sm" variant="secondary" onClick={() => { void openAttachedFile({ ...({} as Report), file_path: form.file_path } as Report); }}><Download size={14} /> Abrir</Button>}</div>}
           </div>
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Enlace autorizado al informe / PDF
-            <input value={form.source_url} onChange={e => updateForm('source_url', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Pega aquí el enlace autorizado (https://…)" />
-            <span className="mt-1 block text-xs font-normal text-slate-500">No necesitas subir el mismo archivo a cada sector: registra un enlace y selecciona los sectores relacionados.</span>
-          </label>
           <details className="rounded-md border border-slate-200 md:col-span-2">
             <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700">Detalles opcionales del mercado (abrir si los necesitas)</summary>
             <div className="grid gap-3 border-t border-slate-200 p-3 md:grid-cols-2">
@@ -439,7 +444,7 @@ export function IntelligenceReportsPage() {
             </div>
           </details>
         </div>
-        <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">Los adjuntos se guardan en un bucket no público y se abren mediante enlaces temporales. Esta aplicación no exige inicio de sesión: no subas documentos confidenciales que requieran permisos por usuario. Sube únicamente documentos que Astra tenga derecho a almacenar. Si el PDF está escaneado, será necesario OCR para leerlo.</p>
+        <p className="mt-3 rounded-md bg-slate-50 p-3 text-xs text-slate-600">El PDF se guarda como archivo adjunto de Astra. La ficha se completa automáticamente con los datos que se puedan extraer; comprueba los campos detectados antes de guardar. Los PDF escaneados pueden requerir OCR.</p>
         <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving || processingFile}>{saving ? 'Guardando…' : processingFile ? 'Leyendo PDF…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
       </CardBody></Card>}
 
