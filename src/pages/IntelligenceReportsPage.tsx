@@ -363,6 +363,14 @@ export function IntelligenceReportsPage() {
       {requestForm && <Card><CardBody>
         <div className="mb-4 flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-[var(--astra-red)]">Solicitud de mercado</p><h2 className="mt-1 text-base font-semibold text-[var(--astra-dark)]">Solicitar informe de {SECTORS.find(s => s.value === requestForm.sector)?.label}</h2><p className="mt-1 text-sm text-slate-500">La solicitud se registra y se envía al administrador por correo.</p></div><button onClick={() => setRequestForm(null)} aria-label="Cerrar solicitud" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
         <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl border border-dashed border-[var(--astra-border)] bg-slate-50/70 p-4 md:col-span-2">
+            <div className="flex items-start gap-3"><div className="rounded-lg bg-white p-2 text-[var(--astra-red)] shadow-sm"><Upload size={20} /></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">Adjunta primero el PDF</p><p className="mt-1 text-xs leading-5 text-slate-500">Hasta 25 MB. Al seleccionarlo, extraeremos título, fecha, fuente, sectores, commodities, resumen y señales clave. Después podrás revisar la ficha antes de guardar.</p></div></div>
+            <input type="file" accept="application/pdf,.pdf" onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="mt-3 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 file:shadow-sm" />
+            {processingFile && <p role="status" className="mt-2 text-sm text-slate-600">Leyendo contenido del PDF…</p>}
+            {fileMessage && <p role="status" className={`mt-2 rounded-md p-2 text-xs ${fileMessage.startsWith('No pude') || fileMessage.startsWith('El PDF se adjuntará') ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}`}>{fileMessage}</p>}
+            {(selectedFile || form.file_name) && <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3"><FileText size={20} className="shrink-0 text-[var(--astra-red)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800">{selectedFile?.name ?? form.file_name}</p><p className="text-xs text-slate-500">{formatFileSize(selectedFile?.size ?? form.file_size)} · PDF · {selectedFile ? 'Pendiente de guardar' : 'Adjunto guardado'}</p></div>{!selectedFile && form.file_path && <Button size="sm" variant="secondary" onClick={() => { void openAttachedFile({ ...({} as Report), file_path: form.file_path } as Report); }}><Download size={14} /> Abrir</Button>}</div>}
+          </div>
+
           <label className="text-sm font-medium text-slate-700 md:col-span-2">¿Qué informe o commodity necesitas? *
             <input autoFocus value={requestForm.topic} onChange={e => setRequestForm(v => v ? {...v, topic:e.target.value} : v)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder={requestForm.sector === 'energy_commodities' ? 'Ej. Fuel oil, LNG, diesel, crude…' : requestForm.sector === 'feedstock' ? 'Ej. UCO / AVU, acid oil, oleínas…' : 'Ej. Argus weekly, precios, flujos…'} />
           </label>
@@ -403,11 +411,11 @@ export function IntelligenceReportsPage() {
       {form && <Card><CardBody>
         <div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">{editingId ? 'Editar informe' : 'Registrar nuevo informe'}</h2><button onClick={closeForm} aria-label="Cerrar formulario" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Título del informe *
+          <label className="text-sm font-medium text-slate-700 md:col-span-2">Título detectado automáticamente
             <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly / S&P Global Platts…" />
             <span className="mt-1 block text-xs font-normal text-slate-500">Detectamos Argus, S&P Global Platts y otras fuentes conocidas a partir del título o enlace. Revisa la fuente seleccionada antes de guardar.</span>
           </label>
-          <label className="text-sm font-medium text-slate-700">Fuente detectada / fuente del informe *
+          <label className="text-sm font-medium text-slate-700">Fuente detectada automáticamente
             <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
               <option value="Por identificar">Se detectará del PDF / Por identificar</option>{STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
               {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
@@ -417,20 +425,14 @@ export function IntelligenceReportsPage() {
           <label className="text-sm font-medium text-slate-700">Tipo de informe
             <select value={form.report_category} onChange={e => updateForm('report_category', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">{REPORT_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}</select>
           </label>
-          <label className="text-sm font-medium text-slate-700">Fecha de publicación *
+          <label className="text-sm font-medium text-slate-700">Fecha de publicación detectada
             <input type="date" required value={form.report_date} onChange={e => { updateForm('report_date', e.target.value); updateForm('period_label', isoWeekLabel(e.target.value)); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
             <span className="mt-1 block text-xs font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span>
           </label>
           <fieldset className="md:col-span-2"><legend className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => updateForm('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(v => v !== s.value))} />{s.label}</label>)}
           </div></fieldset>
-          <div className="rounded-xl border border-dashed border-[var(--astra-border)] bg-slate-50/70 p-4 md:col-span-2">
-            <div className="flex items-start gap-3"><div className="rounded-lg bg-white p-2 text-[var(--astra-red)] shadow-sm"><Upload size={20} /></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">Adjuntar informe en PDF</p><p className="mt-1 text-xs leading-5 text-slate-500">Hasta 25 MB. Al seleccionarlo, intentaremos leer su texto, detectar título, fuente, sectores, commodities y preparar un resumen preliminar. Revísalo antes de guardar.</p></div></div>
-            <input type="file" accept="application/pdf,.pdf" onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="mt-3 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 file:shadow-sm" />
-            {processingFile && <p role="status" className="mt-2 text-sm text-slate-600">Leyendo contenido del PDF…</p>}
-            {fileMessage && <p role="status" className={`mt-2 rounded-md p-2 text-xs ${fileMessage.startsWith('No pude') || fileMessage.startsWith('El PDF se adjuntará') ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}`}>{fileMessage}</p>}
-            {(selectedFile || form.file_name) && <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3"><FileText size={20} className="shrink-0 text-[var(--astra-red)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800">{selectedFile?.name ?? form.file_name}</p><p className="text-xs text-slate-500">{formatFileSize(selectedFile?.size ?? form.file_size)} · PDF · {selectedFile ? 'Pendiente de guardar' : 'Adjunto guardado'}</p></div>{!selectedFile && form.file_path && <Button size="sm" variant="secondary" onClick={() => { void openAttachedFile({ ...({} as Report), file_path: form.file_path } as Report); }}><Download size={14} /> Abrir</Button>}</div>}
-          </div>
+
           <details className="rounded-md border border-slate-200 md:col-span-2">
             <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700">Detalles opcionales del mercado (abrir si los necesitas)</summary>
             <div className="grid gap-3 border-t border-slate-200 p-3 md:grid-cols-2">
