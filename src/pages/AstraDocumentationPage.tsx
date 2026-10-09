@@ -41,6 +41,7 @@ export function AstraDocumentationPage() {
   const [category, setCategory] = useState('company_profile');
   const [title, setTitle] = useState('Company Profile');
   const [uploading, setUploading] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<AstraDocument | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -60,12 +61,23 @@ export function AstraDocumentationPage() {
     setLoading(false);
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void load();
+    if (client) {
+      void client.auth.getSession().then(({ data }) => setHasSession(Boolean(data.session)));
+    }
+  }, []);
 
   async function upload() {
     if (!client || !file || !title.trim()) return;
+    if (!hasSession && !['company_profile', 'corporate', 'other'].includes(category)) {
+      setError('KYC y CIS requieren una sesión autorizada. Sin iniciar sesión, solo se pueden gestionar documentos corporativos no sensibles.');
+      return;
+    }
     setUploading(true);
     setError('');
+    let storagePath = '';
+    let insertedId = '';
     try {
       const { data: currentRows, error: currentError } = await client
         .from('astra_documents')
@@ -75,10 +87,11 @@ export function AstraDocumentationPage() {
         .order('version', { ascending: false })
         .limit(1);
       if (currentError) throw currentError;
-      const nextVersion = ((currentRows?.[0]?.version as number | undefined) ?? 0) + 1;
+      const previous = currentRows?.[0];
+      const nextVersion = (previous?.version ?? 0) + 1;
 
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const storagePath = 'corporate/' + category + '/' + Date.now() + '-v' + nextVersion + '-' + safeName;
+      storagePath = 'corporate/' + category + '/' + Date.now() + '-v' + nextVersion + '-' + safeName;
 
       const uploadResult = await client.storage.from('astra-docs').upload(storagePath, file, {
         contentType: file.type || 'application/octet-stream',
@@ -86,18 +99,7 @@ export function AstraDocumentationPage() {
       });
       if (uploadResult.error) throw uploadResult.error;
 
-      if (currentRows?.[0]?.id) {
-        const { error: supersedeError } = await client
-          .from('astra_documents')
-          .update({ is_current: false })
-          .eq('id', currentRows[0].id);
-        if (supersedeError) {
-          await client.storage.from('astra-docs').remove([storagePath]);
-          throw supersedeError;
-        }
-      }
-
-      const { error: insertError } = await client.from('astra_documents').insert({
+      const { data: inserted, error: insertError } = await client.from('astra_documents').insert({
         title: title.trim(),
         category,
         file_name: file.name,
@@ -107,10 +109,18 @@ export function AstraDocumentationPage() {
         version: nextVersion,
         is_current: true,
         uploaded_by: 'Astra',
-      });
-      if (insertError) {
-        await client.storage.from('astra-docs').remove([storagePath]);
-        throw insertError;
+      }).select('id').single();
+      if (insertError) throw insertError;
+      insertedId = inserted.id;
+
+      if (previous?.id) {
+        const { data: superseded, error: supersedeError } = await client
+          .from('astra_documents')
+          .update({ is_current: false })
+          .eq('id', previous.id)
+          .select('id');
+        if (supersedeError) throw supersedeError;
+        if (!superseded?.length) throw new Error('No se pudo confirmar el cambio de versión. La versión anterior se conserva.');
       }
 
       setFile(null);
@@ -119,6 +129,10 @@ export function AstraDocumentationPage() {
       if (input) input.value = '';
       await load();
     } catch (e) {
+      // Roll back the newly inserted row/file so a failed version switch does not
+      // leave a broken current version or orphan the uploaded file.
+      if (insertedId) await client.from('astra_documents').delete().eq('id', insertedId);
+      if (storagePath) await client.storage.from('astra-docs').remove([storagePath]);
       setError(e instanceof Error ? e.message : 'No se pudo cargar el documento.');
     } finally {
       setUploading(false);
@@ -192,8 +206,8 @@ export function AstraDocumentationPage() {
               Tipo
               <select className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm" value={category} onChange={e => { setCategory(e.target.value); setTitle(CATEGORY_LABELS[e.target.value]); }}>
                 <option value="company_profile">Company Profile</option>
-                <option value="kyc">KYC</option>
-                <option value="cis">CIS</option>
+                <option value="kyc" disabled={!hasSession}>KYC{!hasSession ? ' · requiere sesión autorizada' : ''}</option>
+                <option value="cis" disabled={!hasSession}>CIS{!hasSession ? ' · requiere sesión autorizada' : ''}</option>
                 <option value="corporate">Corporativo</option>
                 <option value="other">Otro</option>
               </select>
@@ -212,6 +226,7 @@ export function AstraDocumentationPage() {
           </div>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           <p className="mt-3 text-xs text-slate-400">Las nuevas cargas reemplazan la versión vigente sin borrar el historial. Daniel verá siempre la última versión marcada como vigente.</p>
+          {!hasSession && <p className="mt-1 text-xs text-slate-500">Por seguridad, KYC y CIS quedan restringidos. Company Profile, Corporativo y Otro siguen disponibles sin login.</p>}
         </CardBody>
       </Card>
 
