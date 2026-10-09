@@ -42,6 +42,9 @@ export function AstraDocumentationPage() {
   const [title, setTitle] = useState('Company Profile');
   const [uploading, setUploading] = useState(false);
   const [hasSession, setHasSession] = useState(false);
+  const [accessEmail, setAccessEmail] = useState('astraoilandgas9@gmail.com');
+  const [sendingLink, setSendingLink] = useState(false);
+  const [accessLinkSent, setAccessLinkSent] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<AstraDocument | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -57,16 +60,56 @@ export function AstraDocumentationPage() {
       .select('*')
       .order('created_at', { ascending: false });
     if (queryError) setError(queryError.message);
-    else setDocs((data ?? []) as AstraDocument[]);
+    else {
+      setError('');
+      setDocs((data ?? []) as AstraDocument[]);
+    }
     setLoading(false);
   }
 
   useEffect(() => {
     void load();
-    if (client) {
-      void client.auth.getSession().then(({ data }) => setHasSession(Boolean(data.session)));
-    }
+    if (!client) return;
+    void client.auth.getSession().then(({ data }) => setHasSession(Boolean(data.session)));
+    const { data: authListener } = client.auth.onAuthStateChange((_event, session) => {
+      setHasSession(Boolean(session));
+      if (session) window.setTimeout(() => { void load(); }, 0);
+    });
+    return () => authListener.subscription.unsubscribe();
   }, []);
+
+  async function sendAccessLink() {
+    if (!client || !accessEmail.trim()) return;
+    setSendingLink(true);
+    setError('');
+    setAccessLinkSent(false);
+    try {
+      const { error: authError } = await client.auth.signInWithOtp({
+        email: accessEmail.trim(),
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: window.location.href.split('#')[0],
+        },
+      });
+      if (authError) throw authError;
+      setAccessLinkSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo enviar el enlace de acceso.');
+    } finally {
+      setSendingLink(false);
+    }
+  }
+
+  async function signOut() {
+    if (!client) return;
+    const { error: authError } = await client.auth.signOut();
+    if (authError) setError(authError.message);
+    else {
+      setHasSession(false);
+      setAccessLinkSent(false);
+      await load();
+    }
+  }
 
   async function upload() {
     if (!client || !file || !title.trim()) return;
@@ -193,11 +236,39 @@ export function AstraDocumentationPage() {
         title="Documentación Astra"
         subtitle="Documentos corporativos oficiales, siempre con la versión vigente disponible."
         action={
-          <Button onClick={upload} disabled={!file || !title.trim() || uploading}>
-            <Upload size={16} /> {uploading ? 'Cargando…' : 'Subir documento'}
+          <Button onClick={upload} disabled={!hasSession || !file || !title.trim() || uploading}>
+            <Upload size={16} /> {uploading ? 'Cargando…' : hasSession ? 'Subir documento' : 'Inicia sesión para subir'}
           </Button>
         }
       />
+
+      {!hasSession ? (
+        <Card>
+          <CardBody>
+            <div className="font-medium text-slate-900">Acceso autorizado para gestionar documentos</div>
+            <p className="mt-1 text-sm text-slate-600">La consulta del Company Profile sigue disponible sin iniciar sesión. Para subir, sustituir o eliminar archivos, usa el correo autorizado de Astra.</p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={accessEmail}
+                onChange={e => setAccessEmail(e.target.value)}
+                placeholder="Correo autorizado de Astra"
+                autoComplete="email"
+                className="min-w-0 flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm"
+              />
+              <Button onClick={sendAccessLink} disabled={!accessEmail.trim() || sendingLink}>
+                {sendingLink ? 'Enviando…' : 'Enviar enlace de acceso'}
+              </Button>
+            </div>
+            {accessLinkSent && <p className="mt-2 text-sm text-green-700">Enlace enviado si el correo corresponde a una cuenta autorizada. Ábrelo desde este dispositivo y vuelve a esta sección.</p>}
+            <p className="mt-2 text-xs text-slate-500">KYC y CIS solo están disponibles para sesiones autenticadas y autorizadas.</p>
+          </CardBody>
+        </Card>
+      ) : (
+        <div className="flex justify-end">
+          <Button variant="secondary" onClick={signOut}>Cerrar sesión</Button>
+        </div>
+      )}
 
       <Card>
         <CardBody>
@@ -226,7 +297,7 @@ export function AstraDocumentationPage() {
           </div>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           <p className="mt-3 text-xs text-slate-400">Las nuevas cargas reemplazan la versión vigente sin borrar el historial. Daniel verá siempre la última versión marcada como vigente.</p>
-          {!hasSession && <p className="mt-1 text-xs text-slate-500">Por seguridad, KYC y CIS quedan restringidos. Company Profile, Corporativo y Otro siguen disponibles sin login.</p>}
+          {!hasSession && <p className="mt-1 text-xs text-slate-500">Por seguridad, sin sesión solo se pueden consultar documentos no sensibles; las modificaciones requieren acceso autorizado.</p>}
         </CardBody>
       </Card>
 
