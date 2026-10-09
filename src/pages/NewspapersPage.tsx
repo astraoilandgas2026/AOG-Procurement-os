@@ -120,7 +120,6 @@ export function NewspapersPage() {
       const { error: insertError } = await client.from('intelligence_newspapers').insert(payload).select('id').single();
       if (insertError) throw new Error('El PDF se adjuntó, pero no se pudo registrar en la base de datos: ' + insertError.message);
       uploadedPath = '';
-      setSelectedSector('all');
       setNotice(extractionFailed || !fullText
         ? 'PDF guardado y adjunto. No se pudo extraer texto; la ficha conserva el archivo, pero no se ha leído su contenido.'
         : 'PDF leído, analizado y guardado en la base de datos.');
