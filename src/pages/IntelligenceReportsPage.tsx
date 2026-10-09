@@ -136,11 +136,10 @@ export function IntelligenceReportsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [selectedSector, setSelectedSector] = useState<string>(procurementDomain ?? 'all');
+  const [selectedSector, setSelectedSector] = useState<string>('all');
   const [processingFile, setProcessingFile] = useState(false);
   const [fileMessage, setFileMessage] = useState('');
 
-  useEffect(() => { setSelectedSector(procurementDomain ?? 'all'); }, [procurementDomain]);
 
   async function loadReports() {
     if (!client) { setError('Supabase no está configurado.'); setLoading(false); return; }
@@ -257,7 +256,7 @@ export function IntelligenceReportsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-[var(--astra-red)] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90"><Plus size={16} /> Agregar informe<input type="file" accept="application/pdf,.pdf" aria-label="Agregar informe PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
+      <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={16} /> Agregar informe<input type="file" accept="application/pdf,.pdf" aria-label="Agregar informe PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
       {(processingFile || fileMessage) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Procesando PDF…' : fileMessage}</p>}
       <section aria-label="Sectores de inteligencia">
         <div className="flex flex-wrap gap-2">
