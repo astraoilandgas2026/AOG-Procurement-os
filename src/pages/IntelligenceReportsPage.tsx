@@ -202,7 +202,7 @@ export function IntelligenceReportsPage() {
             {report.access_note && <p className="mt-2 text-xs text-slate-500">Acceso: {report.access_note}</p>}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
               {report.source_url ? <a href={report.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--astra-red)] hover:underline"><ExternalLink size={15} /> Abrir informe / PDF</a> : <span className="text-xs text-slate-400">Sin enlace registrado</span>}
-              <div className="flex gap-1"><Button size="sm" variant="ghost" onClick={() => startEdit(report)} title="Editar informe"><Pencil size={15} /></Button><Button size="sm" variant="ghost" onClick={() => void deleteReport(report)} title="Eliminar registro"><Trash2 size={15} /></Button></div>
+              <div className="flex flex-wrap gap-1"><Button size="sm" variant="ghost" onClick={() => startEdit(report)}><Pencil size={15} /> Editar</Button><Button size="sm" variant="ghost" onClick={() => void deleteReport(report)}><Trash2 size={15} /> Eliminar</Button></div>
             </div>
           </CardBody></Card>)}
         </div>
