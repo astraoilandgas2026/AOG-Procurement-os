@@ -109,7 +109,7 @@ export function NewspapersPage() {
     }
     if (!form.sectors.length) { setError('Selecciona al menos un sector; si no corresponde a ninguno, elige el más cercano y explícalo en las notas.'); return; }
     setSaving(true); setError(''); setNotice('');
-    const payload = { ...form, title: form.title.trim(), publisher: form.publisher.trim(), source_url: form.source_url.trim(),
+    const payload = { ...form, article_text: '', title: form.title.trim(), publisher: form.publisher.trim(), source_url: form.source_url.trim(),
       topics: form.topics.map(x => x.trim()).filter(Boolean), updated_at: new Date().toISOString() };
     const result = editingId
       ? await client.from('intelligence_newspapers').update(payload).eq('id', editingId).select().single()
@@ -173,14 +173,14 @@ export function NewspapersPage() {
         <label className="text-sm font-medium text-slate-700 md:col-span-2">Datos / señales clave
           <textarea value={form.key_findings} onChange={e => update('key_findings', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Cifras, dirección del mercado, riesgos, fuente y nivel de confianza." />
         </label>
-        <label className="text-sm font-medium text-slate-700 md:col-span-2">Texto del artículo o extracto (opcional)
-          <textarea value={form.article_text} onChange={e => update('article_text', e.target.value)} rows={6} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Pega aquí el texto que tengas derecho a guardar o un extracto breve para clasificarlo y resumirlo." />
+        <label className="text-sm font-medium text-slate-700 md:col-span-2">Texto del artículo o extracto para sugerir sectores (temporal)
+          <textarea value={form.article_text} onChange={e => update('article_text', e.target.value)} rows={6} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Pega aquí un fragmento para sugerir sectores. Se usa solo en esta pantalla y no se guarda en la base de datos." />
         </label>
         <label className="text-sm font-medium text-slate-700 md:col-span-2">Nota de acceso / licencia
           <input value={form.access_note} onChange={e => update('access_note', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Acceso según suscripción, licencia o fuente pública" />
         </label>
       </div>
-      <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">No subas ediciones completas ni PDFs licenciados a un almacenamiento público. Registra el enlace autorizado y, si procede, un extracto permitido. Si me compartes el archivo o el texto aquí en el chat, puedo leerlo, resumirlo y ayudarte a ubicarlo; esta pantalla todavía no envía el contenido automáticamente a Emma.</p>
+      <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">No subas ediciones completas ni PDFs licenciados a un almacenamiento público. El texto pegado aquí solo ayuda a sugerir sectores y no se conserva. Registra el enlace autorizado y tu resumen; para que yo lea un PDF completo, adjúntalo en este chat. Esta pantalla todavía no envía contenido automáticamente a Emma.</p>
       <div className="mt-4 flex justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void save()} disabled={saving}>{saving ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Guardar entrada'}</Button></div>
     </CardBody></Card>}
     {visible.length === 0 ? <Card><EmptyState icon={<Newspaper size={28} />} title="No hay entradas registradas" message="Añade una edición o artículo con su fuente y fecha. Puedes relacionarlo con varios sectores de Astra." action={<Button onClick={startNew}><Plus size={16} /> Registrar diario / artículo</Button>} /></Card> : <div className="grid gap-3 xl:grid-cols-2">
