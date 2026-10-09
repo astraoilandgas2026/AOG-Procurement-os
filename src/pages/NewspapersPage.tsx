@@ -96,11 +96,11 @@ export function NewspapersPage() {
         fullText = extracted.text;
         metadataTitle = extracted.title;
       } catch { extractionFailed = true; }
-      const title = metadataTitle || cleanFilenameTitle(file.name) || file.name;
+      const title = (metadataTitle || cleanFilenameTitle(file.name) || file.name).slice(0, 240);
       const combined = title + ' ' + file.name + ' ' + fullText;
       const publisher = detectPublisher(combined);
       const detected = detectSectors(combined);
-      const sectors: SectorKey[] = detected.length ? detected : ['feedstock'];
+      const sectors: SectorKey[] = detected;
       const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
       const summary = sentences.slice(0, 3).join(' ').slice(0, 1200);
       const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
