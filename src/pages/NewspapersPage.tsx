@@ -181,7 +181,7 @@ export function NewspapersPage() {
         </div>)}
       </div>
     )}
-    <p className="text-xs text-slate-400">{visible.length} diario(s)</p>
+    <p className="text-xs text-slate-400">{visible.length} documento(s)</p>
     {previewItem && <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del diario">
       <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
