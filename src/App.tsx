@@ -35,7 +35,9 @@ function PageRenderer() {
 function AccessGate() {
   const client = getSupabaseClient();
   const [session, setSession] = useState<Session | null>(null);
+  const [authorized, setAuthorized] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [checkingAuthorization, setCheckingAuthorization] = useState(false);
   const [email, setEmail] = useState('astraoilandgas9@gmail.com');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -48,21 +50,59 @@ function AccessGate() {
       return;
     }
     let active = true;
+
+    const validateSession = async (nextSession: Session | null) => {
+      if (!active) return;
+      setSession(nextSession);
+      setAuthorized(false);
+      if (!nextSession) {
+        setCheckingAuthorization(false);
+        return;
+      }
+
+      setCheckingAuthorization(true);
+      try {
+        const { data, error: authorizationError } = await client.rpc('emma_is_authorized');
+        if (!active) return;
+        if (authorizationError) {
+          setError(`No se pudo validar el permiso de Astra: ${authorizationError.message}`);
+          setAuthorized(false);
+        } else if (data !== true) {
+          setError('La sesión activa no pertenece a un usuario autorizado de Astra. Cierra esa sesión y solicita un enlace al correo autorizado.');
+          setAuthorized(false);
+        } else {
+          setAuthorized(true);
+          setError('');
+        }
+      } catch (reason) {
+        if (!active) return;
+        setError(reason instanceof Error ? reason.message : 'No se pudo validar el permiso de Astra.');
+        setAuthorized(false);
+      } finally {
+        if (active) {
+          setCheckingAuthorization(false);
+          setCheckingSession(false);
+        }
+      }
+    };
+
+    const { data: listener } = client.auth.onAuthStateChange((_event, nextSession) => {
+      setSent(false);
+      setError('');
+      void validateSession(nextSession);
+    });
+
     void client.auth.getSession().then(({ data, error: sessionError }) => {
       if (!active) return;
       if (sessionError) setError(sessionError.message);
-      setSession(data.session);
-      setCheckingSession(false);
+      void validateSession(data.session);
     }).catch((reason: unknown) => {
       if (!active) return;
       setError(reason instanceof Error ? reason.message : 'No se pudo comprobar la sesión.');
       setCheckingSession(false);
+      setCheckingAuthorization(false);
     });
-    const { data: listener } = client.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setSent(false);
-      setError('');
-    });
+
     return () => {
       active = false;
       listener.subscription.unsubscribe();
@@ -76,6 +116,11 @@ function AccessGate() {
     setError('');
     setSent(false);
     try {
+      // Remove a stale/unauthorized session before requesting the authorized account's magic link.
+      if (session && !authorized) {
+        const { error: signOutError } = await client.auth.signOut();
+        if (signOutError) throw signOutError;
+      }
       const { error: authError } = await client.auth.signInWithOtp({
         email: email.trim(),
         options: {
@@ -92,11 +137,11 @@ function AccessGate() {
     }
   }
 
-  if (checkingSession) {
+  if (checkingSession || (session !== null && checkingAuthorization)) {
     return <div className="flex min-h-screen items-center justify-center text-sm text-slate-600">Comprobando acceso seguro…</div>;
   }
 
-  if (!session) {
+  if (!session || !authorized) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
         <section className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
