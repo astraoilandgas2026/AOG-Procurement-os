@@ -149,6 +149,9 @@ export function IntelligenceReportsPage() {
   const [selectedSector, setSelectedSector] = useState<string>('all');
   const [processingFile, setProcessingFile] = useState(false);
   const [fileMessage, setFileMessage] = useState('');
+  const [previewReport, setPreviewReport] = useState<Report | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
 
 
   async function loadReports() {
@@ -247,11 +250,24 @@ export function IntelligenceReportsPage() {
 
   async function openAttachedFile(report: Report) {
     if (!client || !report.file_path) return;
-    const tab = window.open('', '_blank');
+    setPreviewReport(report);
+    setPreviewUrl('');
+    setPreviewLoading(true);
+    setError('');
     const { data, error: signedError } = await client.storage.from('intelligence-reports').createSignedUrl(report.file_path, 1800);
-    if (signedError || !data?.signedUrl) { if (tab) tab.close(); setError(signedError?.message ?? 'No se pudo abrir el archivo.'); return; }
-    if (tab) tab.location.href = data.signedUrl;
-    else window.location.href = data.signedUrl;
+    if (signedError || !data?.signedUrl) {
+      setError(signedError?.message ?? 'No se pudo abrir el archivo.');
+      setPreviewReport(null);
+      setPreviewLoading(false);
+      return;
+    }
+    setPreviewUrl(data.signedUrl);
+    setPreviewLoading(false);
+  }
+
+  function closePreview() {
+    setPreviewReport(null);
+    setPreviewUrl('');
   }
 
   async function downloadAttachedFile(report: Report) {
@@ -304,6 +320,21 @@ export function IntelligenceReportsPage() {
         </div>
       )}
       <p className="text-xs text-slate-400">{visibleReports.length} informe(s)</p>
+      {previewReport && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del informe">
+          <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+              <p className="min-w-0 truncate text-sm font-medium text-slate-800" title={displayReportTitle(previewReport)}>{displayReportTitle(previewReport)}</p>
+              <button type="button" onClick={closePreview} aria-label="Cerrar vista previa" title="Cerrar" className="ml-3 rounded p-1.5 text-slate-600 hover:bg-slate-100"><span aria-hidden="true">×</span></button>
+            </div>
+            <div className="min-h-0 flex-1 bg-slate-100 p-1 sm:p-3">
+              {previewLoading ? <div className="flex h-full items-center justify-center text-sm text-slate-500">Cargando PDF…</div>
+                : previewUrl ? <iframe title="Vista previa PDF" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />
+                : <p className="p-4 text-sm text-slate-600">No se pudo cargar la vista previa.</p>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
