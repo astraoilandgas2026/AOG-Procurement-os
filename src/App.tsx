@@ -18,6 +18,7 @@ const PAGES: Record<PageKey, ComponentType> = {
   intelligence: lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.IntelligencePage }))),
   astra_documentation: lazy(() => import('@/pages/AstraDocumentationPage').then(m => ({ default: m.AstraDocumentationPage }))),
   intelligence_reports: lazy(() => import('@/pages/IntelligenceReportsPage').then(m => ({ default: m.IntelligenceReportsPage }))),
+  newspapers: lazy(() => import('@/pages/NewspapersPage').then(m => ({ default: m.NewspapersPage }))),
 };
 
 function PageRenderer() {
