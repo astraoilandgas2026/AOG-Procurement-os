@@ -37,7 +37,24 @@ const isoWeekLabel = (value: string) => {
   const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
-const STANDARD_PUBLISHERS = ['Argus', 'S&P Global Platts', 'ICIS', 'IEA', 'EIA', 'USDA', 'FAO', 'Otro'];
+const STANDARD_PUBLISHERS = ['Argus', 'S&P Global Platts', 'ICIS', 'IEA', 'EIA', 'USDA', 'FAO', 'World Bank', 'Fastmarkets', 'BloombergNEF', 'Rystad Energy', 'Wood Mackenzie', 'Kpler', 'Otro'];
+const detectPublisher = (title: string, sourceUrl = '') => {
+  const text = `${title} ${sourceUrl}`.toLowerCase().replace(/[._-]+/g, ' ');
+  if (/\b(argus|argus media)\b/.test(text)) return 'Argus';
+  if (/\b(platts|s\s*&?\s*p global|sp global)\b/.test(text)) return 'S&P Global Platts';
+  if (/\bicis\b/.test(text)) return 'ICIS';
+  if (/\biea\b/.test(text)) return 'IEA';
+  if (/\beia\b|u\.s\. energy information administration/.test(text)) return 'EIA';
+  if (/\busda\b/.test(text)) return 'USDA';
+  if (/\bfao\b/.test(text)) return 'FAO';
+  if (/world bank/.test(text)) return 'World Bank';
+  if (/fastmarkets/.test(text)) return 'Fastmarkets';
+  if (/bloombergnef|bnef/.test(text)) return 'BloombergNEF';
+  if (/rystad/.test(text)) return 'Rystad Energy';
+  if (/wood mackenzie|woodmac/.test(text)) return 'Wood Mackenzie';
+  if (/\bkpler\b/.test(text)) return 'Kpler';
+  return null;
+};
 const emptyForm = (sectors: SectorKey[]): ReportForm => ({
   title: '', publisher: 'Argus', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
   commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
@@ -120,6 +137,15 @@ export function IntelligenceReportsPage() {
   function closeForm() { setForm(null); setEditingId(null); }
   function updateForm<K extends keyof ReportForm>(key: K, value: ReportForm[K]) {
     setForm(current => current ? { ...current, [key]: value } : current);
+    if (key === 'title' || key === 'source_url') {
+      const title = key === 'title' ? String(value) : form?.title ?? '';
+      const sourceUrl = key === 'source_url' ? String(value) : form?.source_url ?? '';
+      const detected = detectPublisher(title, sourceUrl);
+      if (detected) {
+        setPublisherChoice(detected);
+        setCustomPublisher('');
+      }
+    }
   }
   async function saveReport() {
     if (!client || !form) return;
@@ -179,7 +205,7 @@ export function IntelligenceReportsPage() {
     <div className="space-y-5">
       <PageHeader title="Intelligence Reports" subtitle="Una biblioteca central de informes de mercado, con acceso por sector y fuente." action={<Button onClick={startNew}><Plus size={16} /> Registrar informe</Button>} />
       <section aria-label="Sectores de inteligencia" className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-base font-semibold text-[var(--astra-dark)]">Explora por sector</h2><p className="mt-1 text-sm text-[var(--astra-muted)]">Entra directamente al mercado que necesitas. Los informes se registran una sola vez y pueden aparecer en varios sectores.</p></div><button onClick={() => setSelectedSector('all')} className={`rounded-md border px-3 py-2 text-xs font-semibold ${selectedSector === 'all' ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>Ver todos los sectores</button></div>
+        <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-base font-semibold text-[var(--astra-dark)]">Explora por sector</h2><p className="mt-1 text-sm text-[var(--astra-muted)]">Selecciona un mercado para consultar los informes disponibles o solicitar uno nuevo.</p></div><button onClick={() => setSelectedSector('all')} className={`rounded-md border px-3 py-2 text-xs font-semibold ${selectedSector === 'all' ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>Ver todos los sectores</button></div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {SECTOR_CARDS.map(({ value, subtitle, examples, Icon }) => {
             const count = reports.filter(r => r.sectors?.includes(value)).length;
@@ -232,7 +258,7 @@ export function IntelligenceReportsPage() {
           </label>
           <Button variant="secondary" onClick={() => void loadReports()}><RefreshCw size={15} /> Actualizar</Button>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600"><span className="rounded-full bg-slate-100 px-3 py-1">{reports.length} informes en la biblioteca</span><span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{publishers.length} fuentes</span><span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">{selectedSector === 'all' ? 'Todos los sectores' : `Sector: ${SECTORS.find(s => s.value === selectedSector)?.label}`}</span></div>
+        
       </CardBody></Card>
 
       {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
@@ -241,9 +267,10 @@ export function IntelligenceReportsPage() {
         <div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">{editingId ? 'Editar informe' : 'Registrar nuevo informe'}</h2><button onClick={closeForm} aria-label="Cerrar formulario" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm font-medium text-slate-700 md:col-span-2">Título del informe *
-            <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly" />
+            <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly / S&P Global Platts…" />
+            <span className="mt-1 block text-xs font-normal text-slate-500">Detectamos Argus, S&P Global Platts y otras fuentes conocidas a partir del título o enlace. Revisa la fuente seleccionada antes de guardar.</span>
           </label>
-          <label className="text-sm font-medium text-slate-700">Fuente del informe *
+          <label className="text-sm font-medium text-slate-700">Fuente detectada / fuente del informe *
             <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
               {STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
               {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
@@ -291,7 +318,7 @@ export function IntelligenceReportsPage() {
         <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving}>{saving ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
       </CardBody></Card>}
 
-      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={28} />} title={selectedSector === 'all' ? 'La biblioteca todavía está vacía' : `Aún no hay informes de ${SECTORS.find(s => s.value === selectedSector)?.label ?? 'este sector'}`} message={selectedSector === 'all' ? 'Elige un sector para explorar su mercado o solicita el primer informe que necesites. Los informes se registran una sola vez.' : 'Puedes solicitar un informe para este sector. Cuando se registre, aparecerá aquí automáticamente.'} action={<div className="flex flex-wrap justify-center gap-2">{selectedSector !== 'all' && <Button variant="secondary" onClick={() => startRequest(selectedSector as SectorKey)}><ClipboardList size={15} /> Solicitar informe</Button>}<Button onClick={startNew}><Plus size={16} /> Registrar informe</Button></div>} /></Card> : (
+      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={28} />} title={selectedSector === 'all' ? 'La biblioteca todavía está vacía' : `Aún no hay informes de ${SECTORS.find(s => s.value === selectedSector)?.label ?? 'este sector'}`} message={selectedSector === 'all' ? 'Selecciona un sector para consultar sus informes o solicita el primero que necesites.' : 'Puedes solicitar un informe para este sector. Cuando se registre, aparecerá aquí automáticamente.'} action={<div className="flex flex-wrap justify-center gap-2">{selectedSector !== 'all' && <Button variant="secondary" onClick={() => startRequest(selectedSector as SectorKey)}><ClipboardList size={15} /> Solicitar informe</Button>}<Button onClick={startNew}><Plus size={16} /> Registrar informe</Button></div>} /></Card> : (
         <div className="grid gap-3 xl:grid-cols-2">
           {visibleReports.map(report => <Card key={report.id}><CardBody>
             <div className="flex items-start gap-3">
