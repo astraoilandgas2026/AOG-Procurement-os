@@ -63,7 +63,7 @@ const emptyForm = (sectors: SectorKey[]): ReportForm => ({
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', file_path: '', file_name: '', file_size: 0, mime_type: '', created_by: 'Astra',
 });
 const labelForSector = (value: string) => SECTORS.find(s => s.value === value)?.label ?? value;
-const cleanFilenameTitle = (name: string) => name.replace(/\\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\\s+/g, ' ').trim();
+const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim();
 const formatFileSize = (bytes: number) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 const detectReportSectors = (text: string): SectorKey[] => {
   const t = text.toLowerCase();
@@ -86,7 +86,7 @@ async function extractPdfContent(file: File): Promise<{ title: string; text: str
   for (let pageNo = 1; pageNo <= Math.min(pdf.numPages, 80); pageNo += 1) {
     const page = await pdf.getPage(pageNo);
     const content = await page.getTextContent();
-    text += content.items.map((item: { str?: string }) => item.str ?? '').join(' ') + '\\n';
+    text += content.items.map((item: { str?: string }) => item.str ?? '').join(' ') + '\n';
     if (text.length >= 160000) break;
   }
   let title = '';
@@ -94,7 +94,7 @@ async function extractPdfContent(file: File): Promise<{ title: string; text: str
     const metadata = await pdf.getMetadata();
     title = String(metadata?.info?.Title ?? '').trim();
   } catch { /* Some PDFs have no readable metadata. */ }
-  return { title, text: text.replace(/\\s+/g, ' ').trim() };
+  return { title, text: text.replace(/\s+/g, ' ').trim() };
 }
 const displayDate = (value: string) => value ? new Date(value + 'T12:00:00').toLocaleDateString('es-CL') : '—';
 
@@ -199,15 +199,15 @@ export function IntelligenceReportsPage() {
       const proposedTitle = extracted.title || cleanFilenameTitle(file.name);
       const publisher = detectPublisher(proposedTitle + ' ' + file.name + ' ' + fullText, '');
       const suggestedSectors = detectReportSectors(proposedTitle + ' ' + file.name + ' ' + fullText);
-      const sentences = fullText.split(/(?<=[.!?])\\s+/).map(x => x.trim()).filter(x => x.length > 35);
+      const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
       const draftSummary = sentences.slice(0, 3).join(' ').slice(0, 1200);
       const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
-      const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\\n').slice(0, 1800);
+      const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
       setForm(current => current ? {
         ...current,
         title: proposedTitle || current.title,
         sectors: suggestedSectors.length ? suggestedSectors : current.sectors,
-        commodities: [...new Set([...(current.commodities ?? []), ...['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => new RegExp(term.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\  async function saveReport() {
+        commodities: [...new Set([...(current.commodities ?? []), ...['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => fullText.toLowerCase().includes(term.toLowerCase()))])],
     if (!client || !form) return;'), 'i').test(fullText))])],
         summary: current.summary.trim() ? current.summary : draftSummary,
         key_findings: current.key_findings.trim() ? current.key_findings : findings,
