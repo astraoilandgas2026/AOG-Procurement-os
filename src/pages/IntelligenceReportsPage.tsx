@@ -152,37 +152,38 @@ const getDuplicateLevel = (report: Report, allReports: Report[]): DuplicateLevel
   return possibleMatch ? 'possible' : null;
 };
 const detectDocumentLanguage = (text: string): { code: string; label: string } | null => {
-  const sample = (text || '').slice(0, 12000);
-  if (!sample.trim()) return null;
+  const sample = (text || '').slice(0, 12000).trim();
+  if (!sample) return null;
   const cyrillic = (sample.match(/[А-Яа-яЁё]/g) || []).length;
   const latin = (sample.match(/[A-Za-z]/g) || []).length;
-  if (cyrillic >= 30 && cyrillic > latin * 0.2) return { code: 'ru', label: 'RUSO' };
-  const spanishWords = (sample.match(/\b(el|la|los|las|de|del|para|con|mercado|precios|informe)\b/gi) || []).length;
-  const englishWords = (sample.match(/\b(the|and|of|for|with|market|prices|report|supply|demand)\b/gi) || []).length;
-  if (spanishWords >= 4 && spanishWords > englishWords) return { code: 'es', label: 'ESPAÑOL' };
-  if (englishWords >= 4) return { code: 'en', label: 'INGLÉS' };
+  if (cyrillic >= 20 && cyrillic > latin * 0.15) return { code: 'ru', label: 'RUSO' };
+  const spanishScore = (sample.match(/\b(el|la|los|las|de|del|para|con|mercado|precios|informe|producto|combustible|petróleo|aceite|cosecha|exportación|importación)\b/gi) || []).length;
+  const englishScore = (sample.match(/\b(the|and|of|for|with|market|markets|prices|report|supply|demand|volume|issue|products|crude|oil|energy|forecast|exports|imports)\b/gi) || []).length;
+  if (spanishScore >= 3 && spanishScore > englishScore * 1.2) return { code: 'es', label: 'ESPAÑOL' };
+  if (englishScore >= 3 && englishScore > spanishScore) return { code: 'en', label: 'INGLÉS' };
   return null;
 };
 const getShortReportDescription = (report: Report): string => {
   const text = [report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' ');
-  const language = detectDocumentLanguage(text);
-  if (language?.code === 'ru') {
-    if (/газ|природн\w* газ|natural gas/i.test(text)) return 'Mercado de gas en el Caspio y Asia Central: precios y novedades regionales.';
-    if (/нефт|бензин|керосин|битум|топлив/i.test(text)) return 'Precios y novedades de petróleo y combustibles en el Caspio y Asia Central.';
-    return 'Informe de mercado en ruso; contenido específico pendiente de identificar.';
-  }
-  const source = (report.summary || report.key_findings || '').replace(/\s+/g, ' ').trim();
-  if (!source) return language ? 'Idioma detectado; descripción pendiente de extraer.' : 'Descripción no disponible.';
-  const first = source.split(/(?<=[.!?])\s+/)[0] || source;
-  return first.length > 150 ? first.slice(0, 147).trimEnd() + '…' : first;
+  if (detectDocumentLanguage(text)?.code !== 'ru') return '';
+  if (/газ|природн\w* газ|natural gas/i.test(text)) return 'Mercado de gas en el Caspio y Asia Central.';
+  if (/нефт|бензин|керосин|битум|топлив/i.test(text)) return 'Precios y novedades de petróleo y combustibles en el Caspio y Asia Central.';
+  return 'Informe de mercado en ruso.';
 };
 
 const displayReportTitle = (report: Report) => {
-  const source = [report.title, report.file_name, report.publisher, report.summary].filter(Boolean).join(' ').toLowerCase();
+  const source = [report.title, report.file_name, report.publisher, report.summary].filter(Boolean).join(' ').toLowerCase().replace(/[._-]+/g, ' ');
   if (/bunker\s*wire|bunkerwire/.test(source)) return 'Bunker Wire Platts';
-  if (/hr[\s-]*26[\s-]*09[\s-]*30|weekly harvest report/.test(source)) return 'Harvest Report ' + (shortDate(report.report_date) || '30 09 26');
-  if (/pr[\s-]*26[\s-]*10[\s-]*02|wheat fob\s*(?:&|and)?\s*export basis/.test(source)) return 'Wheat ' + (shortDate(report.report_date) || '02 10 26');
-  return (report.title || cleanFilenameTitle(report.file_name || '') || 'Informe').replace(/\s+/g, ' ').trim();
+  if (/harvest report|\bhr\s*26\s*09\s*30\b/.test(source)) return 'Harvest Report';
+  if (/\beia\b|short term energy outlook|short-term energy outlook/.test(source)) return 'EIA Energy Outlook';
+  if (/\bwet\b/.test(source)) return 'WET';
+  if (/\bopr\b|oilgram price report/.test(source)) return 'Oilgram Price Report';
+  if (/\beum\b|european marketscan/.test(source)) return 'European Marketscan';
+  if (/\bapag\b|asia pacific.{0,12}arab gulf marketscan/.test(source)) return 'Asia-Pacific Marketscan';
+  if (/latin american wire|\blw\s*20\d{6}\b/.test(source)) return 'Latin American Wire Platts';
+  if (/wheat fob\s*(?:&|and)?\s*export basis/.test(source) || /^wheat\b/.test(source)) return 'Wheat';
+  const title = (report.title || cleanFilenameTitle(report.file_name || '') || 'Informe').replace(/\s+/g, ' ').trim();
+  return title.replace(/\b20\d{6}\b/g, '').replace(/\s+/g, ' ').trim() || 'Informe';
 };
 
 export function IntelligenceReportsPage() {
@@ -234,25 +235,27 @@ export function IntelligenceReportsPage() {
   );
   const duplicateLevels = useMemo(() => new Map(reports.map(report => [report.id, getDuplicateLevel(report, reports)])), [reports]);
 
-  async function handlePdfSelection(file?: File) {
+  async function handleFileSelection(file?: File) {
     if (!file || !client || processingFile || saving) return;
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setFileMessage('Selecciona un archivo PDF.'); return;
-    }
-    if (file.size > 25 * 1024 * 1024) { setFileMessage('El PDF supera el límite de 25 MB.'); return; }
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isImage = /^image\/(png|jpeg|webp|gif)$/.test(file.type) || /\.(png|jpe?g|webp|gif)$/i.test(file.name);
+    if (!isPdf && !isImage) { setFileMessage('Adjunta un PDF o una imagen (PNG, JPG o WEBP).'); return; }
+    if (file.size > 25 * 1024 * 1024) { setFileMessage('El archivo supera el límite de 25 MB.'); return; }
 
-    setProcessingFile(true); setSaving(true); setFileMessage('Procesando PDF…'); setError('');
+    setProcessingFile(true); setSaving(true); setFileMessage(isPdf ? 'Procesando PDF…' : 'Guardando imagen…'); setError('');
     let fullText = '';
     let metadataTitle = '';
     let extractionFailed = false;
     let uploadedPath = '';
     try {
-      try {
-        const extracted = await extractPdfContent(file);
-        fullText = extracted.text;
-        metadataTitle = extracted.title;
-      } catch {
-        extractionFailed = true;
+      if (isPdf) {
+        try {
+          const extracted = await extractPdfContent(file);
+          fullText = extracted.text;
+          metadataTitle = extracted.title;
+        } catch {
+          extractionFailed = true;
+        }
       }
 
       const proposedTitle = metadataTitle || cleanFilenameTitle(file.name) || file.name;
@@ -267,8 +270,8 @@ export function IntelligenceReportsPage() {
       const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
       const commodities = ['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => combinedText.toLowerCase().includes(term.toLowerCase()));
       uploadedPath = `reports/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-      const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, file, { contentType: 'application/pdf', upsert: false });
-      if (uploadError) throw new Error('No se pudo adjuntar el PDF: ' + uploadError.message);
+      const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, file, { contentType: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'), upsert: false });
+      if (uploadError) throw new Error('No se pudo adjuntar el archivo: ' + uploadError.message);
 
       const payload = {
         ...emptyForm(sectors),
@@ -287,14 +290,14 @@ export function IntelligenceReportsPage() {
         file_path: uploadedPath,
         file_name: file.name,
         file_size: file.size,
-        mime_type: 'application/pdf',
+        mime_type: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
         created_by: 'Astra',
         updated_at: new Date().toISOString(),
       };
       const { error: insertError } = await client.from('intelligence_reports').insert(payload).select('id').single();
       if (insertError) throw new Error('El PDF se subió, pero no se pudo registrar: ' + insertError.message);
       uploadedPath = '';
-      setFileMessage(extractionFailed || !fullText
+      setFileMessage(isImage ? 'Imagen guardada.' : extractionFailed || !fullText
         ? 'PDF guardado. No se pudo extraer texto; la ficha usa el nombre del archivo.'
         : 'PDF guardado.');
       await loadReports();
@@ -354,7 +357,7 @@ export function IntelligenceReportsPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={15} /> Agregar informe<input type="file" accept="application/pdf,.pdf" aria-label="Agregar informe PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
+      <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={15} /> Agregar informe<input type="file" accept="application/pdf,.pdf,image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif" aria-label="Agregar informe o imagen" disabled={processingFile || saving} onChange={e => { void handleFileSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
       {(processingFile || fileMessage) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Procesando PDF…' : fileMessage}</p>}
       {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">{error}</div>}
       <section aria-label="Tipos de informes"><div className="flex flex-wrap gap-2">
@@ -368,7 +371,7 @@ export function IntelligenceReportsPage() {
           </button>;
         })}
       </div></section>
-      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={reports.length === 0 ? 'La biblioteca está vacía' : 'No hay informes en este grupo'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
+      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={reports.length === 0 ? 'La biblioteca está vacía' : 'No hay informes en este grupo'} message="Pulsa «Agregar informe» para adjuntar un PDF o una imagen." /></Card> : (
         <div className="space-y-2">
           {visibleReports.map(report => {
             const duplicateLevel = duplicateLevels.get(report.id);
@@ -377,13 +380,13 @@ export function IntelligenceReportsPage() {
             <FileText size={17} className={'shrink-0 ' + (duplicateLevel === 'duplicate' ? 'text-red-500' : duplicateLevel === 'possible' ? 'text-amber-600' : 'text-slate-400')} />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p>
-              <p className="truncate text-xs text-slate-500" title={getShortReportDescription(report)}>{getShortReportDescription(report)}</p>
+              <p className="truncate text-[11px] text-slate-400">{shortDate(report.report_date)}{getShortReportDescription(report) ? ' · ' + getShortReportDescription(report) : ''}</p>
             </div>
             {detectDocumentLanguage([report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' ')) && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">{detectDocumentLanguage([report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' '))?.label}</span>}
             {duplicateLevel && <span className={'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ' + (duplicateLevel === 'duplicate' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800')}>{duplicateLevel === 'duplicate' ? 'Duplicado' : 'Posible duplicado'}</span>}
             <div className="flex shrink-0 items-center gap-1">
-              {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
-              {report.file_path && <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Download size={16} /></button>}
+              {report.file_path && <button type="button" aria-label="Visualizar archivo" title="Visualizar archivo" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
+              {report.file_path && <button type="button" aria-label="Descargar archivo" title="Descargar archivo" onClick={() => void downloadAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Download size={16} /></button>}
               <button type="button" aria-label="Eliminar informe" title="Eliminar informe" onClick={() => void deleteReport(report)} className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
             </div>
           </div>;
@@ -400,7 +403,7 @@ export function IntelligenceReportsPage() {
             </div>
             <div className="min-h-0 flex-1 bg-slate-100 p-1 sm:p-3">
               {previewLoading ? <div className="flex h-full items-center justify-center text-sm text-slate-500">Cargando PDF…</div>
-                : previewUrl ? <iframe title="Vista previa PDF" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />
+                : previewUrl ? (previewReport.mime_type?.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(previewReport.file_name || '') ? <div className="flex h-full w-full items-center justify-center overflow-auto"><img src={previewUrl} alt={displayReportTitle(previewReport)} className="max-h-full max-w-full object-contain" /></div> : <iframe title="Vista previa del documento" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />)
                 : <p className="p-4 text-sm text-slate-600">No se pudo cargar la vista previa.</p>}
             </div>
           </div>
