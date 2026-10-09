@@ -23,6 +23,10 @@ const isoWeekLabel = (value: string) => {
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
 const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
+// Fecha documental confirmada manualmente cuando la imagen no permite leerla con fiabilidad.
+const CONFIRMED_DOCUMENT_DATES: Record<string, string> = {
+  'IMG_20261009_032131_794.jpg': '2026-10-07',
+};
 const detectPublicationDate = (text: string): string | null => {
   const validDate = (year: string | number, month: string | number, day: string | number) => {
     const candidate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -34,9 +38,10 @@ const detectPublicationDate = (text: string): string | null => {
   if (iso) { const date = validDate(iso[1], iso[2], iso[3]); if (date) return date; }
   const compact = text.match(/\\b(20\\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\b/);
   if (compact) { const date = validDate(compact[1], compact[2], compact[3]); if (date) return date; }
-  const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
-  const dayFirst = text.match(/\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/i);
-  const monthFirst = text.match(/\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/i);
+  const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12', enero:'01', febrero:'02', marzo:'03', abril:'04', mayo:'05', junio:'06', julio:'07', agosto:'08', septiembre:'09', setiembre:'09', octubre:'10', noviembre:'11', diciembre:'12' };
+  const monthNames = 'January|February|March|April|May|June|July|August|September|October|November|December|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre';
+  const dayFirst = text.match(new RegExp('\\\\b(0?[1-9]|[12]\\\\d|3[01])\\\\s+(?:de\\\\s+)?(' + monthNames + ')(?:\\\\s+de)?\\\\s+(20\\\\d{2})\\\\b', 'i'));
+  const monthFirst = text.match(new RegExp('\\\\b(' + monthNames + ')\\\\s+(0?[1-9]|[12]\\\\d|3[01]),?\\\\s+(20\\\\d{2})\\\\b', 'i'));
   const m = dayFirst ? months[dayFirst[2].toLowerCase()] : monthFirst ? months[monthFirst[1].toLowerCase()] : '';
   const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
   const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
@@ -114,6 +119,14 @@ const detectReportSectors = (text: string): SectorKey[] => {
   if (/wheat|corn|maize|grain|harvest|crop progress|planting|yield forecast|sugar|coffee|cocoa|cotton|oilseed|agricultural commodities|soybean|soybeans/.test(t)) found.push('agricultural_commodities');
   return [...new Set(found)];
 };
+async function extractImageText(file: File): Promise<string> {
+  // OCR gratuito en el navegador; si la CDN o el reconocimiento fallan, la carga del archivo continúa.
+  // @ts-ignore Tesseract se carga solo al adjuntar una imagen.
+  const tesseract = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js');
+  const result = await tesseract.recognize(file, 'eng+spa');
+  return String(result?.data?.text ?? '').replace(/\\s+/g, ' ').trim();
+}
+
 async function extractPdfContent(file: File): Promise<{ title: string; text: string }> {
   // PDF.js is loaded only when a PDF is selected; no new build dependency or paid service.
   // @ts-ignore PDF.js is loaded as a browser ES module from its public CDN.
@@ -249,10 +262,11 @@ export function IntelligenceReportsPage() {
     if (!isPdf && !isImage) { setFileMessage('Adjunta un PDF o una imagen (PNG, JPG o WEBP).'); return; }
     if (file.size > 25 * 1024 * 1024) { setFileMessage('El archivo supera el límite de 25 MB.'); return; }
 
-    setProcessingFile(true); setSaving(true); setFileMessage(isPdf ? 'Procesando PDF…' : 'Guardando imagen…'); setError('');
+    setProcessingFile(true); setSaving(true); setFileMessage(isPdf ? 'Procesando PDF…' : 'Leyendo fecha y texto de la imagen…'); setError('');
     let fullText = '';
     let metadataTitle = '';
     let extractionFailed = false;
+    let imageOcrFailed = false;
     let uploadedPath = '';
     try {
       if (isPdf) {
@@ -263,11 +277,19 @@ export function IntelligenceReportsPage() {
         } catch {
           extractionFailed = true;
         }
+      } else if (isImage) {
+        try {
+          fullText = await extractImageText(file);
+        } catch {
+          imageOcrFailed = true;
+        }
       }
 
       const proposedTitle = metadataTitle || cleanFilenameTitle(file.name) || file.name;
       const combinedText = proposedTitle + ' ' + file.name + ' ' + fullText;
-      const proposedDate = detectPublicationDate(proposedTitle + ' ' + file.name) || detectPublicationDate(fullText) || new Date().toISOString().slice(0, 10);
+      const confirmedDate = CONFIRMED_DOCUMENT_DATES[file.name];
+      // Prioridad: fecha confirmada explícitamente, fecha leída del documento, nombre/metadata y por último fecha actual.
+      const proposedDate = confirmedDate || detectPublicationDate(fullText) || detectPublicationDate(metadataTitle) || detectPublicationDate(file.name) || new Date().toISOString().slice(0, 10);
       const publisher = detectPublisher(combinedText) || 'Por identificar';
       const detectedSectors = detectReportSectors(combinedText);
       const sectors: SectorKey[] = detectedSectors.length ? detectedSectors : (procurementDomain ? [procurementDomain] : ['feedstock']);
@@ -304,9 +326,11 @@ export function IntelligenceReportsPage() {
       const { error: insertError } = await client.from('intelligence_reports').insert(payload).select('id').single();
       if (insertError) throw new Error('El PDF se subió, pero no se pudo registrar: ' + insertError.message);
       uploadedPath = '';
-      setFileMessage(isImage ? 'Imagen guardada.' : extractionFailed || !fullText
-        ? 'PDF guardado. No se pudo extraer texto; la ficha usa el nombre del archivo.'
-        : 'PDF guardado.');
+      setFileMessage(isImage
+        ? (confirmedDate ? 'Imagen guardada. Fecha documental confirmada: ' + confirmedDate + '.' : imageOcrFailed || !fullText ? 'Imagen guardada, pero no se pudo leer el texto. Revisa la fecha documental.' : 'Imagen guardada; fecha y texto procesados por OCR. Verifica la fecha documental.')
+        : extractionFailed || !fullText
+          ? 'PDF guardado. No se pudo extraer texto; la ficha usa el nombre del archivo.'
+          : 'PDF guardado.');
       await loadReports();
     } catch (e) {
       if (uploadedPath) await client.storage.from('intelligence-reports').remove([uploadedPath]);
