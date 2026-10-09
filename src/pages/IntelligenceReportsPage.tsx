@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ClipboardList, Download, Droplets, ExternalLink, FileText, FlaskConical, Fuel, Newspaper, Pencil, Pickaxe, Plus, RefreshCw, Search, Send, Trash2, Upload, Wheat, X, type LucideIcon } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ClipboardList, Download, Droplets, ExternalLink, FileText, FlaskConical, Fuel, Newspaper, Pickaxe, Plus, RefreshCw, Search, Send, Trash2, Upload, Wheat, X, type LucideIcon } from 'lucide-react';
 import { useNav } from '@/context/NavContext';
 import { getSupabaseClient } from '@/data/supabase-client';
 import { Badge, Button, Card, CardBody, EmptyState, ErrorState, LoadingSpinner, PageHeader } from '@/components/ui';
@@ -140,11 +140,7 @@ export function IntelligenceReportsPage() {
   const [search, setSearch] = useState('');
   const [publisherFilter, setPublisherFilter] = useState('all');
   const [selectedSector, setSelectedSector] = useState<string>(procurementDomain ?? 'all');
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ReportForm | null>(null);
-  const [publisherChoice, setPublisherChoice] = useState('Argus');
-  const [customPublisher, setCustomPublisher] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processingFile, setProcessingFile] = useState(false);
   const [fileMessage, setFileMessage] = useState('');
   const [requestForm, setRequestForm] = useState<ReportRequestForm | null>(null);
@@ -184,82 +180,11 @@ export function IntelligenceReportsPage() {
   }, [reports, search, selectedSector, publisherFilter]);
 
   function startNew() {
-    setEditingId(null);
-    setSelectedFile(null); setProcessingFile(false); setFileMessage('');
-    setPublisherChoice('Por identificar');
-    setCustomPublisher('');
+    setProcessingFile(false); setFileMessage('');
     setForm(emptyForm(procurementDomain ? [procurementDomain] : []));
     setError('');
   }
-  function startEdit(report: Report) {
-    setEditingId(report.id); setSelectedFile(null); setProcessingFile(false); setFileMessage('');
-    const isStandardPublisher = STANDARD_PUBLISHERS.slice(0, -1).includes(report.publisher);
-    setPublisherChoice(isStandardPublisher ? report.publisher : 'Otro');
-    setCustomPublisher(isStandardPublisher ? '' : report.publisher);
-    setForm({
-      title: report.title, publisher: report.publisher, report_category: report.report_category ?? 'Other', report_date: report.report_date,
-      sectors: report.sectors ?? [], commodities: report.commodities ?? [], region: report.region ?? '',
-      period_label: report.period_label ?? '', summary: report.summary ?? '', key_findings: report.key_findings ?? '',
-      source_url: report.source_url ?? '', source_kind: report.source_kind ?? 'authorized_link',
-      access_note: report.access_note ?? '', file_path: report.file_path ?? '', file_name: report.file_name ?? '', file_size: report.file_size ?? 0, mime_type: report.mime_type ?? '', created_by: report.created_by ?? 'Astra',
-    });
-    setError('');
-  }
-  function closeForm() { setForm(null); setEditingId(null); setSelectedFile(null); setProcessingFile(false); setFileMessage(''); }
-  function updateForm<K extends keyof ReportForm>(key: K, value: ReportForm[K]) {
-    setForm(current => current ? { ...current, [key]: value } : current);
-    if (key === 'title' || key === 'source_url') {
-      const title = key === 'title' ? String(value) : form?.title ?? '';
-      const sourceUrl = key === 'source_url' ? String(value) : form?.source_url ?? '';
-      const detected = detectPublisher(title, sourceUrl);
-      if (detected) {
-        setPublisherChoice(detected);
-        setCustomPublisher('');
-      }
-    }
-  }
-  async function handlePdfSelection(file?: File) {
-    if (!file || !form) return;
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setFileMessage('Por ahora se admiten archivos PDF.'); return;
-    }
-    if (file.size > 25 * 1024 * 1024) { setFileMessage('El PDF supera el límite de 25 MB.'); return; }
-    setSelectedFile(file); setProcessingFile(true); setFileMessage('Leyendo el PDF y preparando una ficha preliminar…'); setError('');
-    try {
-      const extracted = await extractPdfContent(file);
-      const fullText = extracted.text;
-      const proposedTitle = extracted.title || cleanFilenameTitle(file.name);
-      const proposedDate = detectPublicationDate(fullText);
-      const publisher = detectPublisher(proposedTitle + ' ' + file.name + ' ' + fullText, '');
-      const suggestedSectors = detectReportSectors(proposedTitle + ' ' + file.name + ' ' + fullText);
-      const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
-      const draftSummary = sentences.slice(0, 3).join(' ').slice(0, 1200);
-      const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
-      const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
-      setForm(current => current ? {
-        ...current,
-        title: proposedTitle || current.title,
-        report_date: proposedDate,
-        period_label: isoWeekLabel(proposedDate),
-        report_category: detectReportCategory(proposedTitle + ' ' + file.name + ' ' + fullText),
-        sectors: suggestedSectors.length ? suggestedSectors : current.sectors,
-        commodities: [...new Set([...(current.commodities ?? []), ...['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => fullText.toLowerCase().includes(term.toLowerCase()))])],
-        summary: current.summary.trim() ? current.summary : draftSummary,
-        key_findings: current.key_findings.trim() ? current.key_findings : findings,
-        file_name: file.name, file_size: file.size, mime_type: 'application/pdf',
-        source_kind: 'internal_link',
-      } : current);
-      if (publisher) { setPublisherChoice(publisher); setCustomPublisher(''); }
-      else { setPublisherChoice('Por identificar'); setCustomPublisher(''); }
-      setFileMessage(fullText.length
-        ? `PDF leído: ${fullText.length.toLocaleString('es-CL')} caracteres extraídos de hasta 80 páginas. Revisa y corrige la ficha antes de guardar.`
-        : 'El PDF se adjuntará, pero no contiene texto extraíble (posiblemente es un escaneo). Requiere OCR para analizar el contenido.');
-    } catch (e) {
-      setFileMessage('No pude extraer el texto automáticamente. El archivo se puede adjuntar, pero revisa los datos manualmente. ' + (e instanceof Error ? e.message : ''));
-      setForm(current => current ? { ...current, title: cleanFilenameTitle(file.name) || current.title, file_name: file.name, file_size: file.size, mime_type: 'application/pdf', source_kind: 'internal_link' } : current);
-    } finally { setProcessingFile(false); }
-  }
-
+  function closeForm() { setForm(null); setProcessingFile(false); setFileMessage(''); }
   async function openAttachedFile(report: Report) {
     if (!client || !report.file_path) return;
     const tab = window.open('', '_blank');
@@ -269,43 +194,6 @@ export function IntelligenceReportsPage() {
     else window.location.href = data.signedUrl;
   }
 
-  async function saveReport() {
-    if (!client || !form) return;
-    const effectiveTitle = form.title.trim() || (selectedFile ? cleanFilenameTitle(selectedFile.name) : '');
-    if (!effectiveTitle) { setError('Adjunta el PDF para detectar el título automáticamente.'); return; }
-    if (!form.sectors.length) { setError('Selecciona al menos un sector.'); return; }
-    if (form.source_url.trim()) {
-      try { const url = new URL(form.source_url.trim()); if (!['http:', 'https:'].includes(url.protocol)) throw new Error(); }
-      catch { setError('El enlace debe ser una URL válida que empiece por https:// o http://.'); return; }
-    }
-    setSaving(true); setError('');
-    const finalPublisher = (publisherChoice === 'Otro' ? customPublisher : publisherChoice).trim() || 'Por identificar';
-    let uploadedPath = '';
-    const oldFilePath = form.file_path;
-    if (selectedFile) {
-      uploadedPath = `reports/${crypto.randomUUID()}-${selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-      const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, selectedFile, { contentType: 'application/pdf', upsert: false });
-      if (uploadError) { setError('No se pudo adjuntar el PDF: ' + uploadError.message); setSaving(false); return; }
-    }
-    const payload = {
-      ...form, title: effectiveTitle, publisher: finalPublisher, period_label: isoWeekLabel(form.report_date),
-      source_url: form.source_url.trim(), updated_at: new Date().toISOString(),
-      file_path: uploadedPath || form.file_path || '', file_name: selectedFile?.name ?? form.file_name ?? '',
-      file_size: selectedFile?.size ?? form.file_size ?? 0, mime_type: selectedFile ? 'application/pdf' : (form.mime_type || ''),
-    };
-    const result = editingId
-      ? await client.from('intelligence_reports').update(payload).eq('id', editingId).select('*').single()
-      : await client.from('intelligence_reports').insert(payload).select('*').single();
-    if (result.error) {
-      if (uploadedPath) await client.storage.from('intelligence-reports').remove([uploadedPath]);
-      setError(result.error.message);
-      setSaving(false);
-      return;
-    }
-    if (uploadedPath && oldFilePath && oldFilePath !== uploadedPath) await client.storage.from('intelligence-reports').remove([oldFilePath]);
-    await loadReports();
-    setSaving(false); closeForm();
-  }
   function startRequest(sector: SectorKey) {
     setRequestForm({ sector, topic: '', report_type: 'weekly', preferred_source: 'Argus', desired_period: '', requested_by: '', notes: '' });
     setRequestMessage(''); setRequestError('');
@@ -336,71 +224,21 @@ export function IntelligenceReportsPage() {
   }
 
   if (loading) return <LoadingSpinner />;
-  if (error && reports.length === 0) return <ErrorState message={error} />;
+  if (error && reports.length === 0 && !form) return <ErrorState message={error} />;
 
   return (
     <div className="space-y-5">
       <PageHeader title="Intelligence Reports" subtitle="Una biblioteca central de informes de mercado, con acceso por sector y fuente." action={<Button onClick={startNew}><Plus size={16} /> Agregar informe</Button>} />
       {form && <Card><CardBody>
-        <div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">{editingId ? 'Editar informe' : 'Registrar nuevo informe'}</h2><button onClick={closeForm} aria-label="Cerrar formulario" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
-        <div className="mb-4 rounded-xl border border-dashed border-[var(--astra-border)] bg-slate-50/70 p-4">
-          <div className="flex items-start gap-3"><div className="rounded-lg bg-white p-2 text-[var(--astra-red)] shadow-sm"><Upload size={20} /></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">Seleccionar documento PDF</p><p className="mt-1 text-xs leading-5 text-slate-500">Elige el archivo desde tu computadora o celular (máximo 25 MB). Detectaremos los datos que se puedan leer y podrás revisarlos antes de guardar.</p></div></div>
-          <input type="file" accept="application/pdf,.pdf" aria-label="Seleccionar documento PDF" onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="mt-3 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 file:shadow-sm" />
-          {processingFile && <p role="status" className="mt-2 text-sm text-slate-600">Leyendo contenido del PDF…</p>}
-          {fileMessage && <p role="status" className={`mt-2 rounded-md p-2 text-xs ${fileMessage.startsWith('No pude') || fileMessage.startsWith('El PDF se adjuntará') ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}`}>{fileMessage}</p>}
-          {(selectedFile || form.file_name) && <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3"><FileText size={20} className="shrink-0 text-[var(--astra-red)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800">{selectedFile?.name ?? form.file_name}</p><p className="text-xs text-slate-500">{formatFileSize(selectedFile?.size ?? form.file_size)} · PDF · {selectedFile ? 'Pendiente de guardar' : 'Adjunto guardado'}</p></div>{!selectedFile && form.file_path && <Button size="sm" variant="secondary" onClick={() => { void openAttachedFile({ ...({} as Report), file_path: form.file_path } as Report); }}><Download size={14} /> Abrir</Button>}</div>}
+        <div className="flex items-center gap-3">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+            <Upload size={16} />
+            <span>{processingFile || saving ? 'Procesando PDF…' : 'Seleccionar PDF'}</span>
+            <input type="file" accept="application/pdf,.pdf" aria-label="Seleccionar PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" />
+          </label>
+          <button onClick={closeForm} aria-label="Cerrar" className="rounded p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={16} /></button>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Título detectado automáticamente
-            <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly / S&P Global Platts…" />
-            <span className="mt-1 block text-xs font-normal text-slate-500">Detectamos Argus, S&P Global Platts y otras fuentes conocidas a partir del título o enlace. Revisa la fuente seleccionada antes de guardar.</span>
-          </label>
-          <label className="text-sm font-medium text-slate-700">Fuente detectada automáticamente
-            <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
-              <option value="Por identificar">Se detectará del PDF / Por identificar</option>{STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
-              {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-            {publisherChoice === 'Otro' && <input value={customPublisher} onChange={e => setCustomPublisher(e.target.value)} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Escribe el nombre de la fuente" />}
-          </label>
-          <label className="text-sm font-medium text-slate-700">Tipo de informe
-            <select value={form.report_category} onChange={e => updateForm('report_category', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">{REPORT_CATEGORIES.map(category => <option key={category} value={category}>{category}</option>)}</select>
-          </label>
-          <label className="text-sm font-medium text-slate-700">Fecha de publicación detectada
-            <input type="date" required value={form.report_date} onChange={e => { updateForm('report_date', e.target.value); updateForm('period_label', isoWeekLabel(e.target.value)); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
-            <span className="mt-1 block text-xs font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span>
-          </label>
-          <fieldset className="md:col-span-2"><legend className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => updateForm('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(v => v !== s.value))} />{s.label}</label>)}
-          </div></fieldset>
-
-          <details className="rounded-md border border-slate-200 md:col-span-2">
-            <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700">Detalles opcionales del mercado (abrir si los necesitas)</summary>
-            <div className="grid gap-3 border-t border-slate-200 p-3 md:grid-cols-2">
-              <label className="text-sm font-medium text-slate-700">Commodities (separados por coma)
-                <input value={form.commodities.join(', ')} onChange={e => updateForm('commodities', e.target.value.split(',').map(v => v.trim()).filter(Boolean))} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="UCO, soybean oil, diesel…" />
-              </label>
-              <label className="text-sm font-medium text-slate-700">Región / mercado
-                <input value={form.region} onChange={e => updateForm('region', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Europe, Brazil, Global…" />
-              </label>
-              <label className="text-sm font-medium text-slate-700 md:col-span-2">Resumen ejecutivo
-                <textarea value={form.summary} onChange={e => updateForm('summary', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="¿Qué debe saber el equipo sin leer todo el informe?" />
-              </label>
-              <label className="text-sm font-medium text-slate-700 md:col-span-2">Señales / datos clave
-                <textarea value={form.key_findings} onChange={e => updateForm('key_findings', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Precios, cambios semanales, riesgos, perspectivas…" />
-              </label>
-              <label className="text-sm font-medium text-slate-700">Tipo de acceso
-                <select value={form.source_kind} onChange={e => updateForm('source_kind', e.target.value as ReportForm['source_kind'])} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
-                  <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option><option value="other">Otro / por confirmar</option>
-                </select>
-              </label>
-              <label className="text-sm font-medium text-slate-700">Nota de acceso
-                <input value={form.access_note} onChange={e => updateForm('access_note', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Quién puede abrirlo o restricciones" />
-              </label>
-            </div>
-          </details>
-        </div>
-        <p className="mt-3 rounded-md bg-slate-50 p-3 text-xs text-slate-600">El PDF se guarda como archivo adjunto de Astra. La ficha se completa automáticamente con los datos que se puedan extraer; comprueba los campos detectados antes de guardar. Los PDF escaneados pueden requerir OCR.</p>
-        <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving || processingFile}>{saving ? 'Guardando…' : processingFile ? 'Leyendo PDF…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
+        {fileMessage && <p role="status" className="mt-2 text-xs text-slate-500">{fileMessage}</p>}
       </CardBody></Card>}
       <section aria-label="Sectores de inteligencia" className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-base font-semibold text-[var(--astra-dark)]">Explora por sector</h2><p className="mt-1 text-sm text-[var(--astra-muted)]">Selecciona un mercado para consultar los informes disponibles o solicitar uno nuevo.</p></div><button onClick={() => setSelectedSector('all')} className={`rounded-md border px-3 py-2 text-xs font-semibold ${selectedSector === 'all' ? 'border-[var(--astra-red)] bg-[var(--astra-red-soft)] text-[var(--astra-dark)]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>Ver todos los sectores</button></div>
@@ -424,13 +262,7 @@ export function IntelligenceReportsPage() {
       {requestForm && <Card><CardBody>
         <div className="mb-4 flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-[var(--astra-red)]">Solicitud de mercado</p><h2 className="mt-1 text-base font-semibold text-[var(--astra-dark)]">Solicitar informe de {SECTORS.find(s => s.value === requestForm.sector)?.label}</h2><p className="mt-1 text-sm text-slate-500">La solicitud se registra y se envía al administrador por correo.</p></div><button onClick={() => setRequestForm(null)} aria-label="Cerrar solicitud" className="rounded p-1 text-slate-500 hover:bg-slate-100"><X size={18} /></button></div>
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-xl border border-dashed border-[var(--astra-border)] bg-slate-50/70 p-4 md:col-span-2">
-            <div className="flex items-start gap-3"><div className="rounded-lg bg-white p-2 text-[var(--astra-red)] shadow-sm"><Upload size={20} /></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-slate-800">Adjunta primero el PDF</p><p className="mt-1 text-xs leading-5 text-slate-500">Hasta 25 MB. Al seleccionarlo, extraeremos título, fecha, fuente, sectores, commodities, resumen y señales clave. Después podrás revisar la ficha antes de guardar.</p></div></div>
-            <input type="file" accept="application/pdf,.pdf" onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="mt-3 block w-full cursor-pointer text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-700 file:shadow-sm" />
-            {processingFile && <p role="status" className="mt-2 text-sm text-slate-600">Leyendo contenido del PDF…</p>}
-            {fileMessage && <p role="status" className={`mt-2 rounded-md p-2 text-xs ${fileMessage.startsWith('No pude') || fileMessage.startsWith('El PDF se adjuntará') ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}`}>{fileMessage}</p>}
-            {(selectedFile || form.file_name) && <div className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3"><FileText size={20} className="shrink-0 text-[var(--astra-red)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800">{selectedFile?.name ?? form.file_name}</p><p className="text-xs text-slate-500">{formatFileSize(selectedFile?.size ?? form.file_size)} · PDF · {selectedFile ? 'Pendiente de guardar' : 'Adjunto guardado'}</p></div>{!selectedFile && form.file_path && <Button size="sm" variant="secondary" onClick={() => { void openAttachedFile({ ...({} as Report), file_path: form.file_path } as Report); }}><Download size={14} /> Abrir</Button>}</div>}
-          </div>
+
 
           <label className="text-sm font-medium text-slate-700 md:col-span-2">¿Qué informe o commodity necesitas? *
             <input autoFocus value={requestForm.topic} onChange={e => setRequestForm(v => v ? {...v, topic:e.target.value} : v)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder={requestForm.sector === 'energy_commodities' ? 'Ej. Fuel oil, LNG, diesel, crude…' : requestForm.sector === 'feedstock' ? 'Ej. UCO / AVU, acid oil, oleínas…' : 'Ej. Argus weekly, precios, flujos…'} />
@@ -487,7 +319,7 @@ export function IntelligenceReportsPage() {
             {report.access_note && <p className="mt-2 text-xs text-slate-500">Acceso: {report.access_note}</p>}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
               <div className="flex flex-wrap items-center gap-3">{report.file_path && <button onClick={() => void openAttachedFile(report)} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--astra-red)] hover:underline"><Download size={15} /> Abrir PDF adjunto</button>}{report.source_url && <a href={report.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--astra-red)] hover:underline"><ExternalLink size={15} /> Abrir fuente</a>}{!report.source_url && !report.file_path && <span className="text-xs text-slate-400">Sin enlace ni archivo</span>}</div>
-              <div className="flex flex-wrap gap-1"><Button size="sm" variant="ghost" onClick={() => startEdit(report)}><Pencil size={15} /> Editar</Button><Button size="sm" variant="ghost" onClick={() => void deleteReport(report)}><Trash2 size={15} /> Eliminar</Button></div>
+              <div className="flex flex-wrap gap-1"><Button size="sm" variant="ghost" onClick={() => void deleteReport(report)}><Trash2 size={15} /> Eliminar</Button></div>
             </div>
           </CardBody></Card>)}
         </div>
