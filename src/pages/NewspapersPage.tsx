@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Download, FileText, Newspaper, Plus, Trash2 } from 'lucide-react';
+import { Download, Eye, FileText, Newspaper, Plus, Trash2 } from 'lucide-react';
 import { getSupabaseClient } from '@/data/supabase-client';
-import { Badge, Button, Card, CardBody, EmptyState, LoadingSpinner, PageHeader } from '@/components/ui';
+import { EmptyState, LoadingSpinner, PageHeader } from '@/components/ui';
 
 type SectorKey = 'feedstock' | 'energy_commodities' | 'mining_commodities' | 'fertilizers_chemicals' | 'agricultural_commodities';
 type NewspaperRecord = {
@@ -10,13 +10,6 @@ type NewspaperRecord = {
   source_url: string; access_note: string; created_by: string; created_at: string; updated_at: string;
   file_path: string; file_name: string; file_size: number; mime_type: string;
 };
-const SECTORS: { value: SectorKey; label: string; keywords: string[] }[] = [
-  { value: 'feedstock', label: 'Feedstock', keywords: ['biodiesel', 'biofuel', 'used cooking oil', 'uco', 'vegetable oil', 'palm oil', 'soy oil', 'soybean oil', 'canola oil', 'rapeseed', 'olein', 'fatty acid', 'feedstock', 'tallow', 'renewable diesel'] },
-  { value: 'energy_commodities', label: 'Energy', keywords: ['oil price', 'crude', 'brent', 'wti', 'diesel', 'gasoline', 'fuel oil', 'natural gas', 'lng', 'opec', 'energy', 'refinery', 'petroleum', 'electricity'] },
-  { value: 'mining_commodities', label: 'Metals & Mining', keywords: ['copper', 'lithium', 'iron ore', 'iron', 'steel', 'gold', 'silver', 'aluminium', 'aluminum', 'mining', 'mineral', 'concentrate', 'nickel'] },
-  { value: 'fertilizers_chemicals', label: 'Fertilizers & Chemicals', keywords: ['fertilizer', 'fertiliser', 'urea', 'ammonia', 'phosphate', 'potash', 'sulfur', 'sulphur', 'methanol', 'chemical', 'acid', 'nitrogen'] },
-  { value: 'agricultural_commodities', label: 'Agriculture', keywords: ['wheat', 'corn', 'maize', 'soybean', 'soybeans', 'grain', 'crop', 'harvest', 'sugar', 'coffee', 'cocoa', 'cotton', 'agriculture', 'agricultural', 'export stocks'] },
-];
 const PUBLISHERS: [RegExp, string][] = [
   [/new york times|nytimes/i, 'The New York Times'], [/jerusalem post/i, 'The Jerusalem Post'],
   [/financial times|ft\.com/i, 'Financial Times'], [/wall street journal|wsj\.com/i, 'The Wall Street Journal'],
@@ -26,21 +19,19 @@ const PUBLISHERS: [RegExp, string][] = [
   [/folha de s\.paulo|folha\.uol/i, 'Folha de S.Paulo'], [/valor econômico|valor\.globo/i, 'Valor Econômico'],
 ];
 const detectPublisher = (text: string) => PUBLISHERS.find(([pattern]) => pattern.test(text))?.[1] ?? 'Por identificar';
-const detectSectors = (text: string): SectorKey[] => {
-  const normalized = text.toLowerCase().replace(/[._-]+/g, ' ');
-  // A document's core subject wins over incidental terms mentioned in its body.
-  if (/bunker\s*wire|bunkerwire|bunker fuel|marine fuel|vlsfo|hsfo/.test(normalized)) return ['energy_commodities'];
-  if (/weekly harvest report|crop progress report|wheat fob\s*(?:&|and)?\s*export basis|wheat export basis estimates/.test(normalized)) return ['agricultural_commodities'];
-  const scores = SECTORS.map(sector => ({
-    value: sector.value,
-    score: sector.keywords.reduce((total, keyword) => total + Math.max(0, normalized.split(keyword.toLowerCase()).length - 1), 0),
-  })).sort((a, b) => b.score - a.score);
-  const highest = scores[0]?.score ?? 0;
-  if (highest === 0) return [];
-  // Keep multiple sectors only when each has substantial evidence, not one incidental keyword.
-  return scores.filter(item => item.score >= Math.max(2, highest * 0.6)).map(item => item.value);
-};
 const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim();
+const shortDate = (value: string) => {
+  if (!value) return '';
+  const parts = value.slice(0, 10).split('-');
+  return parts.length === 3 ? parts[2] + ' ' + parts[1] + ' ' + parts[0].slice(-2) : '';
+};
+const compactNewspaperTitle = (fileName: string, title: string, text: string, date: string) => {
+  const source = [fileName, title, text.slice(0, 5000)].filter(Boolean).join(' ').toLowerCase();
+  if (/bunker\s*wire|bunkerwire|\bbw[_ -]?\d{8}/.test(source)) return 'Bunker Wire Platts';
+  if (/weekly harvest report|hr[\s_-]*26[\s_-]*09[\s_-]*30/.test(source)) return 'Harvest Report ' + (shortDate(date) || '30 09 26');
+  if (/wheat fob\s*(?:&|and)?\s*export basis|pr[\s_-]*26[\s_-]*10[\s_-]*02/.test(source)) return 'Wheat ' + (shortDate(date) || '02 10 26');
+  return cleanFilenameTitle(fileName).slice(0, 64) || 'Diario';
+};
 const detectPublicationDate = (text: string) => {
   const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
   if (iso) return iso[1] + '-' + iso[2].padStart(2, '0') + '-' + iso[3].padStart(2, '0');
@@ -76,7 +67,9 @@ export function NewspapersPage() {
   const [processingFile, setProcessingFile] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [selectedSector, setSelectedSector] = useState<SectorKey | 'all'>('all');
+  const [previewItem, setPreviewItem] = useState<NewspaperRecord | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   async function refresh() {
     if (!client) { setError('Supabase no está configurado.'); setLoading(false); return; }
@@ -87,7 +80,7 @@ export function NewspapersPage() {
     setLoading(false);
   }
   useEffect(() => { void refresh(); }, []);
-  const visible = useMemo(() => records.filter(r => selectedSector === 'all' || r.sectors?.includes(selectedSector)), [records, selectedSector]);
+  const visible = records;
 
   async function handlePdfSelection(file?: File) {
     if (!file || !client || processingFile || saving) return;
@@ -104,17 +97,17 @@ export function NewspapersPage() {
         fullText = extracted.text;
         metadataTitle = extracted.title;
       } catch { extractionFailed = true; }
-      const title = (metadataTitle || cleanFilenameTitle(file.name) || file.name).slice(0, 240);
+      const extractedDate = fullText ? detectPublicationDate(fullText) : new Date().toISOString().slice(0, 10);
+      const title = compactNewspaperTitle(file.name, metadataTitle, fullText, extractedDate);
       const combined = title + ' ' + file.name + ' ' + fullText;
       const publisher = detectPublisher(combined);
-      const detected = detectSectors(combined);
-      const sectors: SectorKey[] = detected;
+      const sectors: SectorKey[] = [];
       const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
       const summary = sentences.slice(0, 3).join(' ').slice(0, 1200);
       const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
       const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
       const topics = ['UCO', 'soybean oil', 'cottonseed', 'Brent', 'diesel', 'urea', 'copper', 'wheat', 'corn', 'sugar', 'biodiesel', 'vegetable oil'].filter(term => combined.toLowerCase().includes(term.toLowerCase()));
-      const publishedDate = fullText ? detectPublicationDate(fullText) : new Date().toISOString().slice(0, 10);
+      const publishedDate = extractedDate;
       uploadedPath = 'newspapers/' + crypto.randomUUID() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, file, { contentType: 'application/pdf', upsert: false });
       if (uploadError) throw new Error('No se pudo adjuntar el PDF: ' + uploadError.message);
@@ -141,11 +134,22 @@ export function NewspapersPage() {
 
   async function openAttachedFile(item: NewspaperRecord) {
     if (!client || !item.file_path) return;
-    const tab = window.open('', '_blank');
+    setPreviewItem(item); setPreviewUrl(''); setPreviewLoading(true);
     const { data, error: signedError } = await client.storage.from('intelligence-reports').createSignedUrl(item.file_path, 1800);
-    if (signedError || !data?.signedUrl) { if (tab) tab.close(); setError(signedError?.message ?? 'No se pudo abrir el PDF.'); return; }
-    if (tab) tab.location.href = data.signedUrl;
-    else window.location.href = data.signedUrl;
+    if (signedError || !data?.signedUrl) {
+      setError(signedError?.message ?? 'No se pudo abrir el PDF.');
+      setPreviewItem(null); setPreviewLoading(false); return;
+    }
+    setPreviewUrl(data.signedUrl); setPreviewLoading(false);
+  }
+
+  async function downloadAttachedFile(item: NewspaperRecord) {
+    if (!client || !item.file_path) return;
+    const { data, error: signedError } = await client.storage.from('intelligence-reports').createSignedUrl(item.file_path, 1800, { download: item.file_name || true });
+    if (signedError || !data?.signedUrl) { setError(signedError?.message ?? 'No se pudo descargar el PDF.'); return; }
+    const link = document.createElement('a');
+    link.href = data.signedUrl; link.download = item.file_name || 'diario.pdf';
+    document.body.appendChild(link); link.click(); link.remove();
   }
 
   async function remove(item: NewspaperRecord) {
@@ -160,33 +164,36 @@ export function NewspapersPage() {
   }
 
   if (loading) return <LoadingSpinner />;
-  return <div className="space-y-5">
-    <PageHeader title="Diarios" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={16} /> Agregar diario<input type="file" accept="application/pdf,.pdf" aria-label="Agregar diario PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
-    {(processingFile || notice) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Leyendo el PDF y guardándolo…' : notice}</p>}
+  return <div className="space-y-4">
+    <PageHeader title="Diarios" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={15} /> Agregar diario<input type="file" accept="application/pdf,.pdf" aria-label="Agregar diario PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
+    {(processingFile || notice) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Leyendo PDF…' : notice}</p>}
     {error && <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-    <section aria-label="Sectores de diarios"><div className="flex flex-wrap gap-2">
-      {SECTORS.map(({ value, label }) => {
-        const count = records.filter(r => r.sectors?.includes(value)).length;
-        const active = selectedSector === value;
-        return <button key={value} type="button" aria-pressed={active} onClick={() => setSelectedSector(active ? 'all' : value)} className={'inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition ' + (active ? 'border-slate-700 bg-slate-100 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}>
-          <span>{label}</span><span className="text-xs text-slate-400">{count}</span>
-        </button>;
-      })}
-    </div></section>
-    {visible.length === 0 ? <Card><EmptyState icon={<Newspaper size={24} />} title={selectedSector === 'all' ? 'Todavía no hay diarios' : 'Sin entradas de ' + (SECTORS.find(s => s.value === selectedSector)?.label ?? 'este sector')} message="Pulsa «Agregar diario» para adjuntar un PDF. El sistema intentará leerlo, extraer sus señales y guardar el documento junto con el contenido." /></Card> : <div className="grid gap-3 xl:grid-cols-2">
-      {visible.map(item => <Card key={item.id}><CardBody>
-        <div className="flex items-start gap-3"><div className="rounded-lg bg-slate-50 p-3 text-slate-600"><Newspaper size={22} /></div><div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{item.publisher || 'Fuente no identificada'}</span><Badge color="gray">{dateLabel(item.published_date)}</Badge></div>
-          <h3 className="mt-1 font-semibold text-slate-900">{item.title}</h3>
-          <div className="mt-2 flex flex-wrap gap-1.5">{(item.sectors ?? []).map(s => <Badge key={s} color="gray">{SECTORS.find(x => x.value === s)?.label ?? s}</Badge>)}</div>
-          {item.topics?.length > 0 && <p className="mt-2 text-xs text-slate-500">{item.topics.join(' · ')}</p>}
-        </div></div>
-        {item.summary && <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{item.summary}</p>}
-        {item.key_findings && <div className="mt-3 rounded-md bg-slate-50 p-3"><p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Señales clave</p><p className="whitespace-pre-wrap text-sm text-slate-700">{item.key_findings}</p></div>}
-        {item.file_name && <p className="mt-3 flex items-center gap-2 rounded-md border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600"><FileText size={15} className="shrink-0" /><span className="min-w-0 flex-1 truncate">{item.file_name}</span><span className="shrink-0">{formatFileSize(item.file_size)}</span></p>}
-        <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3"><div>{item.file_path ? <button onClick={() => void openAttachedFile(item)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-800 hover:underline"><Download size={15} /> Abrir PDF adjunto</button> : <span className="text-xs text-slate-400">Sin PDF adjunto</span>}</div><Button size="sm" variant="ghost" onClick={() => void remove(item)}><Trash2 size={15} /> Eliminar</Button></div>
-      </CardBody></Card>)}
+    {visible.length === 0 ? <EmptyState icon={<Newspaper size={22} />} title="Todavía no hay diarios" message="Pulsa «Agregar diario» para adjuntar un PDF." /> : (
+      <div className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+        {visible.map(item => <div key={item.id} className="flex min-h-10 items-center gap-2 px-2.5 py-1.5">
+          <FileText size={15} className="shrink-0 text-slate-400" />
+          <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-slate-800" title={item.title}>{item.title || cleanFilenameTitle(item.file_name || '') || 'Diario'}</p></div>
+          {item.file_path && <div className="flex shrink-0 items-center gap-0.5">
+            <button type="button" aria-label="Ver PDF" title="Ver PDF" onClick={() => void openAttachedFile(item)} className="rounded p-1.5 text-slate-600 hover:bg-slate-100"><Eye size={15} /></button>
+            <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(item)} className="rounded p-1.5 text-slate-600 hover:bg-slate-100"><Download size={15} /></button>
+          </div>}
+          <button type="button" aria-label="Eliminar diario" title="Eliminar" onClick={() => void remove(item)} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
+        </div>)}
+      </div>
+    )}
+    <p className="text-xs text-slate-400">{visible.length} diario(s)</p>
+    {previewItem && <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del diario">
+      <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+          <p className="min-w-0 truncate text-sm font-medium text-slate-800">{previewItem.title}</p>
+          <button type="button" onClick={() => { setPreviewItem(null); setPreviewUrl(''); }} aria-label="Cerrar vista previa" title="Cerrar" className="ml-3 rounded p-1.5 text-slate-600 hover:bg-slate-100"><span aria-hidden="true">×</span></button>
+        </div>
+        <div className="min-h-0 flex-1 bg-slate-100 p-1 sm:p-3">
+          {previewLoading ? <div className="flex h-full items-center justify-center text-sm text-slate-500">Cargando PDF…</div>
+            : previewUrl ? <iframe title="Vista previa PDF" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />
+            : <p className="p-4 text-sm text-slate-600">No se pudo cargar la vista previa.</p>}
+        </div>
+      </div>
     </div>}
-    <p className="text-xs text-slate-400">{visible.length} entrada(s) visibles · El texto extraído se conserva en la base de datos para su consulta posterior.</p>
   </div>;
 }
