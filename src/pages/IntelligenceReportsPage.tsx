@@ -42,7 +42,7 @@ const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & sto
 const detectPublicationDate = (text: string) => {
   const iso = text.match(/\b(20\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\d|3[01])\b/);
   if (iso) {
-    const candidate = \`\${iso[1]}-\${String(iso[2]).padStart(2, '0')}-\${String(iso[3]).padStart(2, '0')}\`;
+    const candidate = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
     const d = new Date(candidate + 'T12:00:00Z');
     if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
   }
@@ -53,7 +53,7 @@ const detectPublicationDate = (text: string) => {
   const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
   const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
   if (m && day && year) {
-    const candidate = \`\${year}-\${m}-\${String(day).padStart(2, '0')}\`;
+    const candidate = `${year}-${m}-${String(day).padStart(2, '0')}`;
     const d = new Date(candidate + 'T12:00:00Z');
     if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
   }
