@@ -19,9 +19,19 @@ const SECTORS: { value: SectorKey; label: string }[] = [
   { value: 'fertilizers_chemicals', label: 'Fertilizers & Chemicals' },
   { value: 'agricultural_commodities', label: 'Agricultural' },
 ];
+const isoWeekLabel = (value: string) => {
+  if (!value) return '';
+  const date = new Date(`${value}T12:00:00Z`);
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
+};
+const STANDARD_PUBLISHERS = ['Argus', 'S&P Global Platts', 'ICIS', 'IEA', 'EIA', 'USDA', 'FAO', 'Otro'];
 const emptyForm = (sectors: SectorKey[]): ReportForm => ({
-  title: '', publisher: '', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
-  commodities: [], region: '', period_label: '', summary: '', key_findings: '', source_url: '',
+  title: '', publisher: 'Argus', report_date: new Date().toISOString().slice(0, 10), sectors: sectors.length ? sectors : ['feedstock'],
+  commodities: [], region: '', period_label: isoWeekLabel(new Date().toISOString().slice(0, 10)), summary: '', key_findings: '', source_url: '',
   source_kind: 'authorized_link', access_note: 'Acceso según licencia o permisos de la fuente.', created_by: 'Astra',
 });
 const labelForSector = (value: string) => SECTORS.find(s => s.value === value)?.label ?? value;
@@ -39,6 +49,8 @@ export function IntelligenceReportsPage() {
   const [selectedSector, setSelectedSector] = useState<string>(procurementDomain ?? 'all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ReportForm | null>(null);
+  const [publisherChoice, setPublisherChoice] = useState('Argus');
+  const [customPublisher, setCustomPublisher] = useState('');
 
   useEffect(() => { setSelectedSector(procurementDomain ?? 'all'); }, [procurementDomain]);
 
@@ -53,6 +65,14 @@ export function IntelligenceReportsPage() {
   useEffect(() => { void loadReports(); }, []);
 
   const publishers = useMemo(() => [...new Set(reports.map(r => r.publisher.trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b)), [reports]);
+  const latestByPublisher = useMemo(() => {
+    const latest = new Map<string, string>();
+    for (const report of [...reports].sort((a, b) => b.report_date.localeCompare(a.report_date) || b.created_at.localeCompare(a.created_at))) {
+      const key = report.publisher.trim().toLowerCase();
+      if (key && !latest.has(key)) latest.set(key, report.id);
+    }
+    return latest;
+  }, [reports]);
   const visibleReports = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return reports.filter(r => {
@@ -65,11 +85,16 @@ export function IntelligenceReportsPage() {
 
   function startNew() {
     setEditingId(null);
+    setPublisherChoice('Argus');
+    setCustomPublisher('');
     setForm(emptyForm(procurementDomain ? [procurementDomain] : []));
     setError('');
   }
   function startEdit(report: Report) {
     setEditingId(report.id);
+    const isStandardPublisher = STANDARD_PUBLISHERS.slice(0, -1).includes(report.publisher);
+    setPublisherChoice(isStandardPublisher ? report.publisher : 'Otro');
+    setCustomPublisher(isStandardPublisher ? '' : report.publisher);
     setForm({
       title: report.title, publisher: report.publisher, report_date: report.report_date,
       sectors: report.sectors ?? [], commodities: report.commodities ?? [], region: report.region ?? '',
@@ -92,7 +117,9 @@ export function IntelligenceReportsPage() {
       catch { setError('El enlace debe ser una URL válida que empiece por https:// o http://.'); return; }
     }
     setSaving(true); setError('');
-    const payload = { ...form, title: form.title.trim(), publisher: form.publisher.trim(), source_url: form.source_url.trim(), updated_at: new Date().toISOString() };
+    const finalPublisher = (publisherChoice === 'Otro' ? customPublisher : publisherChoice).trim();
+    if (!finalPublisher) { setError('Selecciona o escribe la fuente del informe.'); setSaving(false); return; }
+    const payload = { ...form, title: form.title.trim(), publisher: finalPublisher, period_label: isoWeekLabel(form.report_date), source_url: form.source_url.trim(), updated_at: new Date().toISOString() };
     const result = editingId
       ? await client.from('intelligence_reports').update(payload).eq('id', editingId).select('*').single()
       : await client.from('intelligence_reports').insert(payload).select('*').single();
@@ -134,7 +161,7 @@ export function IntelligenceReportsPage() {
           </label>
           <Button variant="secondary" onClick={() => void loadReports()}><RefreshCw size={15} /> Actualizar</Button>
         </div>
-        <p className="mt-3 text-xs text-slate-500">Los informes se registran una sola vez, aunque estén relacionados con varios sectores.</p>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600"><span className="rounded-full bg-slate-100 px-3 py-1">{reports.length} informes en la biblioteca</span><span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">{publishers.length} fuentes</span><span className="rounded-full bg-amber-50 px-3 py-1 text-amber-800">Registro central: una sola vez para varios sectores</span></div>
       </CardBody></Card>
 
       {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
@@ -145,11 +172,16 @@ export function IntelligenceReportsPage() {
           <label className="text-sm font-medium text-slate-700 md:col-span-2">Título del informe *
             <input autoFocus value={form.title} onChange={e => updateForm('title', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Ej. Argus European Products — Weekly" />
           </label>
-          <label className="text-sm font-medium text-slate-700">Fuente / publisher
-            <input value={form.publisher} onChange={e => updateForm('publisher', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Argus, Platts, IEA…" />
+          <label className="text-sm font-medium text-slate-700">Fuente del informe *
+            <select value={publisherChoice} onChange={e => { setPublisherChoice(e.target.value); if (e.target.value !== 'Otro') setCustomPublisher(''); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
+              {STANDARD_PUBLISHERS.map(p => <option key={p} value={p}>{p === 'Otro' ? 'Otra fuente…' : p}</option>)}
+              {publishers.filter(p => !STANDARD_PUBLISHERS.includes(p)).map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+            {publisherChoice === 'Otro' && <input value={customPublisher} onChange={e => setCustomPublisher(e.target.value)} className="mt-2 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Escribe el nombre de la fuente" />}
           </label>
           <label className="text-sm font-medium text-slate-700">Fecha de publicación *
-            <input type="date" required value={form.report_date} onChange={e => updateForm('report_date', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
+            <input type="date" required value={form.report_date} onChange={e => { updateForm('report_date', e.target.value); updateForm('period_label', isoWeekLabel(e.target.value)); }} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" />
+            <span className="mt-1 block text-xs font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span>
           </label>
           <fieldset className="md:col-span-2"><legend className="mb-2 text-sm font-medium text-slate-700">Sectores relacionados *</legend><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {SECTORS.map(s => <label key={s.value} className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={form.sectors.includes(s.value)} onChange={e => updateForm('sectors', e.target.checked ? [...form.sectors, s.value] : form.sectors.filter(v => v !== s.value))} />{s.label}</label>)}
@@ -160,9 +192,7 @@ export function IntelligenceReportsPage() {
           <label className="text-sm font-medium text-slate-700">Región / mercado
             <input value={form.region} onChange={e => updateForm('region', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Europe, Brazil, Global…" />
           </label>
-          <label className="text-sm font-medium text-slate-700 md:col-span-2">Periodo analizado
-            <input value={form.period_label} onChange={e => updateForm('period_label', e.target.value)} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="Week 41 · 2026" />
-          </label>
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm md:col-span-2"><span className="font-medium text-slate-700">Semana identificada automáticamente:</span> <span className="font-semibold text-[var(--astra-red)]">{isoWeekLabel(form.report_date)}</span><p className="mt-1 text-xs text-slate-500">Se calcula con la fecha de publicación; no tienes que escribirla manualmente.</p></div>
           <label className="text-sm font-medium text-slate-700 md:col-span-2">Resumen ejecutivo
             <textarea value={form.summary} onChange={e => updateForm('summary', e.target.value)} rows={3} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2" placeholder="¿Qué debe saber el equipo sin leer todo el informe?" />
           </label>
@@ -191,7 +221,7 @@ export function IntelligenceReportsPage() {
             <div className="flex items-start gap-3">
               <div className="rounded-lg bg-slate-50 p-3 text-slate-600"><FileText size={22} /></div>
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{report.publisher || 'Fuente no indicada'}</span><Badge color="gray">{displayDate(report.report_date)}</Badge></div>
+                <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{report.publisher || 'Fuente no indicada'}</span><Badge color="gray">{displayDate(report.report_date)}</Badge>{latestByPublisher.get(report.publisher.trim().toLowerCase()) === report.id && <Badge color="green">MÁS RECIENTE DE {report.publisher.toUpperCase()}</Badge>}<Badge color="blue">{report.period_label || isoWeekLabel(report.report_date)}</Badge></div>
                 <h3 className="mt-1 font-semibold text-slate-900">{report.title}</h3>
                 <div className="mt-2 flex flex-wrap gap-1.5">{(report.sectors ?? []).map(s => <Badge key={s} color="gray">{labelForSector(s)}</Badge>)}</div>
                 {(report.commodities?.length || report.region || report.period_label) ? <p className="mt-2 text-xs text-slate-500">{[report.commodities?.join(', '), report.region, report.period_label].filter(Boolean).join(' · ')}</p> : null}
@@ -207,7 +237,7 @@ export function IntelligenceReportsPage() {
           </CardBody></Card>)}
         </div>
       )}
-      <p className="flex items-center gap-2 text-xs text-slate-400"><CalendarDays size={14} /> {visibleReports.length} informe(s) · Ordenados por fecha de publicación</p>
+      <p className="flex items-center gap-2 text-xs text-slate-400"><CalendarDays size={14} /> {visibleReports.length} informe(s) visibles · Ordenados por fecha de publicación. El distintivo «Más reciente» compara informes de la misma fuente.</p>
     </div>
   );
 }
