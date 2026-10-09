@@ -499,4 +499,5 @@ export type PageKey =
   | 'timeline'
   | 'follow_ups'
   | 'intelligence'
-  | 'astra_documentation';
+  | 'astra_documentation'
+  | 'intelligence_reports';
