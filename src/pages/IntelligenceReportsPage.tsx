@@ -139,8 +139,8 @@ const shortDate = (value: string) => {
 const displayReportTitle = (report: Report) => {
   const source = [report.title, report.file_name, report.publisher, report.summary].filter(Boolean).join(' ').toLowerCase();
   if (/bunker\s*wire|bunkerwire/.test(source)) return 'Bunker Wire Platts';
-  if (/^hr[\s-]*26[\s-]*09[\s-]*30|weekly harvest report/.test(source)) return 'Harvest Report ' + (shortDate(report.report_date) || '30 09 26');
-  if (/^pr[\s-]*26[\s-]*10[\s-]*02|wheat fob\s*(?:&|and)?\s*export basis/.test(source)) return 'Wheat ' + (shortDate(report.report_date) || '02 10 26');
+  if (/hr[\s-]*26[\s-]*09[\s-]*30|weekly harvest report/.test(source)) return 'Harvest Report ' + (shortDate(report.report_date) || '30 09 26');
+  if (/pr[\s-]*26[\s-]*10[\s-]*02|wheat fob\s*(?:&|and)?\s*export basis/.test(source)) return 'Wheat ' + (shortDate(report.report_date) || '02 10 26');
   return (report.title || cleanFilenameTitle(report.file_name || '') || 'Informe').replace(/\s+/g, ' ').trim();
 };
 
