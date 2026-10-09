@@ -27,7 +27,7 @@ Deno.serve(async (req: Request) => {
     if (!REPORT_TYPES[reportType]) return json({ error: "Select a report frequency." }, 400, headers);
     if (requestedBy.length < 2) return json({ error: "Enter the requester name." }, 400, headers);
 
-    const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const forwarded = req.headers.get("x-forwarded-for")?.split(",").map((part) => part.trim()).filter(Boolean).pop();
     const ip = forwarded || req.headers.get("x-real-ip") || "unknown";
     const ipHash = await sha256(ip + (Deno.env.get("SUPABASE_URL") ?? ""));
     const supabaseUrl = Deno.env.get("SUPABASE_URL"), serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
