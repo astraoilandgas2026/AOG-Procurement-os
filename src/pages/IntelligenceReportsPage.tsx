@@ -39,7 +39,7 @@ const isoWeekLabel = (value: string) => {
 };
 const STANDARD_PUBLISHERS = ['Argus', 'S&P Global Platts', 'ICIS', 'IEA', 'EIA', 'USDA', 'FAO', 'World Bank', 'Fastmarkets', 'BloombergNEF', 'Rystad Energy', 'Wood Mackenzie', 'Kpler', 'Otro'];
 const detectPublisher = (title: string, sourceUrl = '') => {
-  const text = \`__TITLE__ __URL__\`.toLowerCase().replace(/[._-]+/g, ' ');
+  const text = (title + ' ' + sourceUrl).toLowerCase().replace(/[._-]+/g, ' ');
   if (/\b(argus|argus media)\b/.test(text)) return 'Argus';
   if (/\b(platts|s\s*&?\s*p global|sp global)\b/.test(text)) return 'S&P Global Platts';
   if (/\bicis\b/.test(text)) return 'ICIS';
