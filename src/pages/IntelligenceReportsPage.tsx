@@ -185,6 +185,81 @@ export function IntelligenceReportsPage() {
     setError('');
   }
   function closeForm() { setForm(null); setProcessingFile(false); setFileMessage(''); }
+  async function handlePdfSelection(file?: File) {
+    if (!file || !form || !client || processingFile || saving) return;
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setFileMessage('Selecciona un archivo PDF.'); return;
+    }
+    if (file.size > 25 * 1024 * 1024) { setFileMessage('El PDF supera el límite de 25 MB.'); return; }
+
+    setProcessingFile(true); setSaving(true); setFileMessage('Procesando PDF…'); setError('');
+    let fullText = '';
+    let metadataTitle = '';
+    let extractionFailed = false;
+    let uploadedPath = '';
+    try {
+      try {
+        const extracted = await extractPdfContent(file);
+        fullText = extracted.text;
+        metadataTitle = extracted.title;
+      } catch {
+        extractionFailed = true;
+      }
+
+      const proposedTitle = metadataTitle || cleanFilenameTitle(file.name) || file.name;
+      const combinedText = proposedTitle + ' ' + file.name + ' ' + fullText;
+      const proposedDate = fullText ? detectPublicationDate(fullText) : new Date().toISOString().slice(0, 10);
+      const publisher = detectPublisher(combinedText) || 'Por identificar';
+      const detectedSectors = detectReportSectors(combinedText);
+      const sectors: SectorKey[] = detectedSectors.length ? detectedSectors : (procurementDomain ? [procurementDomain] : ['feedstock']);
+      const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
+      const summary = sentences.slice(0, 3).join(' ').slice(0, 1200);
+      const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
+      const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
+      const commodities = ['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => combinedText.toLowerCase().includes(term.toLowerCase()));
+      uploadedPath = `reports/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, file, { contentType: 'application/pdf', upsert: false });
+      if (uploadError) throw new Error('No se pudo adjuntar el PDF: ' + uploadError.message);
+
+      const payload = {
+        ...emptyForm(sectors),
+        title: proposedTitle,
+        publisher,
+        report_category: detectReportCategory(combinedText),
+        report_date: proposedDate,
+        sectors,
+        commodities,
+        period_label: isoWeekLabel(proposedDate),
+        summary,
+        key_findings: findings,
+        source_url: '',
+        source_kind: 'internal_link' as const,
+        access_note: 'Documento interno de Astra.',
+        file_path: uploadedPath,
+        file_name: file.name,
+        file_size: file.size,
+        mime_type: 'application/pdf',
+        created_by: 'Astra',
+        updated_at: new Date().toISOString(),
+      };
+      const { error: insertError } = await client.from('intelligence_reports').insert(payload).select('id').single();
+      if (insertError) throw new Error('El PDF se subió, pero no se pudo registrar: ' + insertError.message);
+      uploadedPath = '';
+      setFileMessage(extractionFailed || !fullText
+        ? 'PDF guardado. No se pudo extraer texto; la ficha usa el nombre del archivo.'
+        : 'PDF guardado.');
+      await loadReports();
+      setForm(null);
+    } catch (e) {
+      if (uploadedPath) await client.storage.from('intelligence-reports').remove([uploadedPath]);
+      setError(e instanceof Error ? e.message : 'No se pudo guardar el PDF.');
+      setFileMessage('');
+    } finally {
+      setProcessingFile(false);
+      setSaving(false);
+    }
+  }
+
   async function openAttachedFile(report: Report) {
     if (!client || !report.file_path) return;
     const tab = window.open('', '_blank');
