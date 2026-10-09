@@ -33,15 +33,7 @@ const detectSectors = (text: string): SectorKey[] => {
   if (/weekly harvest report|crop progress report|wheat fob\s*(?:&|and)?\s*export basis|wheat export basis estimates/.test(normalized)) return ['agricultural_commodities'];
   const scores = SECTORS.map(sector => ({
     value: sector.value,
-    score: sector.keywords.reduce((total, keyword) => {
-      const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\const detectSectors = (text: string): SectorKey[] => {
-  const normalized = text.toLowerCase();
-  return SECTORS.filter(s => s.keywords.some(keyword => normalized.includes(keyword))).map(s => s.value);
-};
-');
-      const matches = normalized.match(new RegExp('\\b' + escaped + '\\b', 'g'));
-      return total + (matches?.length ?? 0);
-    }, 0),
+    score: sector.keywords.reduce((total, keyword) => total + Math.max(0, normalized.split(keyword.toLowerCase()).length - 1), 0),
   })).sort((a, b) => b.score - a.score);
   const highest = scores[0]?.score ?? 0;
   if (highest === 0) return [];
