@@ -98,7 +98,7 @@ const cleanFilenameTitle = (name: string) => name.replace(/\.pdf$/i, '').replace
 const formatFileSize = (bytes: number) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 const detectReportSectors = (text: string): SectorKey[] => {
   const t = text.toLowerCase().replace(/[._-]+/g, ' ');
-  // Publisher-specific/commodity-specific overrides prevent incidental mentions across sectors.
+  // Publisher/commodity overrides stop incidental terms from assigning a report to unrelated sectors.
   if (/bunker\s*wire|bunkerwire|bunker fuel|marine fuel|vlsfo|hsfo/.test(t)) return ['energy_commodities'];
   if (/weekly harvest report|crop progress report|wheat fob\s*(?:&|and)?\s*export basis|wheat export basis estimates/.test(t)) return ['agricultural_commodities'];
   const found: SectorKey[] = [];
@@ -143,3 +143,203 @@ const displayReportTitle = (report: Report) => {
   if (/^pr[\s-]*26[\s-]*10[\s-]*02|wheat fob\s*(?:&|and)?\s*export basis/.test(source)) return 'Wheat ' + (shortDate(report.report_date) || '02 10 26');
   return (report.title || cleanFilenameTitle(report.file_name || '') || 'Informe').replace(/\s+/g, ' ').trim();
 };
+
+export function IntelligenceReportsPage() {
+  const { procurementDomain } = useNav();
+  const client = getSupabaseClient();
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedSector, setSelectedSector] = useState<string>('all');
+  const [processingFile, setProcessingFile] = useState(false);
+  const [fileMessage, setFileMessage] = useState('');
+  const [previewReport, setPreviewReport] = useState<Report | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+
+
+  async function loadReports() {
+    if (!client) { setError('Supabase no está configurado.'); setLoading(false); return; }
+    setLoading(true); setError('');
+    const { data, error: loadError } = await client.from('intelligence_reports').select('*').order('report_date', { ascending: false }).order('created_at', { ascending: false });
+    if (loadError) setError(loadError.message);
+    else setReports((data ?? []) as Report[]);
+    setLoading(false);
+  }
+  useEffect(() => { void loadReports(); }, []);
+
+  const latestByPublisher = useMemo(() => {
+    const latest = new Map<string, string>();
+    for (const report of [...reports].sort((a, b) => b.report_date.localeCompare(a.report_date) || b.created_at.localeCompare(a.created_at))) {
+      const key = report.publisher.trim().toLowerCase();
+      if (key && !latest.has(key)) latest.set(key, report.id);
+    }
+    return latest;
+  }, [reports]);
+  const visibleReports = useMemo(() => reports.filter(r => selectedSector === 'all' || r.sectors?.includes(selectedSector as SectorKey)), [reports, selectedSector]);
+
+  async function handlePdfSelection(file?: File) {
+    if (!file || !client || processingFile || saving) return;
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setFileMessage('Selecciona un archivo PDF.'); return;
+    }
+    if (file.size > 25 * 1024 * 1024) { setFileMessage('El PDF supera el límite de 25 MB.'); return; }
+
+    setProcessingFile(true); setSaving(true); setFileMessage('Procesando PDF…'); setError('');
+    let fullText = '';
+    let metadataTitle = '';
+    let extractionFailed = false;
+    let uploadedPath = '';
+    try {
+      try {
+        const extracted = await extractPdfContent(file);
+        fullText = extracted.text;
+        metadataTitle = extracted.title;
+      } catch {
+        extractionFailed = true;
+      }
+
+      const proposedTitle = metadataTitle || cleanFilenameTitle(file.name) || file.name;
+      const combinedText = proposedTitle + ' ' + file.name + ' ' + fullText;
+      const proposedDate = fullText ? detectPublicationDate(fullText) : new Date().toISOString().slice(0, 10);
+      const publisher = detectPublisher(combinedText) || 'Por identificar';
+      const detectedSectors = detectReportSectors(combinedText);
+      const sectors: SectorKey[] = detectedSectors.length ? detectedSectors : (procurementDomain ? [procurementDomain] : ['feedstock']);
+      const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
+      const summary = sentences.slice(0, 3).join(' ').slice(0, 1200);
+      const signalTerms = /price|pricing|stock|stocks|crush|crushing|crop|harvest|supply|demand|export|import|production|forecast|margin|spread|tonne|metric ton|brent|soy|oil|biodiesel|urea|copper|inventor/i;
+      const findings = sentences.filter(x => signalTerms.test(x)).slice(0, 8).join('\n').slice(0, 1800);
+      const commodities = ['UCO','soybean oil','cottonseed','Brent','diesel','urea','copper','wheat','corn','sugar'].filter(term => combinedText.toLowerCase().includes(term.toLowerCase()));
+      uploadedPath = `reports/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const { error: uploadError } = await client.storage.from('intelligence-reports').upload(uploadedPath, file, { contentType: 'application/pdf', upsert: false });
+      if (uploadError) throw new Error('No se pudo adjuntar el PDF: ' + uploadError.message);
+
+      const payload = {
+        ...emptyForm(sectors),
+        title: proposedTitle,
+        publisher,
+        report_category: detectReportCategory(combinedText),
+        report_date: proposedDate,
+        sectors,
+        commodities,
+        period_label: isoWeekLabel(proposedDate),
+        summary,
+        key_findings: findings,
+        source_url: '',
+        source_kind: 'internal_link' as const,
+        access_note: 'Documento interno de Astra.',
+        file_path: uploadedPath,
+        file_name: file.name,
+        file_size: file.size,
+        mime_type: 'application/pdf',
+        created_by: 'Astra',
+        updated_at: new Date().toISOString(),
+      };
+      const { error: insertError } = await client.from('intelligence_reports').insert(payload).select('id').single();
+      if (insertError) throw new Error('El PDF se subió, pero no se pudo registrar: ' + insertError.message);
+      uploadedPath = '';
+      setFileMessage(extractionFailed || !fullText
+        ? 'PDF guardado. No se pudo extraer texto; la ficha usa el nombre del archivo.'
+        : 'PDF guardado.');
+      await loadReports();
+    } catch (e) {
+      if (uploadedPath) await client.storage.from('intelligence-reports').remove([uploadedPath]);
+      setError(e instanceof Error ? e.message : 'No se pudo guardar el PDF.');
+      setFileMessage('');
+    } finally {
+      setProcessingFile(false);
+      setSaving(false);
+    }
+  }
+
+  async function openAttachedFile(report: Report) {
+    if (!client || !report.file_path) return;
+    setPreviewReport(report);
+    setPreviewUrl('');
+    setPreviewLoading(true);
+    setError('');
+    const { data, error: signedError } = await client.storage.from('intelligence-reports').createSignedUrl(report.file_path, 1800);
+    if (signedError || !data?.signedUrl) {
+      setError(signedError?.message ?? 'No se pudo abrir el archivo.');
+      setPreviewReport(null);
+      setPreviewLoading(false);
+      return;
+    }
+    setPreviewUrl(data.signedUrl);
+    setPreviewLoading(false);
+  }
+
+  function closePreview() {
+    setPreviewReport(null);
+    setPreviewUrl('');
+  }
+
+  async function downloadAttachedFile(report: Report) {
+    if (!client || !report.file_path) return;
+    const { data, error: signedError } = await client.storage.from('intelligence-reports').createSignedUrl(report.file_path, 1800, { download: report.file_name || true });
+    if (signedError || !data?.signedUrl) { setError(signedError?.message ?? 'No se pudo descargar el PDF.'); return; }
+    const link = document.createElement('a');
+    link.href = data.signedUrl;
+    link.download = report.file_name || 'informe.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
+  async function deleteReport(report: Report) {
+    if (!client || !confirm('¿Eliminar el registro de este informe y su PDF adjunto?')) return;
+    const { error: deleteError } = await client.from('intelligence_reports').delete().eq('id', report.id);
+    if (deleteError) { setError(deleteError.message); return; }
+    if (report.file_path) await client.storage.from('intelligence-reports').remove([report.file_path]);
+    await loadReports();
+  }
+
+  if (loading) return <LoadingSpinner />;
+
+  return (
+    <div className="space-y-4">
+      <PageHeader title="Biblioteca de informes" subtitle="" action={<label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"><Plus size={15} /> Agregar informe<input type="file" accept="application/pdf,.pdf" aria-label="Agregar informe PDF" disabled={processingFile || saving} onChange={e => { void handlePdfSelection(e.target.files?.[0]); e.currentTarget.value = ''; }} className="sr-only" /></label>} />
+      {(processingFile || fileMessage) && <p role="status" className="text-xs text-slate-500">{processingFile ? 'Procesando PDF…' : fileMessage}</p>}
+      {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-700">{error}</div>}
+      <section aria-label="Sectores de inteligencia"><div className="flex flex-wrap gap-2">
+        {SECTOR_CARDS.map(({ value }) => {
+          const count = reports.filter(r => r.sectors?.includes(value)).length;
+          const active = selectedSector === value;
+          return <button key={value} type="button" aria-pressed={active} onClick={() => setSelectedSector(active ? 'all' : value)} className={'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition ' + (active ? 'border-slate-700 bg-slate-100 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}>
+            <span>{SECTORS.find(s => s.value === value)?.label}</span><span className="text-slate-400">{count}</span>
+          </button>;
+        })}
+      </div></section>
+      {visibleReports.length === 0 ? <Card><EmptyState icon={<Newspaper size={22} />} title={selectedSector === 'all' ? 'La biblioteca está vacía' : 'No hay informes en este sector'} message="Pulsa «Agregar informe» para adjuntar un PDF." /></Card> : (
+        <div className="space-y-2">
+          {visibleReports.map(report => <div key={report.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
+            <FileText size={17} className="shrink-0 text-slate-400" />
+            <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p></div>
+            <div className="flex shrink-0 items-center gap-1">
+              {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
+              {report.file_path && <button type="button" aria-label="Descargar PDF" title="Descargar PDF" onClick={() => void downloadAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Download size={16} /></button>}
+              <button type="button" aria-label="Eliminar informe" title="Eliminar informe" onClick={() => void deleteReport(report)} className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
+            </div>
+          </div>)}
+        </div>
+      )}
+      <p className="text-xs text-slate-400">{visibleReports.length} informe(s)</p>
+      {previewReport && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-2 sm:p-6" role="dialog" aria-modal="true" aria-label="Vista previa del informe">
+          <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
+              <p className="min-w-0 truncate text-sm font-medium text-slate-800" title={displayReportTitle(previewReport)}>{displayReportTitle(previewReport)}</p>
+              <button type="button" onClick={closePreview} aria-label="Cerrar vista previa" title="Cerrar" className="ml-3 rounded p-1.5 text-slate-600 hover:bg-slate-100"><span aria-hidden="true">×</span></button>
+            </div>
+            <div className="min-h-0 flex-1 bg-slate-100 p-1 sm:p-3">
+              {previewLoading ? <div className="flex h-full items-center justify-center text-sm text-slate-500">Cargando PDF…</div>
+                : previewUrl ? <iframe title="Vista previa PDF" src={previewUrl} className="h-full w-full rounded border border-slate-200 bg-white" />
+                : <p className="p-4 text-sm text-slate-600">No se pudo cargar la vista previa.</p>}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
