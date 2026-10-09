@@ -39,13 +39,25 @@ const isoWeekLabel = (value: string) => {
   return `Semana ${String(week).padStart(2, '0')} · ${date.getUTCFullYear()}`;
 };
 const REPORT_CATEGORIES = ['Price assessment', 'Crop / harvest', 'Crushing & stocks', 'Supply & demand', 'Market outlook', 'Trade flows', 'Regulatory / policy', 'Other'];
-const detectPublicationDate = (text: string, file: File) => {
-  const metadataDates = [file.lastModified ? new Date(file.lastModified).toISOString().slice(0, 10) : ''];
-  const patterns = [/(20\\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\\d|3[01])/g, /\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/ig, /\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/ig];
-  for (const match of text.matchAll(patterns[0])) { const d = new Date(`${match[1]}-${String(match[2]).padStart(2,'0')}-${String(match[3]).padStart(2,'0')}T12:00:00Z`); if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return d.toISOString().slice(0,10); }
-  const months: Record<string,string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
-  for (const p of patterns.slice(1)) for (const match of text.matchAll(p)) { const dayFirst = /^\\d/.test(match[0]); const month = months[(dayFirst ? match[2] : match[1]).toLowerCase()]; const day = dayFirst ? match[1] : match[2]; const year = dayFirst ? match[3] : match[3]; const d = new Date(`${year}-${month}-${String(day).padStart(2,'0')}T12:00:00Z`); if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return d.toISOString().slice(0,10); }
-  return metadataDates[0] || new Date().toISOString().slice(0,10);
+const detectPublicationDate = (text: string) => {
+  const iso = text.match(/\\b(20\\d{2})[-/.](0?[1-9]|1[0-2])[-/.]([0-2]?\\d|3[01])\\b/);
+  if (iso) {
+    const candidate = `${iso[1]}-${String(iso[2]).padStart(2, '0')}-${String(iso[3]).padStart(2, '0')}`;
+    const d = new Date(candidate + 'T12:00:00Z');
+    if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
+  }
+  const months: Record<string, string> = { january:'01', february:'02', march:'03', april:'04', may:'05', june:'06', july:'07', august:'08', september:'09', october:'10', november:'11', december:'12' };
+  const dayFirst = text.match(/\\b(0?[1-9]|[12]\\d|3[01])\\s+(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(20\\d{2})\\b/i);
+  const monthFirst = text.match(/\\b(January|February|March|April|May|June|July|August|September|October|November|December)\\s+(0?[1-9]|[12]\\d|3[01]),?\\s+(20\\d{2})\\b/i);
+  const m = dayFirst ? months[dayFirst[2].toLowerCase()] : monthFirst ? months[monthFirst[1].toLowerCase()] : '';
+  const day = dayFirst ? dayFirst[1] : monthFirst ? monthFirst[2] : '';
+  const year = dayFirst ? dayFirst[3] : monthFirst ? monthFirst[3] : '';
+  if (m && day && year) {
+    const candidate = `${year}-${m}-${String(day).padStart(2, '0')}`;
+    const d = new Date(candidate + 'T12:00:00Z');
+    if (!Number.isNaN(d.getTime()) && d.getUTCFullYear() >= 2000 && d.getUTCFullYear() <= 2100) return candidate;
+  }
+  return new Date().toISOString().slice(0, 10);
 };
 const detectReportCategory = (text: string) => {
   const t = text.toLowerCase();
@@ -217,7 +229,7 @@ export function IntelligenceReportsPage() {
       const extracted = await extractPdfContent(file);
       const fullText = extracted.text;
       const proposedTitle = extracted.title || cleanFilenameTitle(file.name);
-      const proposedDate = detectPublicationDate(fullText, file);
+      const proposedDate = detectPublicationDate(fullText);
       const publisher = detectPublisher(proposedTitle + ' ' + file.name + ' ' + fullText, '');
       const suggestedSectors = detectReportSectors(proposedTitle + ' ' + file.name + ' ' + fullText);
       const sentences = fullText.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(x => x.length > 35);
@@ -259,7 +271,8 @@ export function IntelligenceReportsPage() {
 
   async function saveReport() {
     if (!client || !form) return;
-    if (!form.title.trim()) { setError('El título es obligatorio.'); return; }
+    const effectiveTitle = form.title.trim() || (selectedFile ? cleanFilenameTitle(selectedFile.name) : '');
+    if (!effectiveTitle) { setError('Adjunta el PDF para detectar el título automáticamente.'); return; }
     if (!form.sectors.length) { setError('Selecciona al menos un sector.'); return; }
     if (form.source_url.trim()) {
       try { const url = new URL(form.source_url.trim()); if (!['http:', 'https:'].includes(url.protocol)) throw new Error(); }
