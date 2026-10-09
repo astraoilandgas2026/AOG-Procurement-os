@@ -8,7 +8,7 @@ type SectorKey = 'feedstock' | 'energy_commodities' | 'mining_commodities' | 'fe
 type Report = {
   id: string; title: string; publisher: string; report_date: string; sectors: SectorKey[];
   commodities: string[]; region: string; period_label: string; summary: string; key_findings: string;
-  source_url: string; source_kind: 'authorized_link' | 'public_pdf' | 'internal_link'; access_note: string;
+  source_url: string; source_kind: 'authorized_link' | 'public_pdf' | 'internal_link' | 'other'; access_note: string;
   created_by: string; created_at: string; updated_at: string;
 };
 type ReportForm = Omit<Report, 'id' | 'created_at' | 'updated_at'>;
@@ -207,7 +207,7 @@ export function IntelligenceReportsPage() {
               </label>
               <label className="text-sm font-medium text-slate-700">Tipo de acceso
                 <select value={form.source_kind} onChange={e => updateForm('source_kind', e.target.value as ReportForm['source_kind'])} className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2">
-                  <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option>
+                  <option value="authorized_link">Enlace con permisos / licencia</option><option value="internal_link">Enlace interno de Astra</option><option value="public_pdf">PDF de acceso público</option><option value="other">Otro / por confirmar</option>
                 </select>
               </label>
               <label className="text-sm font-medium text-slate-700">Nota de acceso
