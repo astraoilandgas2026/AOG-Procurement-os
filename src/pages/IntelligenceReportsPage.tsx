@@ -42,6 +42,7 @@ const detectPublisher = (title: string, sourceUrl = '') => {
   const text = (title + ' ' + sourceUrl).toLowerCase().replace(/[._-]+/g, ' ');
   if (/\b(argus|argus media)\b/.test(text)) return 'Argus';
   if (/\b(platts|s\s*&?\s*p global|sp global)\b/.test(text)) return 'S&P Global Platts';
+  if (/spglobal|commodityinsights/.test(text)) return 'S&P Global Platts';
   if (/\bicis\b/.test(text)) return 'ICIS';
   if (/\biea\b/.test(text)) return 'IEA';
   if (/\beia\b|u\.s\. energy information administration/.test(text)) return 'EIA';
