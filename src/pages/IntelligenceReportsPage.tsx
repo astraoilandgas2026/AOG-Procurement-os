@@ -90,8 +90,8 @@ const detectReportSectors = (text: string): SectorKey[] => {
 async function extractPdfContent(file: File): Promise<{ title: string; text: string }> {
   // PDF.js is loaded only when a PDF is selected; no new build dependency or paid service.
   // @ts-ignore PDF.js is loaded as a browser ES module from its public CDN.
-  const pdfjs = await import(/* @vite-ignore */ 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
-  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+  const pdfjs = await import(/* @vite-ignore */ 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.mjs');
+  pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.mjs';
   const bytes = new Uint8Array(await file.arrayBuffer());
   const pdf = await pdfjs.getDocument({ data: bytes }).promise;
   let text = '';
@@ -439,7 +439,7 @@ export function IntelligenceReportsPage() {
             </div>
           </details>
         </div>
-        <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">Los adjuntos se guardan en un bucket privado y se abren mediante enlaces temporales. Sube únicamente documentos que Astra tenga derecho a almacenar. Si el PDF está escaneado, será necesario OCR para leerlo.</p>
+        <p className="mt-3 rounded-md bg-amber-50 p-3 text-xs text-amber-800">Los adjuntos se guardan en un bucket no público y se abren mediante enlaces temporales. Esta aplicación no exige inicio de sesión: no subas documentos confidenciales que requieran permisos por usuario. Sube únicamente documentos que Astra tenga derecho a almacenar. Si el PDF está escaneado, será necesario OCR para leerlo.</p>
         <div className="mt-4 flex flex-wrap justify-end gap-2"><Button variant="secondary" onClick={closeForm}>Cancelar</Button><Button onClick={() => void saveReport()} disabled={saving || processingFile}>{saving ? 'Guardando…' : processingFile ? 'Leyendo PDF…' : editingId ? 'Guardar cambios' : 'Guardar informe'}</Button></div>
       </CardBody></Card>}
 
