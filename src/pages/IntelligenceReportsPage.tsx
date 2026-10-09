@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, Download, Droplets, ExternalLink, FileText, FlaskConical, Fuel, Newspaper, Pickaxe, Plus, Trash2, Wheat, type LucideIcon } from 'lucide-react';
 import { useNav } from '@/context/NavContext';
 import { getSupabaseClient } from '@/data/supabase-client';
-import { Badge, Button, Card, CardBody, EmptyState, ErrorState, LoadingSpinner, PageHeader } from '@/components/ui';
+import { Badge, Button, Card, CardBody, EmptyState, LoadingSpinner, PageHeader } from '@/components/ui';
 
 type SectorKey = 'feedstock' | 'energy_commodities' | 'mining_commodities' | 'fertilizers_chemicals' | 'agricultural_commodities';
 type Report = {
@@ -254,7 +254,6 @@ export function IntelligenceReportsPage() {
   }
 
   if (loading) return <LoadingSpinner />;
-  if (error && reports.length === 0) return <ErrorState message={error} />;
 
   return (
     <div className="space-y-5">
