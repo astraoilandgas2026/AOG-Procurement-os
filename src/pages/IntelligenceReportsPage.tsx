@@ -151,6 +151,32 @@ const getDuplicateLevel = (report: Report, allReports: Report[]): DuplicateLevel
   const possibleMatch = allReports.some(other => other.id !== report.id && report.file_size > 0 && report.file_size === other.file_size && report.report_date === other.report_date && publisher !== '' && publisher === normalizeDuplicateKey(other.publisher || ''));
   return possibleMatch ? 'possible' : null;
 };
+const detectDocumentLanguage = (text: string): { code: string; label: string } | null => {
+  const sample = (text || '').slice(0, 12000);
+  if (!sample.trim()) return null;
+  const cyrillic = (sample.match(/[А-Яа-яЁё]/g) || []).length;
+  const latin = (sample.match(/[A-Za-z]/g) || []).length;
+  if (cyrillic >= 30 && cyrillic > latin * 0.2) return { code: 'ru', label: 'RUSO' };
+  const spanishWords = (sample.match(/\b(el|la|los|las|de|del|para|con|mercado|precios|informe)\b/gi) || []).length;
+  const englishWords = (sample.match(/\b(the|and|of|for|with|market|prices|report|supply|demand)\b/gi) || []).length;
+  if (spanishWords >= 4 && spanishWords > englishWords) return { code: 'es', label: 'ESPAÑOL' };
+  if (englishWords >= 4) return { code: 'en', label: 'INGLÉS' };
+  return null;
+};
+const getShortReportDescription = (report: Report): string => {
+  const text = [report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' ');
+  const language = detectDocumentLanguage(text);
+  if (language?.code === 'ru') {
+    if (/газ|природн\w* газ|natural gas/i.test(text)) return 'Mercado de gas en el Caspio y Asia Central: precios y novedades regionales.';
+    if (/нефт|бензин|керосин|битум|топлив/i.test(text)) return 'Precios y novedades de petróleo y combustibles en el Caspio y Asia Central.';
+    return 'Informe de mercado en ruso; contenido específico pendiente de identificar.';
+  }
+  const source = (report.summary || report.key_findings || '').replace(/\s+/g, ' ').trim();
+  if (!source) return language ? 'Idioma detectado; descripción pendiente de extraer.' : 'Descripción no disponible.';
+  const first = source.split(/(?<=[.!?])\s+/)[0] || source;
+  return first.length > 150 ? first.slice(0, 147).trimEnd() + '…' : first;
+};
+
 const displayReportTitle = (report: Report) => {
   const source = [report.title, report.file_name, report.publisher, report.summary].filter(Boolean).join(' ').toLowerCase();
   if (/bunker\s*wire|bunkerwire/.test(source)) return 'Bunker Wire Platts';
@@ -349,7 +375,11 @@ export function IntelligenceReportsPage() {
             const rowStyle = duplicateLevel === 'duplicate' ? 'border-red-300 bg-red-50' : duplicateLevel === 'possible' ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white';
             return <div key={report.id} className={'flex items-center gap-3 rounded-lg border px-3 py-2.5 shadow-sm ' + rowStyle}>
             <FileText size={17} className={'shrink-0 ' + (duplicateLevel === 'duplicate' ? 'text-red-500' : duplicateLevel === 'possible' ? 'text-amber-600' : 'text-slate-400')} />
-            <div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p></div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-slate-800" title={displayReportTitle(report)}>{displayReportTitle(report)}</p>
+              <p className="truncate text-xs text-slate-500" title={getShortReportDescription(report)}>{getShortReportDescription(report)}</p>
+            </div>
+            {detectDocumentLanguage([report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' ')) && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">{detectDocumentLanguage([report.summary, report.key_findings, report.title, report.file_name].filter(Boolean).join(' '))?.label}</span>}
             {duplicateLevel && <span className={'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ' + (duplicateLevel === 'duplicate' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800')}>{duplicateLevel === 'duplicate' ? 'Duplicado' : 'Posible duplicado'}</span>}
             <div className="flex shrink-0 items-center gap-1">
               {report.file_path && <button type="button" aria-label="Visualizar PDF" title="Visualizar PDF" onClick={() => void openAttachedFile(report)} className="rounded-md p-2 text-slate-600 hover:bg-slate-100"><Eye size={16} /></button>}
