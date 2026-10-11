@@ -101,14 +101,14 @@ export function MarketPriceTicker({ sector }: { sector: MarketSector }) {
                 <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{quote.name}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
                   <ChangeIcon size={10} />
-                  {change == null ? (quote.stale ? 'Ref. antigua' : 'N/D') : Math.abs(change).toFixed(1) + '%'}
+                  {change == null ? (typeof value === 'number' && quote.stale ? 'Ref.' : 'N/D') : Math.abs(change).toFixed(1) + '%'}
                 </span>
               </div>
               <div className="mt-1 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-[var(--astra-dark)] sm:text-[14px]">
                 {typeof value === 'number' && Number.isFinite(value) ? formatPrice(value, unit, quote.decimals ?? 2) : 'N/D'}
               </div>
               <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[10px] text-slate-500">
-                <span>{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.stale ? 'Último dato' : quote.status || 'Referencia de mercado'}</span>
+                <span>{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.status || (quote.stale ? 'Ref.' : 'Mercado')}</span>
                 <span>{timestamp ? (quote.stale ? 'Ref. ' : '') + formatTime(timestamp) : ''}</span>
               </div>
             </>
