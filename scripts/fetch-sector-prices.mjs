@@ -46,6 +46,25 @@ async function iataJetFuel() {
   return { price, prevClose, timestamp: null, currency: 'USD' };
 }
 
+async function tradingViewButane() {
+  const response = await fetch('https://scanner.tradingview.com/america/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' },
+    body: JSON.stringify({
+      symbols: { tickers: ['NYMEX:AD1!'], query: { types: [] } },
+      columns: ['close', 'change', 'change_abs']
+    })
+  });
+  if (!response.ok) throw new Error('TradingView OPIS butane HTTP ' + response.status);
+  const payload = await response.json();
+  const row = payload?.data?.find((item) => item.s === 'NYMEX:AD1!');
+  const price = Number(row?.d?.[0]);
+  const changePct = Number(row?.d?.[1]);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('TradingView OPIS butane quote unavailable');
+  const prevClose = Number.isFinite(changePct) && 1 + changePct / 100 > 0 ? price / (1 + changePct / 100) : null;
+  return { price, prevClose, timestamp: null, currency: 'USD' };
+}
+
 async function buildFile(fileName, definitions) {
   const filePath = path.join(outDir, fileName);
   const old = await fs.readFile(filePath, 'utf8').then(JSON.parse).catch(() => ({ instruments: [] }));
@@ -55,7 +74,7 @@ async function buildFile(fileName, definitions) {
   for (const def of definitions) {
     const previous = oldById.get(def.id);
     let q = null;
-    if (def.fetcher === 'iata-jet-fuel') {
+    if (def.fetcher === 'tradingview-butane') {\n      try { q = await tradingViewButane(); } catch (error) {\n        console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));\n      }\n    } else if (def.fetcher === 'iata-jet-fuel') {
       try { q = await iataJetFuel(); } catch (error) {
         console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));
       }
@@ -104,7 +123,7 @@ const energy = [
   { id: 'jet-a1', name: 'Jet A-1 / Jet Fuel (promedio global)', fetcher: 'iata-jet-fuel', unit: 'USD/bbl', decimals: 2, source: 'IATA / S&P Global Platts', sourceUrl: 'https://www.iata.org/en/publications/economics/fuel-monitor/', basis: 'Promedio global semanal de Jet Fuel publicado por IATA con datos de S&P Global Platts, expresado en USD/barril; benchmark de mercado, no oferta de Jet A-1 en un aeropuerto o puerto concreto.', note: 'La referencia se actualiza semanalmente. Para Jet A-1 físico se requiere diferencial regional, terminal, especificación, fecha de entrega e Incoterm.', status: 'Promedio global semanal actualizado', fallbackPrice: 187.34, fallbackSource: 'IATA / S&P Global Platts', fallbackUrl: 'https://www.iata.org/en/publications/economics/fuel-monitor/', fallbackBasis: 'Último promedio global semanal visible en IATA Fuel Price Monitor: USD 187.34/bbl. Referencia de respaldo; confirmar publicación vigente al momento de negociar.', fallbackNote: 'Valor de respaldo del monitor público; la cotización física depende de región y fecha.' },
   { id: 'lng-gas', name: 'LNG / Gas natural (Henry Hub)', symbol: 'NG=F', unit: 'USD/MMBtu', decimals: 3, sourceUrl: 'https://finance.yahoo.com/quote/NG=F/', basis: 'Futuro Henry Hub en USD/MMBtu; referencia de gas natural de EE. UU., no precio de un cargamento LNG.', note: 'LNG entregado se valora por destino, ventana de entrega, fórmula contractual y coste de licuefacción/flete.' },
   { id: 'lpg-propane', name: 'LPG / Propano', unit: 'USD/MT', decimals: 0, sourceUrl: 'https://www.eia.gov/dnav/pet/pet_pri_wfr_dcus_nus_w.htm', basis: 'Sin benchmark diario gratuito verificable integrado en este marcador.', note: 'No se sustituye por el precio de crudo o gas natural: requiere índice regional o cotización física de propano.' },
-  { id: 'n-butane', name: 'n-Butano (Mont Belvieu OPIS)', factor: 453.6, unit: 'USD/MT', decimals: 0, sourceUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', basis: 'Futuro OPIS Mont Belvieu Non-TET Normal Butane; convertido desde USD/gal a USD/MT usando una densidad aproximada de 4.86 lb/gal (453.6 gal/MT).', note: 'Benchmark regional estadounidense de butano normal, no precio universal ni oferta física. El valor por tonelada es una conversión indicativa dependiente de la densidad y debe ajustarse a pureza, región, entrega e Incoterm.', fallbackPrice: 585, fallbackUsdPerMt: 585, fallbackSource: 'TradingView · NYMEX OPIS Normal Butane', fallbackUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', fallbackBasis: 'Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.', fallbackNote: 'Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.' },
+  { id: 'n-butane', name: 'n-Butano (Mont Belvieu OPIS)', fetcher: 'tradingview-butane', factor: 453.6, unit: 'USD/MT', decimals: 0, sourceUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', basis: 'Futuro OPIS Mont Belvieu Non-TET Normal Butane; convertido desde USD/gal a USD/MT usando una densidad aproximada de 4.86 lb/gal (453.6 gal/MT).', note: 'Benchmark regional estadounidense de butano normal, no precio universal ni oferta física. El valor por tonelada es una conversión indicativa dependiente de la densidad y debe ajustarse a pureza, región, entrega e Incoterm.', fallbackPrice: 585, fallbackUsdPerMt: 585, fallbackSource: 'TradingView · NYMEX OPIS Normal Butane', fallbackUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', fallbackBasis: 'Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.', fallbackNote: 'Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.' },
   { id: 'residual-fuel-oil', name: 'Residual Fuel Oil', unit: 'USD/MT', decimals: 0, sourceUrl: 'https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm', basis: 'Sin benchmark público gratuito homogéneo integrado para la especificación física ofertada.', note: 'No se usa ULSD como sustituto del fuel oil residual; se requiere azufre, viscosidad, origen y puerto.' },
   { id: 'asphalt-bitumen', name: 'Asphalt / Bitumen', unit: 'USD/MT', decimals: 0, sourceUrl: 'https://www.worldbank.org/en/research/commodity-markets', basis: 'Sin benchmark diario gratuito global comparable integrado.', note: 'Precio según grado, penetración, origen, embalaje, puerto y especificación.' },
   { id: 'lubricants', name: 'Lubricantes', unit: 'USD/MT', decimals: 0, sourceUrl: 'https://www.worldbank.org/en/research/commodity-markets', basis: 'Sin benchmark único: depende del tipo de aceite base y paquete de aditivos.', note: 'Se requiere grado SAE/ISO, viscosidad, especificación y presentación para una referencia válida.' }
