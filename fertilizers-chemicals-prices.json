@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:43:15.649Z",
+  "generatedAt": "2026-10-11T07:43:33.733Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -9,7 +9,7 @@
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": 9.10830119869668,
+      "changePct": -7.704756365843187,
       "relativePct": null,
       "marketTime": null,
       "source": "FertilizerPrice.com · referencia semanal EE. UU.",
@@ -81,7 +81,7 @@
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": 7.145002102060018,
+      "changePct": -6.251642172747814,
       "relativePct": null,
       "marketTime": null,
       "source": "FertilizerPrice.com · referencia semanal EE. UU.",
@@ -99,7 +99,7 @@
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": 1.1326604308689547,
+      "changePct": -1.1075704073722963,
       "relativePct": null,
       "marketTime": null,
       "source": "FertilizerPrice.com · referencia semanal EE. UU.",
@@ -160,7 +160,7 @@
       "basis": "Argus y Platts publican evaluaciones regionales de benceno, pero el valor vigente no está expuesto gratuitamente de forma verificable en una fuente pública abierta.",
       "note": "Sin precio numérico para evitar presentar un proxy de crudo/nafta como si fuera benceno. Requiere el último Argus/Platts o cotización regional comparable.",
       "stale": true,
-      "status": "Sin cotización pública comparable"
+      "status": "Última referencia conservada; fuente automática sin respuesta."
     },
     {
       "id": "chem-fatty-acids",
@@ -177,7 +177,7 @@
       "basis": "Los ácidos grasos requieren una referencia por especie (palmiste/palma/soya), corte C16/C18, acidez, color y región. El precio del aceite vegetal no equivale al del ácido graso.",
       "note": "Usar la última evaluación Argus/Platts o aplicar un diferencial documentado sobre aceite de origen solo después de confirmar rendimiento, FFA, humedad, insaponificables y logística.",
       "stale": true,
-      "status": "Sin cotización pública comparable"
+      "status": "Última referencia conservada; fuente automática sin respuesta."
     }
   ]
 }

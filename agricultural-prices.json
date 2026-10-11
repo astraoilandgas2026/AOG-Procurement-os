@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:43:16.449Z",
+  "generatedAt": "2026-10-11T07:43:34.024Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -112,7 +112,7 @@
       "basis": "Precio FOB oficial para semilla de girasol, posición octubre 2026: USD 569/MT, publicado para el 9-oct-2026. Respaldo público; no es una cotización de entrega a Astra.",
       "note": "Dato de respaldo con fecha explícita; reemplazar cuando se publique la próxima cotización oficial.",
       "stale": true,
-      "status": "Última referencia pública localizada"
+      "status": "Última referencia conservada; fuente automática sin respuesta."
     },
     {
       "id": "ag-soy-fob-argentina",
