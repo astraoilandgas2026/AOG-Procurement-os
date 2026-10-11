@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:00:13.057Z",
+  "generatedAt": "2026-10-11T08:00:35.001Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -76,7 +76,7 @@
     },
     {
       "id": "steel-scrap",
-      "name": "Scrap ferroso · HMS 1/2 (80:20) CFR Turquía",
+      "name": "Scrap HMS 1/2 80:20 · Platts CFR Turquía",
       "price": 404,
       "unit": "USD/MT",
       "decimals": 0,
@@ -93,7 +93,7 @@
     },
     {
       "id": "steel-scrap-steelradar",
-      "name": "Scrap ferroso · HMS 1/2 (80:20) CFR Turquía",
+      "name": "Scrap HMS 1/2 80:20 · SteelRadar CFR Turquía",
       "price": 395,
       "unit": "USD/MT",
       "decimals": 0,
