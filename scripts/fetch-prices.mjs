@@ -185,11 +185,11 @@ async function publicUcoBenchmark() {
   const response = await fetch('https://cbonds.es/indexes/194209/', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
   if (!response.ok) throw new Error('CBonds UCO HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
   const i = text.search(/Used Cooking Oil/i);
   const section = i >= 0 ? text.slice(i, i + 350) : '';
-  const match = section.match(/Used Cooking Oil\\s*([0-9]+[.,][0-9]+)\\s*USD\\s*\\/?\\s*Lbs\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/i)
-    || section.match(/([0-9]+[.,][0-9]+)\\s*USD\\s*\\/?\\s*Lbs\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/i);
+  const match = section.match(/Used Cooking Oil\s*([0-9]+[.,][0-9]+)\s*USD\s*\/?\s*Lbs\s*(\d{2}\/\d{2}\/\d{4})/i)
+    || section.match(/([0-9]+[.,][0-9]+)\s*USD\s*\/?\s*Lbs\s*(\d{2}\/\d{2}\/\d{4})/i);
   if (!match) throw new Error('CBonds UCO index/date not parsed');
   const price = Number(match[1].replace(',', '.'));
   const [day, month, year] = match[2].split('/').map(Number);
@@ -202,14 +202,14 @@ async function abisaSoyAcidBenchmark() {
   const response = await fetch('https://abisa.com.br/cotacoes/cotacoes-2026', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
   if (!response.ok) throw new Error('ABISA HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
   const productIndex = text.search(/Ácido Graxo Bruto de Soja/i);
   if (productIndex < 0) throw new Error('ABISA soybean acid fatty acid not found');
   const prior = text.slice(Math.max(0, productIndex - 900), productIndex);
-  const dates = [...prior.matchAll(/(\\d{4})\\s*-\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/g)];
+  const dates = [...prior.matchAll(/(\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/g)];
   const dateText = dates.at(-1)?.[2] || '29/09/2026';
   const section = text.slice(productIndex, productIndex + 180);
-  const priceMatch = section.match(/Ácido Graxo Bruto de Soja\\s+R?\\$?\\s*([0-9]+(?:[.,][0-9]+)?)/i);
+  const priceMatch = section.match(/Ácido Graxo Bruto de Soja\s+R?\$?\s*([0-9]+(?:[.,][0-9]+)?)/i);
   if (!priceMatch) throw new Error('ABISA soybean acid price not parsed');
   const priceBRLkg = Number(priceMatch[1].replace(',', '.'));
   const [day, month, year] = dateText.split('/').map(Number);
@@ -220,11 +220,11 @@ async function mblionPalmOleinBenchmark() {
   const response = await fetch('https://www.mblionoleo.com/', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
   if (!response.ok) throw new Error('MBLion HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
-  const priceMatch = text.match(/RBD Palm Olein\\s*(?:\\||:|USD)?\\s*([0-9]{3,4}(?:\\.[0-9]{2})?)/i);
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
+  const priceMatch = text.match(/RBD Palm Olein\s*(?:\||:|USD)?\s*([0-9]{3,4}(?:\.[0-9]{2})?)/i);
   if (!priceMatch) throw new Error('MBLion RBD palm olein price not parsed');
   const price = Number(priceMatch[1]);
-  const dateMatch = text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+2026)\\s+FOB Malaysian Port/i) || text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+2026)/i);
+  const dateMatch = text.match(/(\d{1,2}\s+[A-Za-z]+\s+2026)\s+FOB Malaysian Port/i) || text.match(/(\d{1,2}\s+[A-Za-z]+\s+2026)/i);
   const dateText = dateMatch?.[1] || '05 October 2026';
   const timestamp = Math.floor(Date.parse(dateText + ' 12:00:00 UTC') / 1000);
   if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('MBLion olein quote invalid');
