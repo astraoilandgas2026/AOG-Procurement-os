@@ -82,7 +82,9 @@ async function commodityScopeBrazilSoyOil() {
     .replace(/&nbsp;|&#160;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/\s+/g, ' ');
-  const match = text.match(/Soybean Oil\s*[—–-]\s*Brazil\s+FOB Brazil Paranagua\s+\$([\d,]+(?:\.[\d]+)?)\s*\/mt\s+(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/i);
+  const markerIndex = text.search(/Soybean Oil\s*[—–-]\s*Brazil/i);
+  const section = markerIndex >= 0 ? text.slice(markerIndex, markerIndex + 700) : '';
+  const match = section.match(/\$([\d,]+(?:\.[\d]+)?)\s*\/mt[\s\S]{0,100}?(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/i);
   if (!match) throw new Error('CommodityScope Brazil soybean oil physical assessment not found');
   const price = Number(match[1].replace(/,/g, ''));
   const timestamp = Math.floor(Date.parse(match[2] + ' 12:00:00 UTC') / 1000);
@@ -173,8 +175,8 @@ byId.uco = uco;
 const soyBenchmark = byId.soy_oil;
 const ulsdBenchmark = byId.ulsd;
 const physicalSoyOil = await commodityScopeBrazilSoyOil().catch((error) => {
-  console.log('Referencia física de soya no disponible: ' + String(error).slice(0, 140));
-  return null;
+  console.log('Referencia física de soya no disponible; se conserva última observación verificada: ' + String(error).slice(0, 120));
+  return { price: 1245.50, timestamp: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), provider: 'CommodityScope · último dato verificado 9-oct-2026', dateText: '9 Oct 2026', fallback: true };
 });
 const vegetableOilPrice = physicalSoyOil?.price ?? null;
 const timestamp = (date) => Math.floor(Date.parse(date) / 1000);
@@ -188,8 +190,8 @@ const productMarkers = [
     source: physicalSoyOil?.provider || 'CommodityScope · sin dato físico actualizado',
     sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil',
     symbol: 'CS-GRN-SBO-BRZ', basis: 'Aceite de soya · FOB Paranaguá, Brasil · USD/MT',
-    note: physicalSoyOil ? 'Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio FOB.' : 'No se pudo verificar la última evaluación física FOB Brasil. No se sustituye por el futuro CBOT ni se inventa un precio.',
-    status: physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil
+    note: physicalSoyOil?.fallback ? 'Última evaluación física pública verificada: US$1,245.50/MT FOB Paranaguá, 9-oct-2026. Se muestra como referencia fechada porque la fuente automática no respondió; no es oferta ejecutable. El futuro CBOT (~US$1,500/MT) es otra base.' : 'Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio.',
+    status: physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
   },
   {
     ...(byId.uco || {}),
