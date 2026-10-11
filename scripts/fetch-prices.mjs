@@ -195,43 +195,44 @@ const productMarkers = [
     status: physicalSoyOil?.fallback ? 'Último dato verificado' : physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
   },
   {
-    ...(byId.uco || {}),
-    id: 'uco', name: 'UCO / AVU · indicativo',
-    relativePct: null,
-    note: 'Modelo indicativo ULSD + US$68/MT de diferencial de referencia observado al comparar índices públicos de UCO EE.UU. y ULSD el 9-oct-2026. No es cotización directa ni oferta FOB Brasil.',
-    status: 'Indicativo modelado', stale: Boolean(ulsdBenchmark?.stale)
+    id: 'uco', name: 'UCO / AVU · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
+    sourceUrl: 'https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/',
+    basis: 'Base requerida: UCO/AVU exportable · FOB Brasil · USD/MT',
+    note: 'Se retiró el modelo ULSD + diferencial porque no demuestra un precio FOB Brasil. Se publicará una cifra cuando exista evaluación brasileña o cotización verificable de proveedor.',
+    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
   },
   {
-    id: 'fatty-acids', name: 'Ácidos grasos', price: 1280, usdPerMt: 1280, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo Malaysia · oleic acid 75% min',
-    sourceUrl: 'https://www.mblionoleo.com/', symbol: 'oleic acid 75% min',
-    basis: 'US$1,280/MT · referencia publicada 5-oct-2026; FOB Malaysia',
-    note: 'Referencia específica de ácido oleico 75% mínimo; no representa todas las mezclas de ácidos grasos.',
-    relativePct: null, stale: true, status: 'Última referencia pública localizada'
+    id: 'fatty-acids', name: 'Ácido graxo de palma · FOB Nordeste Brasil', price: 4200 / 4.99, usdPerMt: 4200 / 4.99, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-06T12:00:00Z'), source: 'ABISA · cotação brasileira publicada 6-oct-2026',
+    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo de palma',
+    basis: 'R$4,20/kg = R$4.200/MT; FOB Nordeste, condição publicada 6-oct-2026. Conversão indicativa a US$1 = R$4,99.',
+    note: 'Referencia brasileña de ácido graxo de palma FOB Nordeste; no es ácido oleico 75% ni PFAD. Conversión BRL/USD indicativa; confirmar tipo de cambio y condiciones fiscales con el proveedor.',
+    relativePct: null, stale: true, status: 'Referencia Brasil FOB · 6 oct.'
   },
   {
-    id: 'acid-oils', name: 'Aceites ácidos / PFAD', price: 1050, usdPerMt: 1050, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'MBLion Oleo Malaysia · cierre publicado 9-oct-2026',
-    sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals', symbol: 'PFAD',
-    basis: 'US$1,050/MT · FOB puertos de Malasia · 9-oct-2026',
-    note: 'Precio publicado de PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
-    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Última referencia pública localizada'
+    id: 'acid-oils', name: 'Aceites ácidos / soapstock · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
+    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'aceite ácido / soapstock',
+    basis: 'Base requerida: aceite ácido vegetal o soapstock exportable · FOB Brasil · USD/MT',
+    note: 'No se usa PFAD FOB Malasia como sustituto: composición, origen y mercado distintos. Requiere precio brasileño específico por producto y análisis de calidad.',
+    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
   },
   {
-    id: 'degummed-oils', name: 'Aceite desgomado (proxy de soya)', price: 1233.25, usdPerMt: 1233.25, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'CommodityScope · aceite de soya FOB Argentina',
-    sourceUrl: 'https://commodityscope.com/prices/argentina-soybean-oil',
-    symbol: 'CS-GRN-SBO-ARG', basis: 'US$1,233.25/MT · FOB Argentina · evaluación indicativa 9-oct-2026',
-    note: 'Proxy físico de aceite de soya a granel porque no se encontró evaluación pública diaria específica para aceite desgomado. No es oferta de grado desgomado ni oferta FOB Brasil.',
-    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Proxy de mercado físico'
+    id: 'degummed-oils', name: 'Aceite de soya desgomado · proxy FOB Paranaguá', price: vegetableOilPrice, usdPerMt: vegetableOilPrice, unit: 'USD/MT', decimals: 0,
+    marketTime: physicalSoyOil?.timestamp ?? null, source: physicalSoyOil?.provider || 'Sin referencia física actualizada',
+    sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil', symbol: 'CS-GRN-SBO-BRZ',
+    basis: 'Proxy: aceite de soya FOB Paranaguá, Brasil · USD/MT; sin prima/descuento de grado desgomado.',
+    note: 'Se usa el benchmark FOB Brasil de aceite de soya sin añadir un ajuste de calidad no verificado. No es una evaluación específica de aceite desgomado.',
+    relativePct: null, stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400), status: 'Proxy FOB Brasil · sin ajuste de grado'
   },
   {
-    id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1137.5, usdPerMt: 1137.5, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'MBLion Oleo Malaysia · cierre publicado 9-oct-2026',
-    sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals',
-    symbol: 'RBD palm olein', basis: 'US$1,137.50/MT · FOB puertos de Malasia · 9-oct-2026',
-    note: 'Referencia publicada para oleína de palma RBD; no es oferta FOB Brasil y no se calcula descuento frente a soya por diferencia de producto y origen.',
-    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Última referencia pública localizada'
+    id: 'oleins', name: 'Oleína de palma RBD · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
+    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'RBD palm olein',
+    basis: 'Base requerida: oleína de palma RBD · FOB Brasil · USD/MT',
+    note: 'Se retira el benchmark FOB Malasia porque no representa nuestra base de compra. No se convierte un precio CIF Brasil ni un precio doméstico con impuestos en FOB exportación.',
+    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
   },
   {
     id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
