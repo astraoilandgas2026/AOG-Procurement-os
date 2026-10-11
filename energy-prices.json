@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:27:57.691Z",
+  "generatedAt": "2026-10-11T08:31:28.880Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -60,18 +60,18 @@
     },
     {
       "id": "lng-gas",
-      "name": "Gas natural · Henry Hub proxy",
-      "price": 3.22,
-      "unit": "USD/MMBtu",
-      "decimals": 3,
+      "name": "Gas natural · equivalente energético USD/MT (proxy Henry Hub)",
+      "price": 167.44,
+      "unit": "USD/MT",
+      "decimals": 0,
       "usdPerMt": null,
-      "changePct": 3.40398201669879,
+      "changePct": 3.4039820166987798,
       "relativePct": null,
       "marketTime": 1791579600,
-      "source": "NYMEX Henry Hub futures · proxy",
+      "source": "NYMEX Henry Hub futures · proxy convertido",
       "sourceUrl": "https://finance.yahoo.com/quote/NG=F/",
-      "basis": "USD/MMBtu, referencia financiera de EE.UU.",
-      "note": "No representa precio contractual de suministro a Eneva.",
+      "basis": "USD/MT equivalente usando 52 MMBtu/MT como factor aproximado; el benchmark de origen es USD/MMBtu.",
+      "note": "Equivalente energético orientativo; no incluye licuefacción, flete ni regasificación.",
       "stale": false,
       "status": "Benchmark financiero actualizado",
       "symbol": "NG=F",
