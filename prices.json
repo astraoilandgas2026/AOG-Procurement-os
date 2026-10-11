@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:10:58.564Z",
+  "generatedAt": "2026-10-11T07:11:41.657Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -67,14 +67,14 @@
       "changePct": null,
       "unit": "CAD/MT",
       "decimals": 2,
-      "usdPerMt": null,
+      "usdPerMt": 572.9619755858005,
       "marketTime": 1791576000,
       "source": "Farmbucks / ICE settlement",
       "sourceUrl": "https://farmbucks.com/futures/grain-oilseeds/canola/price-performance",
       "basis": "ICE Canola Nov-2026 · C$816.70/MT, último settlement publicado 9-oct-2026",
       "note": "Último dato público localizado; se conserva como desactualizado hasta que responda una fuente automática.",
       "stale": true,
-      "status": "Último settlement público localizado"
+      "status": "Último dato conservado; fuente automática sin respuesta."
     },
     {
       "id": "palm_oil",
@@ -85,14 +85,14 @@
       "changePct": null,
       "unit": "MYR/MT",
       "decimals": 0,
-      "usdPerMt": null,
+      "usdPerMt": 1080.426000734484,
       "marketTime": 1791379980,
       "source": "Bernama · Bursa Malaysia Derivatives",
       "sourceUrl": "https://www.bernama.com/en/market/news.php?id=2616799",
       "basis": "Futuro CPO noviembre 2026 · RM4,413/MT, cierre reportado 7-oct-2026",
       "note": "Último cierre público localizado; se conserva como desactualizado hasta que responda una fuente automática.",
       "stale": true,
-      "status": "Último cierre público localizado"
+      "status": "Último dato conservado; fuente automática sin respuesta."
     },
     {
       "id": "brent",
