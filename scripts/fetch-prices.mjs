@@ -268,7 +268,7 @@ const productMarkers = [
   },
   {
     id: 'fatty-acids', name: 'Ácido graxo de palma · FOB Nordeste Brasil', price: 4200 / 4.99, usdPerMt: 4200 / 4.99, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-06T12:00:00Z'), source: 'ABISA · cotação brasileira publicada 6-oct-2026',
+    marketTime: timestamp('2026-09-29T12:00:00Z'), source: 'ABISA · cotação brasileira publicada 29-sep-2026',
     sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo de palma',
     basis: 'R$4,20/kg = R$4.200/MT; FOB Nordeste, condição publicada 6-oct-2026. Conversão indicativa a US$1 = R$4,99.',
     note: 'Referencia brasileña de ácido graxo de palma FOB Nordeste; no es ácido oleico 75% ni PFAD. Conversión BRL/USD indicativa; confirmar tipo de cambio y condiciones fiscales con el proveedor.',
