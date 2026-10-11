@@ -22,7 +22,7 @@ type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instrume
 
 const ORDER = ['vegetable-oils', 'uco', 'fatty-acids', 'acid-oils', 'degummed-oils', 'oleins', 'off-spec'];
 const LABELS: Record<string, string> = {
-  'vegetable-oils': 'Aceite vegetal de soya (benchmark)',
+  'vegetable-oils': 'Aceite de soya · FOB Paranaguá',
   uco: 'Aceite usado de cocina (UCO/AVU, indicativo)',
   'fatty-acids': 'Ácido oleico 75% mínimo (FOB Malasia)',
   'acid-oils': 'Destilado de ácidos grasos de palma (PFAD)',
@@ -86,7 +86,7 @@ export function FeedstockPriceTicker() {
       <div className="flex items-center justify-between gap-2 px-3 py-1.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <Activity size={13} className="shrink-0 text-[var(--astra-red)]" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Precios feedstock</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Referencias de mercado · Feedstock</span>
           {hasError && <span className="text-[10px] text-amber-700">Sin conexión</span>}
         </div>
         <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar referencias de mercado">
@@ -111,7 +111,7 @@ export function FeedstockPriceTicker() {
                 <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{label}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
                   <ChangeIcon size={10} />
-                  {quote.id === 'vegetable-oils' ? 'BASE' : shownChange == null ? (quote.stale ? 'Ref. antigua' : 'N/D') : Math.abs(shownChange).toFixed(1) + '%'}
+                  {quote.id === 'vegetable-oils' ? 'FOB' : shownChange == null ? (quote.stale ? 'Ref.' : 'N/D') : Math.abs(shownChange).toFixed(1) + '%'}
                 </span>
               </div>
               <div className="mt-1 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-[var(--astra-dark)] sm:text-[14px]">
