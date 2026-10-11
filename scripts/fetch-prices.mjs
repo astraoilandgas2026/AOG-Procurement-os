@@ -8,12 +8,12 @@ const oldById = new Map((old.instruments || []).map((item) => [item.id, item]));
 
 const definitions = [
   { id: 'uco', name: 'UCO / AVU', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite vegetal · USD/MT', note: 'No existe un futuro gratuito y líquido para UCO; no equivale a una oferta física de UCO.' },
-  { id: 'fatty-acids', name: 'Ácidos grasos', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite de soya · USD/MT', note: 'Referencia comparativa; no es una cotización específica de ácidos grasos.' },
+  { id: 'fatty-acids', name: 'Ácidos grasos', symbol: 'RS=F', fallbackSymbol: 'ZL=F', factor: 1, source: 'ICE Canola Futures', url: 'https://finance.yahoo.com/quote/RS=F/', basis: 'Proxy bursátil de canola convertido a USD/MT', note: 'Benchmark de aceite vegetal; no es una cotización específica de ácidos grasos.' },
   { id: 'acid-oils', name: 'Aceites ácidos', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite de soya · USD/MT', note: 'No representa el descuento por FFA, humedad, impurezas ni calidad del aceite ácido.' },
   { id: 'vegetable-oils', name: 'Aceites vegetales', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Futuro de aceite de soya CBOT convertido a USD/MT', note: 'Benchmark financiero; no equivale a aceite físico FOB.' },
-  { id: 'degummed-oils', name: 'Aceites desgomados', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite de soya · USD/MT', note: 'No incluye prima por desgomado, origen, calidad ni Incoterm.' },
-  { id: 'oleins', name: 'Oleínas', symbol: 'FCPO=F', fallbackSymbol: 'ZL=F', factor: 1, source: 'Palm oil futures / proxy soybean oil', url: 'https://finance.yahoo.com/quote/FCPO=F/', basis: 'Futuro de aceite de palma si la fuente lo confirma; si no, proxy indicado', note: 'El símbolo de palma puede no estar disponible en Yahoo; si falla, se muestra explícitamente el proxy alternativo.' },
-  { id: 'off-spec', name: 'Fuera de especificación / otros', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite de soya · USD/MT', note: 'No sustituye la evaluación de especificación, análisis de laboratorio ni descuento comercial.' },
+  { id: 'degummed-oils', name: 'Aceites desgomados', symbol: 'RS=F', fallbackSymbol: 'ZL=F', factor: 1, source: 'ICE Canola Futures', url: 'https://finance.yahoo.com/quote/RS=F/', basis: 'Proxy bursátil de canola convertido a USD/MT', note: 'No incluye prima por desgomado, origen, calidad ni Incoterm.' },
+  { id: 'oleins', name: 'Oleínas', symbol: 'FCPO=F', fallbackSymbol: 'RS=F', factor: 1, source: 'Bursa Malaysia Palm Oil Futures', url: 'https://finance.yahoo.com/quote/FCPO=F/', basis: 'Futuro de aceite de palma convertido a USD/MT', note: 'Si la fuente de palma no está disponible, se identifica el benchmark alternativo; no equivale a oleína física FOB.' },
+  { id: 'off-spec', name: 'Fuera de especificación / otros', symbol: 'HO=F', factor: 313.7, source: 'NYMEX ULSD Futures', url: 'https://finance.yahoo.com/quote/HO=F/', basis: 'Benchmark downstream de diésel ULSD convertido a USD/MT', note: 'Referencia energética para comparación, no precio de compra de un residuo fuera de especificación.' },
 ];
 
 async function yahoo(symbol) {
@@ -58,14 +58,20 @@ for (const def of definitions) {
     continue;
   }
 
-  if (symbol === 'FCPO=F') {
+  if (symbol === 'FCPO=F' || symbol === 'RS=F') {
     try {
-      const fx = await getQuote('USDMYR=X');
+      const fx = await getQuote(symbol === 'FCPO=F' ? 'USDMYR=X' : 'USDCAD=X');
       quote = { ...quote, price: quote.price / fx.price };
     } catch {
       if (def.fallbackSymbol) {
         symbol = def.fallbackSymbol;
-        try { quote = await getQuote(symbol); } catch { quote = null; }
+        try {
+          quote = await getQuote(symbol);
+          if (symbol === 'RS=F') {
+            const fx = await getQuote('USDCAD=X');
+            quote = { ...quote, price: quote.price / fx.price };
+          }
+        } catch { quote = null; }
       }
     }
   }
@@ -75,21 +81,29 @@ for (const def of definitions) {
     continue;
   }
 
-  let usdPerMt = quote.price * (symbol === 'FCPO=F' ? 1 : def.factor);
+  let usdPerMt = quote.price * def.factor;
   let basis = def.basis;
   let source = def.source;
   let sourceUrl = def.url;
   let note = def.note;
   if (symbol === 'FCPO=F') {
+    usdPerMt = quote.price;
     basis = 'Futuro de aceite de palma convertido de MYR/MT a USD/MT';
-    note = 'Benchmark financiero; no equivale a oleína física FOB ni a una oferta de proveedor.';
+    source = 'Bursa Malaysia Palm Oil Futures';
+    sourceUrl = 'https://finance.yahoo.com/quote/FCPO=F/';
+  } else if (symbol === 'RS=F') {
+    usdPerMt = quote.price;
+    basis = 'Futuro de canola convertido de CAD/MT a USD/MT · proxy oleaginoso';
+    source = 'ICE Canola Futures';
+    sourceUrl = 'https://finance.yahoo.com/quote/RS=F/';
+    if (def.id === 'oleins') note = 'La fuente de palma no respondió; se muestra canola como proxy alternativo, no como precio de oleína.';
   } else if (symbol === 'ZL=F') {
     usdPerMt = quote.price * 22.0462262185;
     if (def.id === 'oleins') {
       basis = 'Proxy alternativo: futuro de aceite de soya convertido a USD/MT';
       source = 'CME Soybean Oil Futures (proxy alternativo)';
       sourceUrl = 'https://finance.yahoo.com/quote/ZL=F/';
-      note = 'La fuente de palma no respondió; se muestra aceite de soya como proxy, no como precio de oleína.';
+      note = 'La fuente de palma y el proxy de canola no respondieron; se muestra aceite de soya como proxy, no como precio de oleína.';
     }
   } else if (symbol === 'HO=F') {
     usdPerMt = quote.price * 313.7;
