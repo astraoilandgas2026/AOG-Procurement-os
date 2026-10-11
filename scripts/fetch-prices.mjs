@@ -165,7 +165,7 @@ const productMarkers = [
   {
     ...(byId.uco || {}),
     id: 'uco', name: 'UCO / AVU · indicativo',
-    relativePct: relative(byId.uco?.usdPerMt),
+    relativePct: null,
     note: 'Modelo indicativo ULSD + US$68/MT de diferencial de referencia observado al comparar índices públicos de UCO EE.UU. y ULSD el 9-oct-2026. No es cotización directa ni oferta FOB Brasil.',
     status: 'Indicativo modelado', stale: Boolean(ulsdBenchmark?.stale)
   },
@@ -175,7 +175,7 @@ const productMarkers = [
     sourceUrl: 'https://www.mblionoleo.com/', symbol: 'oleic acid 75% min',
     basis: 'US$1,280/MT · referencia publicada 5-oct-2026; FOB Malaysia',
     note: 'Referencia específica de ácido oleico 75% mínimo; no representa todas las mezclas de ácidos grasos.',
-    relativePct: relative(1280), stale: true, status: 'Última referencia pública localizada'
+    relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
     id: 'acid-oils', name: 'Aceites ácidos / PFAD', price: 1047.5, usdPerMt: 1047.5, unit: 'USD/MT', decimals: 0,
@@ -183,7 +183,7 @@ const productMarkers = [
     sourceUrl: 'https://www.mblionoleo.com/', symbol: 'PFAD',
     basis: 'US$1,047.50/MT · referencia publicada 5-oct-2026; FOB Malaysia',
     note: 'Benchmark PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
-    relativePct: relative(1047.5), stale: true, status: 'Última referencia pública localizada'
+    relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
     id: 'degummed-oils', name: 'Aceites desgomados', price: 1196, usdPerMt: 1196, unit: 'USD/MT', decimals: 0,
@@ -191,7 +191,7 @@ const productMarkers = [
     sourceUrl: 'https://www.expertmarketresearch.com/price-forecast/rbd-soybean-oil-price-trends',
     symbol: 'crude degummed soybean oil', basis: 'US$1,196/MT · Argentina FOB, octubre 2026',
     note: 'Referencia publicada para aceite de soya crudo desgomado; fecha de mercado 1-oct-2026. No equivale a una oferta brasileña actual.',
-    relativePct: relative(1196), stale: true, status: 'Última referencia pública localizada'
+    relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
     id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1112.5, usdPerMt: 1112.5, unit: 'USD/MT', decimals: 0,
@@ -199,7 +199,7 @@ const productMarkers = [
     sourceUrl: 'https://commodityscope.com/prices/malaysia-rbd-palm-olein',
     symbol: 'RBD palm olein', basis: 'US$1,112.50/MT · assessment FOB Malaysia, 6-oct-2026',
     note: 'Assessment indicativo FOB Malaysia, no oferta física FOB Brasil. La comparación con soya es direccional porque difieren producto, origen y base comercial.',
-    relativePct: relative(1112.5), stale: true, status: 'Última evaluación pública localizada'
+    relativePct: null, stale: true, status: 'Última evaluación pública localizada'
   },
   {
     id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
