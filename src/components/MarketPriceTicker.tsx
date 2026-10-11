@@ -18,11 +18,13 @@ type MarketQuote = {
   status?: string;
 };
 type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instruments?: MarketQuote[] };
-type MarketSector = 'energy' | 'mining';
+type MarketSector = 'energy' | 'mining' | 'fertilizers_chemicals' | 'agriculture';
 
 const CONFIG: Record<MarketSector, { title: string; file: string; label: string }> = {
   energy: { title: 'Precios Energy', file: 'energy-prices.json', label: 'referencias de precios de Energy' },
   mining: { title: 'Precios Metals & Mining', file: 'mining-prices.json', label: 'referencias de precios de Metals & Mining' },
+  fertilizers_chemicals: { title: 'Precios Fertilizers & Chemicals', file: 'fertilizers-chemicals-prices.json', label: 'referencias de fertilizantes y químicos' },
+  agriculture: { title: 'Precios Agricultural & Seeds', file: 'agricultural-prices.json', label: 'referencias agrícolas y de semillas' },
 };
 const DATA_BASE = 'https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/';
 const POLL_MS = 60 * 1000;
