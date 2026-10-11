@@ -1,25 +1,25 @@
 {
-  "generatedAt": "2026-10-11T08:09:02.000Z",
+  "generatedAt": "2026-10-11T08:09:37.584Z",
   "delayMinutes": 15,
   "instruments": [
     {
       "id": "vegetable-oils",
       "name": "Aceite de soya · FOB Paranaguá",
       "symbol": "CS-GRN-SBO-BRZ",
-      "price": null,
+      "price": 1245.5,
       "prevClose": 69.58,
       "changePct": -2.24202356999138,
       "unit": "USD/MT",
       "decimals": 0,
-      "usdPerMt": null,
+      "usdPerMt": 1245.5,
       "prevUsdPerMt": 1533.97642028323,
-      "marketTime": null,
-      "source": "CommodityScope · sin dato físico actualizado",
+      "marketTime": 1791547200,
+      "source": "CommodityScope indicative assessment",
       "sourceUrl": "https://commodityscope.com/prices/brazil-soybean-oil",
       "basis": "Aceite de soya · FOB Paranaguá, Brasil · USD/MT",
-      "note": "No se pudo verificar la última evaluación física FOB Brasil. No se sustituye por el futuro CBOT ni se inventa un precio.",
-      "stale": true,
-      "status": "Cotización física no disponible",
+      "note": "Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio.",
+      "stale": false,
+      "status": "Referencia física indicativa",
       "relativePct": null
     },
     {
