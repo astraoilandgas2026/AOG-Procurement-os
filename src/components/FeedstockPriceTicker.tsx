@@ -8,7 +8,7 @@ type MarkerQuote = {
   usdPerMt?: number | null;
   unit?: string;
   decimals?: number;
-  changePct?: number | null;
+  changePct?: number | null;\n  relativePct?: number | null;
   marketTime?: number | null;
   source?: string;
   sourceUrl?: string;
@@ -19,15 +19,15 @@ type MarkerQuote = {
 };
 type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instruments?: MarkerQuote[] };
 
-const ORDER = ['soy_oil', 'uco', 'ulsd', 'canola', 'palm_oil', 'brent', 'wti'];
+const ORDER = ['vegetable-oils', 'uco', 'fatty-acids', 'acid-oils', 'degummed-oils', 'oleins', 'off-spec'];
 const LABELS: Record<string, string> = {
-  soy_oil: 'Aceite de soya',
+  'vegetable-oils': 'Aceites vegetales',
   uco: 'UCO / AVU · indicativo',
-  ulsd: 'Diésel ULSD',
-  canola: 'Canola',
-  palm_oil: 'Aceite de palma',
-  brent: 'Brent',
-  wti: 'WTI',
+  'fatty-acids': 'Ácidos grasos',
+  'acid-oils': 'Aceites ácidos',
+  'degummed-oils': 'Aceites desgomados',
+  oleins: 'Oleínas · RBD palm',
+  'off-spec': 'Fuera de especificación',
 };
 const PRICES_URL = 'https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/prices.json';
 const POLL_MS = 60 * 1000;
@@ -91,7 +91,7 @@ export function FeedstockPriceTicker() {
         <div className="flex min-w-0 items-center gap-2">
           <Activity size={13} className="shrink-0 text-[var(--astra-red)]" />
           <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Market ticker</span>
-          <span className="hidden whitespace-nowrap text-[10px] text-slate-500 sm:inline">7 referencias · datos con retraso de mercado</span>
+          <span className="hidden whitespace-nowrap text-[10px] text-slate-500 sm:inline">7 categorías · variación vs benchmark soya</span>
           {feedAgeMinutes != null && feedAgeMinutes > 60 && <span className="whitespace-nowrap text-[10px] text-amber-700">Feed antiguo</span>}
           {hasError && <span className="whitespace-nowrap text-[10px] text-amber-700">Sin conexión al feed</span>}
         </div>
@@ -103,7 +103,7 @@ export function FeedstockPriceTicker() {
         {ordered.map((quote) => {
           const value = quote.price;
           const unit = quote.unit || 'USD/MT';
-          const change = quote.changePct;
+          const comparison = quote.relativePct;\n          const change = quote.changePct;
           const ChangeIcon = change == null ? Minus : change > 0 ? TrendingUp : change < 0 ? TrendingDown : Minus;
           const changeClass = change == null || change === 0 ? 'text-slate-400' : change > 0 ? 'text-emerald-700' : 'text-rose-700';
           const timestamp = quote.marketTime;
@@ -113,7 +113,7 @@ export function FeedstockPriceTicker() {
               <div className="flex items-center justify-between gap-2">
                 <span className="truncate text-[10px] font-semibold text-slate-600">{LABELS[quote.id] || quote.name}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
-                  <ChangeIcon size={10} />{change == null ? (quote.stale ? 'antiguo' : '—') : Math.abs(change).toFixed(2) + '%'}
+                  <ChangeIcon size={10} />{quote.id === 'vegetable-oils' ? 'BASE' : shownChange == null ? (quote.stale ? 'ref. antigua' : 'N/D') : Math.abs(shownChange).toFixed(1) + '% vs soya'}
                 </span>
               </div>
               <div className="mt-0.5 whitespace-nowrap text-[14px] font-bold leading-tight tabular-nums text-[var(--astra-dark)]">
@@ -121,7 +121,7 @@ export function FeedstockPriceTicker() {
               </div>
               <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px] text-slate-500">
                 <span className="truncate">{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.stale ? 'Último dato' : 'Sin equivalente USD/MT'}</span>
-                <span className="shrink-0">{timestamp ? formatTime(timestamp) : ''}</span>
+                <span className="shrink-0">{timestamp ? (quote.stale ? 'ref. ' : '') + formatTime(timestamp) : ''}</span>
               </div>
             </a>
           );
