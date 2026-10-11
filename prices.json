@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:09:37.584Z",
+  "generatedAt": "2026-10-11T08:09:56.950Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -7,12 +7,12 @@
       "name": "Aceite de soya · FOB Paranaguá",
       "symbol": "CS-GRN-SBO-BRZ",
       "price": 1245.5,
-      "prevClose": 69.58,
-      "changePct": -2.24202356999138,
+      "prevClose": null,
+      "changePct": null,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": 1245.5,
-      "prevUsdPerMt": 1533.97642028323,
+      "prevUsdPerMt": null,
       "marketTime": 1791547200,
       "source": "CommodityScope indicative assessment",
       "sourceUrl": "https://commodityscope.com/prices/brazil-soybean-oil",
