@@ -151,6 +151,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         {currentPage === "products" && procurementDomain === "feedstock" && <FeedstockPriceTicker />}
         {currentPage === "products" && procurementDomain === "energy_commodities" && <MarketPriceTicker sector="energy" />}
         {currentPage === "products" && procurementDomain === "mining_commodities" && <MarketPriceTicker sector="mining" />}
+        {currentPage === "products" && procurementDomain === "fertilizers_chemicals" && <MarketPriceTicker sector="fertilizers_chemicals" />}
+        {currentPage === "products" && procurementDomain === "agricultural_commodities" && <MarketPriceTicker sector="agriculture" />}
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
           {procurementDomain ? children : <div className="mx-auto w-full max-w-7xl">{children}</div>}
         </main>
