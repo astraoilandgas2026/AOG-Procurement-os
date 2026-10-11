@@ -52,14 +52,14 @@ async function jkmLng() {
   });
   if (!response.ok) throw new Error('Trading Economics JKM HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;/gi, ' ')
     .replace(/&amp;/gi, '&')
-    .replace(/\\s+/g, ' ');
-  const match = text.match(/LNG JKM rose to\\s*([0-9]+(?:\\.[0-9]+)?)\\s*USD\\/MMBTU on ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i)
-    || text.match(/([0-9]+(?:\\.[0-9]+)?)\\s*USD\\/MMBTU on ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i);
+    .replace(/\s+/g, ' ');
+  const match = text.match(/LNG JKM rose to\s*([0-9]+(?:\.[0-9]+)?)\s*USD\/MMBTU on ([A-Za-z]+\s+\d{1,2},\s+\d{4})/i)
+    || text.match(/([0-9]+(?:\.[0-9]+)?)\s*USD\/MMBTU on ([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
   if (!match) throw new Error('JKM LNG USD/MMBtu assessment/date not found');
   const price = Number(match[1]);
   const timestamp = Math.floor(Date.parse(match[2] + ' 12:00:00 UTC') / 1000);
@@ -73,16 +73,16 @@ async function asianLpgBenchmarks() {
   });
   if (!response.ok) throw new Error('Asian Oil Intelligence LPG HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;/gi, ' ')
     .replace(/&amp;/gi, '&')
-    .replace(/\\s+/g, ' ');
-  const dateMatch = text.match(/Market overview as of ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i);
+    .replace(/\s+/g, ' ');
+  const dateMatch = text.match(/Market overview as of ([A-Za-z]+\s+\d{1,2},\s+\d{4})/i);
   const timestamp = dateMatch ? Math.floor(Date.parse(dateMatch[1] + ' 12:00:00 UTC') / 1000) : null;
-  const propaneMatch = text.match(/Propane CP\\s*\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/MT/i);
-  const butaneMatch = text.match(/Butane CP\\s*\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/MT/i);
+  const propaneMatch = text.match(/Propane CP\s*\$([\d,]+(?:\.\d+)?)\s*\/MT/i);
+  const butaneMatch = text.match(/Butane CP\s*\$([\d,]+(?:\.\d+)?)\s*\/MT/i);
   const result = {};
   if (propaneMatch) result.propane = { price: Number(propaneMatch[1].replace(/,/g, '')), timestamp, currency: 'USD' };
   if (butaneMatch) result.butane = { price: Number(butaneMatch[1].replace(/,/g, '')), timestamp, currency: 'USD' };
