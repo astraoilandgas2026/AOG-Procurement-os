@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FeedstockPriceTicker } from '@/components/FeedstockPriceTicker';
+import { MarketPriceTicker } from '@/components/MarketPriceTicker';
 import { useAsync } from '@/data/useDataStore';
 import { getStore } from '@/data/store';
 import { Card, CardBody, EmptyState, LoadingSpinner, ErrorState, Button, Modal } from '@/components/ui';
@@ -276,7 +277,11 @@ export function DashboardPage() {
         </CardBody>
       </Card>
 
-      {procurementDomain === "feedstock" && <div className="mt-6"><FeedstockPriceTicker /></div>}
+      {procurementDomain === 'feedstock' && <div className="mt-6"><FeedstockPriceTicker /></div>}
+      {procurementDomain === 'mining_commodities' && <div className="mt-6"><MarketPriceTicker sector="mining" /></div>}
+      {procurementDomain === 'energy_commodities' && <div className="mt-6"><MarketPriceTicker sector="energy" /></div>}
+      {procurementDomain === 'agricultural_commodities' && <div className="mt-6"><MarketPriceTicker sector="agriculture" /></div>}
+      {procurementDomain === 'fertilizers_chemicals' && <div className="mt-6"><MarketPriceTicker sector="fertilizers_chemicals" /></div>}
 
       <Modal open={Boolean(drilldown)} onClose={() => setDrilldown(null)} title={drilldown ? drilldownTitle[drilldown] : ''} footer={<Button variant="secondary" onClick={() => setDrilldown(null)}>Cerrar</Button>}>
         {renderDrilldown()}
