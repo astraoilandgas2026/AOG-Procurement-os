@@ -86,7 +86,10 @@ export function FeedstockPriceTicker() {
       <div className="flex items-center justify-between gap-2 px-3 py-1.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <Activity size={13} className="shrink-0 text-[var(--astra-red)]" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Referencias de mercado · Feedstock</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Referencias de mercado · Feedstock</span>
+            <span className="text-[9px] text-slate-500">Base de compra: FOB Brasil · flete a Rotterdam excluido</span>
+          </div>
           {hasError && <span className="text-[10px] text-amber-700">Sin conexión</span>}
         </div>
         <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar referencias de mercado">
