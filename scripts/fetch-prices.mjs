@@ -267,20 +267,20 @@ const productMarkers = [
     relativePct: null, stale: true, status: ucoBenchmark.fallback ? 'Estimación · benchmark anterior' : 'Estimación por benchmark · baja confianza'
   },
   {
-    id: 'fatty-acids', name: 'Ácido graxo de palma · FOB Nordeste Brasil', price: 4200 / 4.99, usdPerMt: 4200 / 4.99, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-09-29T12:00:00Z'), source: 'ABISA · cotação brasileira publicada 29-sep-2026',
-    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo de palma',
-    basis: 'R$4,20/kg = R$4.200/MT; FOB Nordeste, condição publicada 6-oct-2026. Conversão indicativa a US$1 = R$4,99.',
-    note: 'Referencia brasileña de ácido graxo de palma FOB Nordeste; no es ácido oleico 75% ni PFAD. Conversión BRL/USD indicativa; confirmar tipo de cambio y condiciones fiscales con el proveedor.',
-    relativePct: null, stale: true, status: 'Referencia Brasil FOB · 6 oct.'
+    id: 'fatty-acids', name: 'Ácido graso · oferta Holanda 7', price: 890, usdPerMt: 890, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Oferta comercial Holanda 7 · dato comunicado por el usuario',
+    sourceUrl: '', symbol: 'Oferta proveedor',
+    basis: 'Precio reportado: US$890/MT. Incoterm, puerto, especificación exacta, volumen, fecha de vigencia y condiciones de pago pendientes de confirmar.',
+    note: 'Referencia comercial real comunicada por el usuario; no es un índice público ni debe compararse con ácido oleico 75%, PFAD u otro ácido graso hasta confirmar que la especificación coincide.',
+    relativePct: null, stale: true, status: 'Oferta reportada · validar condiciones'
   },
   {
-    id: 'acid-oils', name: 'Aceites ácidos / soapstock · proxy FOB Brasil', price: ((acidBenchmark.priceBRLkg * 1000 / brlPerUsd) / 1.12) + 25, usdPerMt: ((acidBenchmark.priceBRLkg * 1000 / brlPerUsd) / 1.12) + 25, unit: 'USD/MT', decimals: 0,
-    marketTime: acidBenchmark.timestamp, source: acidBenchmark.provider + ' · ácido graxo bruto de soja CIF-SP; cálculo proxy',
-    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo bruto de soja',
-    basis: 'Cotización ABISA en BRL/kg × 1.000 ÷ USDBRL ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto).',
-    note: 'ESTIMACIÓN PROXY, no precio observado de soapstock. ABISA publica ácido graxo bruto de soja CIF-SP con condición de 12% ICMS; el cálculo elimina 12% como hipótesis y añade US$25/MT de logística supuesta para aproximar FOB. No equivale necesariamente a aceite ácido/soapstock (FFA, MIU, P, S y proceso pueden diferir). Validar con análisis y oferta de planta.',
-    relativePct: null, stale: true, status: acidBenchmark.fallback ? 'Proxy · benchmark anterior' : 'Estimación proxy · baja confianza'
+    id: 'acid-oils', name: 'Soapstock / subproducto ácido · mezcla reportada', price: 540, usdPerMt: 540, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Oferta comercial reportada por el usuario',
+    sourceUrl: '', symbol: 'Soapstock mezcla',
+    basis: 'Precio reportado: US$540/MT para soapstock de mezcla de varios materiales. Incoterm, origen, ficha técnica, análisis, volumen y vigencia pendientes de confirmar.',
+    note: 'Se sustituye el proxy anterior de US$913/MT porque era un cálculo indirecto de ácido graso bruto de soja, no una cotización de soapstock. US$540/MT es la referencia comercial reportada por el usuario, no una evaluación pública independiente.',
+    relativePct: null, stale: true, status: 'Oferta reportada · validar especificación'
   },
   {
     id: 'degummed-oils', name: 'Aceite de soya desgomado · proxy FOB Paranaguá', price: vegetableOilPrice, usdPerMt: vegetableOilPrice, unit: 'USD/MT', decimals: 0,
