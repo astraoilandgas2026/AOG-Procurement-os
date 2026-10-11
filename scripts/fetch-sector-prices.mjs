@@ -74,7 +74,11 @@ async function buildFile(fileName, definitions) {
   for (const def of definitions) {
     const previous = oldById.get(def.id);
     let q = null;
-    if (def.fetcher === 'tradingview-butane') {\n      try { q = await tradingViewButane(); } catch (error) {\n        console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));\n      }\n    } else if (def.fetcher === 'iata-jet-fuel') {
+    if (def.fetcher === 'tradingview-butane') {
+      try { q = await tradingViewButane(); } catch (error) {
+        console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));
+      }
+    } else if (def.fetcher === 'iata-jet-fuel') {
       try { q = await iataJetFuel(); } catch (error) {
         console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));
       }
