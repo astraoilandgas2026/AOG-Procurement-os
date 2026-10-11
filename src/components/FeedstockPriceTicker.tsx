@@ -22,13 +22,13 @@ type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instrume
 
 const ORDER = ['vegetable-oils', 'uco', 'fatty-acids', 'acid-oils', 'degummed-oils', 'oleins', 'off-spec'];
 const LABELS: Record<string, string> = {
-  'vegetable-oils': 'Aceites vegetales',
-  uco: 'UCO / AVU · indicativo',
-  'fatty-acids': 'Ácidos grasos',
-  'acid-oils': 'Aceites ácidos',
-  'degummed-oils': 'Aceites desgomados',
-  oleins: 'Oleínas · RBD palm',
-  'off-spec': 'Fuera de especificación',
+  'vegetable-oils': 'Aceite vegetal de soya (benchmark)',
+  uco: 'Aceite usado de cocina (UCO/AVU, indicativo)',
+  'fatty-acids': 'Ácido oleico 75% mínimo (FOB Malasia)',
+  'acid-oils': 'Destilado de ácidos grasos de palma (PFAD)',
+  'degummed-oils': 'Aceite crudo de soya desgomado (FOB Argentina)',
+  oleins: 'Oleína de palma RBD (FOB Malasia)',
+  'off-spec': 'Producto fuera de especificación (sin precio único)',
 };
 const PRICES_URL = 'https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/prices.json';
 const POLL_MS = 60 * 1000;
@@ -47,8 +47,6 @@ function formatTime(timestamp: number) {
 
 export function FeedstockPriceTicker() {
   const [quotes, setQuotes] = useState<Record<string, MarkerQuote>>({});
-  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
-  const [delayMinutes, setDelayMinutes] = useState(15);
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -62,8 +60,6 @@ export function FeedstockPriceTicker() {
       const next: Record<string, MarkerQuote> = {};
       payload.instruments.forEach((item) => { next[item.id] = item; });
       setQuotes(next);
-      setGeneratedAt(payload.generatedAt || null);
-      setDelayMinutes(payload.delayMinutes ?? 15);
       setHasError(false);
     } catch {
       setHasError(true);
@@ -84,23 +80,20 @@ export function FeedstockPriceTicker() {
   }, [refresh]);
 
   const ordered = ORDER.map((id) => quotes[id]).filter((item): item is MarkerQuote => Boolean(item));
-  const feedAgeMinutes = generatedAt ? (Date.now() - new Date(generatedAt).getTime()) / 60000 : null;
 
   return (
-    <section aria-label="Marcadores de precios y referencias de mercado" className="shrink-0 border-t border-[var(--astra-border)] bg-white shadow-[0_-4px_16px_rgba(15,23,42,0.04)]">
-      <div className="flex items-center justify-between gap-3 px-3 py-1.5 sm:px-5">
+    <section aria-label="Marcadores de precios de feedstock" className="shrink-0 border-t border-[var(--astra-border)] bg-white shadow-[0_-4px_16px_rgba(15,23,42,0.04)]">
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <Activity size={13} className="shrink-0 text-[var(--astra-red)]" />
-          <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Market ticker</span>
-          <span className="hidden whitespace-nowrap text-[10px] text-slate-500 sm:inline">7 categorías · variación vs benchmark soya</span>
-          {feedAgeMinutes != null && feedAgeMinutes > 60 && <span className="whitespace-nowrap text-[10px] text-amber-700">Feed antiguo</span>}
-          {hasError && <span className="whitespace-nowrap text-[10px] text-amber-700">Sin conexión al feed</span>}
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Precios feedstock</span>
+          {hasError && <span className="text-[10px] text-amber-700">Sin conexión</span>}
         </div>
         <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar referencias de mercado">
           <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Actualizar
         </button>
       </div>
-      <div className="flex gap-2 overflow-x-auto overscroll-x-contain px-3 pb-2 sm:px-5" style={{ scrollbarWidth: 'thin' }}>
+      <div className="grid grid-cols-2 gap-2 px-3 pb-2 sm:flex sm:gap-2 sm:overflow-x-auto sm:overscroll-x-contain sm:px-5" style={{ scrollbarWidth: 'thin' }}>
         {ordered.map((quote) => {
           const value = quote.price;
           const unit = quote.unit || 'USD/MT';
@@ -108,32 +101,30 @@ export function FeedstockPriceTicker() {
           const change = quote.changePct;
           const shownChange = typeof comparison === 'number' ? comparison : change;
           const ChangeIcon = shownChange == null ? Minus : shownChange > 0 ? TrendingUp : shownChange < 0 ? TrendingDown : Minus;
-          const changeClass = shownChange == null || shownChange === 0 ? 'text-slate-400' : shownChange > 0 ? 'text-emerald-700' : 'text-rose-700';
+          const changeClass = shownChange == null || shownChange === 0 ? 'text-slate-500' : shownChange > 0 ? 'text-emerald-700' : 'text-rose-700';
           const timestamp = quote.marketTime;
+          const label = LABELS[quote.id] || quote.name;
           return (
-            <a key={quote.id} href={quote.sourceUrl || '#'} target="_blank" rel="noreferrer" title={quote.note || quote.basis || quote.name}
-              className="group min-w-[155px] max-w-[205px] flex-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 transition-colors hover:border-slate-300 hover:bg-slate-50">
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-[10px] font-semibold text-slate-600">{LABELS[quote.id] || quote.name}</span>
+            <a key={quote.id} href={quote.sourceUrl || '#'} target="_blank" rel="noreferrer" title={quote.note || quote.basis || label}
+              className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 transition-colors hover:border-slate-300 hover:bg-slate-50 sm:min-w-[190px] sm:max-w-[220px] sm:flex-1 sm:py-1.5">
+              <div className="flex items-start justify-between gap-1.5">
+                <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{label}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
-                  <ChangeIcon size={10} />{quote.id === 'vegetable-oils' ? 'BASE' : shownChange == null ? (quote.stale ? 'ref. antigua' : 'N/D') : Math.abs(shownChange).toFixed(1) + '% vs soya'}
+                  <ChangeIcon size={10} />
+                  {quote.id === 'vegetable-oils' ? 'BASE' : shownChange == null ? (quote.stale ? 'Ref. antigua' : 'N/D') : Math.abs(shownChange).toFixed(1) + '%'}
                 </span>
               </div>
-              <div className="mt-0.5 whitespace-nowrap text-[14px] font-bold leading-tight tabular-nums text-[var(--astra-dark)]">
+              <div className="mt-1 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-[var(--astra-dark)] sm:text-[14px]">
                 {typeof value === 'number' && Number.isFinite(value) ? formatNative(value, unit, quote.decimals ?? 2) : 'N/D'}
               </div>
-              <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px] text-slate-500">
-                <span className="truncate">{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.stale ? 'Último dato' : 'Sin equivalente USD/MT'}</span>
-                <span className="shrink-0">{timestamp ? (quote.stale ? 'ref. ' : '') + formatTime(timestamp) : ''}</span>
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[10px] text-slate-500">
+                <span>{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.stale ? 'Último dato' : 'Sin equivalente USD/MT'}</span>
+                <span>{timestamp ? (quote.stale ? 'Ref. ' : '') + formatTime(timestamp) : ''}</span>
               </div>
             </a>
           );
         })}
-        {ordered.length === 0 && <div className="py-2 text-xs text-slate-500">Cargando referencias de mercado…</div>}
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-3 pb-1.5 text-[9px] text-slate-500 sm:px-5">
-        <span>{generatedAt ? 'Feed: ' + new Date(generatedAt).toLocaleString('es-CL') + ' · actualización cada 15 min; lectura de app cada 1 min.' : 'Esperando el primer feed de precios.'}</span>
-        <span>Precios de referencia, no ofertas FOB comparables. El porcentaje indica diferencia frente al benchmark de soya; calidad, origen e Incoterm pueden cambiar el valor real.</span>
+        {ordered.length === 0 && <div className="col-span-2 py-2 text-xs text-slate-500 sm:col-span-1">Cargando referencias de mercado…</div>}
       </div>
     </section>
   );
