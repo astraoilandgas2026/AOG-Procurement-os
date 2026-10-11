@@ -1,6 +1,11 @@
 name: Update feedstock price markers
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fetch-prices.mjs'
+      - '.github/workflows/update-feedstock-prices.yml'
   schedule:
     - cron: '*/15 * * * 1-5'
   workflow_dispatch:
