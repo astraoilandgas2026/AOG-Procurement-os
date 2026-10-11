@@ -147,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </nav>
         )}
-        {procurementDomain === "feedstock" && <FeedstockPriceTicker />}
+        {procurementDomain === "feedstock" && currentPage === "products" && <FeedstockPriceTicker />}
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
           {procurementDomain ? children : <div className="mx-auto w-full max-w-7xl">{children}</div>}
         </main>
