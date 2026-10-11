@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Activity, ExternalLink, RefreshCw } from 'lucide-react';
+import { Activity, RefreshCw, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
 type MarkerQuote = {
   id: string;
   name: string;
   price?: number | null;
   usdPerMt?: number | null;
+  unit?: string;
+  decimals?: number;
+  changePct?: number | null;
   marketTime?: number | null;
   source?: string;
   sourceUrl?: string;
@@ -14,45 +17,52 @@ type MarkerQuote = {
   stale?: boolean;
   status?: string;
 };
-type PricesFile = { generatedAt?: string | null; instruments?: MarkerQuote[] };
+type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instruments?: MarkerQuote[] };
 
-const MARKERS = [
-  { id: 'uco', label: 'UCO / AVU', fallbackBasis: 'Proxy bursátil de aceite vegetal', fallbackNote: 'No hay futuro público líquido de UCO; no equivale a una oferta física.' },
-  { id: 'fatty-acids', label: 'Ácidos grasos', fallbackBasis: 'Proxy de aceite de soya', fallbackNote: 'No es una cotización específica de ácidos grasos.' },
-  { id: 'acid-oils', label: 'Aceites ácidos', fallbackBasis: 'Proxy de aceite de soya', fallbackNote: 'No refleja descuentos por FFA, humedad, impurezas ni calidad.' },
-  { id: 'vegetable-oils', label: 'Aceites vegetales', fallbackBasis: 'Futuro de aceite de soya convertido a USD/MT', fallbackNote: 'Benchmark financiero; no equivale a aceite físico FOB.' },
-  { id: 'degummed-oils', label: 'Aceites desgomados', fallbackBasis: 'Proxy de aceite de soya', fallbackNote: 'No incluye prima por proceso, origen ni Incoterm.' },
-  { id: 'oleins', label: 'Oleínas', fallbackBasis: 'Futuro de palma o proxy alternativo claramente indicado', fallbackNote: 'El proxy no sustituye una cotización física de oleína.' },
-  { id: 'off-spec', label: 'Fuera de especificación / otros', fallbackBasis: 'Proxy de aceite de soya', fallbackNote: 'La valoración final depende de especificación y análisis de laboratorio.' },
-] as const;
-
+const ORDER = ['soy_oil', 'uco', 'ulsd', 'canola', 'palm_oil', 'brent', 'wti'];
+const LABELS: Record<string, string> = {
+  soy_oil: 'Aceite de soya',
+  uco: 'UCO / AVU · indicativo',
+  ulsd: 'Diésel ULSD',
+  canola: 'Canola',
+  palm_oil: 'Aceite de palma',
+  brent: 'Brent',
+  wti: 'WTI',
+};
 const PRICES_URL = 'https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/prices.json';
-const POLL_MS = 5 * 60 * 1000;
+const POLL_MS = 60 * 1000;
 
-function formatUSD(value: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+function formatNative(value: number, unit: string, decimals = 2) {
+  const formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value);
+  return unit === 'USD/MT' ? '$' + formatted : formatted + ' ' + unit;
+}
+function formatUSDPerMt(value: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value) + '/MT';
 }
 function formatTime(timestamp: number) {
-  return new Intl.DateTimeFormat('es-CL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(timestamp * 1000));
+  const ms = timestamp < 100000000000 ? timestamp * 1000 : timestamp;
+  return new Intl.DateTimeFormat('es-CL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(ms));
 }
 
 export function FeedstockPriceTicker() {
   const [quotes, setQuotes] = useState<Record<string, MarkerQuote>>({});
   const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+  const [delayMinutes, setDelayMinutes] = useState(15);
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(PRICES_URL + '?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
-      if (!response.ok) throw new Error('Price feed unavailable');
+      const response = await fetch(PRICES_URL + '?t=' + Math.floor(Date.now() / 30000), { cache: 'no-store' });
+      if (!response.ok) throw new Error('Feed unavailable');
       const payload = await response.json() as PricesFile;
-      if (!Array.isArray(payload.instruments)) throw new Error('Invalid price feed');
+      if (!Array.isArray(payload.instruments)) throw new Error('Invalid feed');
       const next: Record<string, MarkerQuote> = {};
       payload.instruments.forEach((item) => { next[item.id] = item; });
-      setQuotes((previous) => ({ ...previous, ...next }));
+      setQuotes(next);
       setGeneratedAt(payload.generatedAt || null);
+      setDelayMinutes(payload.delayMinutes ?? 15);
       setHasError(false);
     } catch {
       setHasError(true);
@@ -72,46 +82,55 @@ export function FeedstockPriceTicker() {
     };
   }, [refresh]);
 
+  const ordered = ORDER.map((id) => quotes[id]).filter((item): item is MarkerQuote => Boolean(item));
+  const feedAgeMinutes = generatedAt ? (Date.now() - new Date(generatedAt).getTime()) / 60000 : null;
+
   return (
-    <section aria-label="Marcadores de precios feedstock" className="border-b border-[var(--astra-border)] bg-white">
-      <div className="flex items-center justify-between gap-3 px-4 py-2 sm:px-8">
+    <section aria-label="Marcadores de precios y referencias de mercado" className="shrink-0 border-t border-[var(--astra-border)] bg-white shadow-[0_-4px_16px_rgba(15,23,42,0.04)]">
+      <div className="flex items-center justify-between gap-3 px-3 py-1.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
-          <Activity size={15} className="shrink-0 text-[var(--astra-orange)]" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Feedstock price markers</span>
-          <span className="hidden text-[10px] text-slate-500 sm:inline">7 referencias · USD/MT · proxies identificados</span>
+          <Activity size={13} className="shrink-0 text-[var(--astra-red)]" />
+          <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Market ticker</span>
+          <span className="hidden whitespace-nowrap text-[10px] text-slate-500 sm:inline">7 referencias · datos con retraso de mercado</span>
+          {feedAgeMinutes != null && feedAgeMinutes > 60 && <span className="whitespace-nowrap text-[10px] text-amber-700">Feed antiguo</span>}
+          {hasError && <span className="whitespace-nowrap text-[10px] text-amber-700">Sin conexión al feed</span>}
         </div>
-        <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar precios">
-          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Actualizar
+        <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar referencias de mercado">
+          <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Actualizar
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-2 px-4 pb-3 sm:grid-cols-2 sm:px-8 xl:grid-cols-4">
-        {MARKERS.map((marker) => {
-          const quote = quotes[marker.id];
-          const value = quote?.usdPerMt ?? quote?.price;
-          const timestamp = quote?.marketTime;
-          const sourceUrl = quote?.sourceUrl || 'https://finance.yahoo.com/quote/ZL=F/';
+      <div className="flex gap-2 overflow-x-auto overscroll-x-contain px-3 pb-2 sm:px-5" style={{ scrollbarWidth: 'thin' }}>
+        {ordered.map((quote) => {
+          const value = quote.price;
+          const unit = quote.unit || 'USD/MT';
+          const change = quote.changePct;
+          const ChangeIcon = change == null ? Minus : change > 0 ? TrendingUp : change < 0 ? TrendingDown : Minus;
+          const changeClass = change == null || change === 0 ? 'text-slate-400' : change > 0 ? 'text-emerald-700' : 'text-rose-700';
+          const timestamp = quote.marketTime;
           return (
-            <article key={marker.id} className="min-w-0 rounded-lg border border-slate-200 bg-white px-3 py-2">
-              <div className="text-[11px] font-semibold text-slate-700">{marker.label}</div>
-              <div className="mt-1 text-lg font-bold tabular-nums text-[var(--astra-dark)]">
-                {typeof value === 'number' && Number.isFinite(value) ? formatUSD(value) : 'N/D'}
-                <span className="ml-1 text-[10px] font-medium text-slate-500">/MT</span>
+            <a key={quote.id} href={quote.sourceUrl || '#'} target="_blank" rel="noreferrer" title={quote.note || quote.basis || quote.name}
+              className="group min-w-[155px] max-w-[205px] flex-1 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 transition-colors hover:border-slate-300 hover:bg-slate-50">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-[10px] font-semibold text-slate-600">{LABELS[quote.id] || quote.name}</span>
+                <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
+                  <ChangeIcon size={10} />{change == null ? (quote.stale ? 'antiguo' : '—') : Math.abs(change).toFixed(2) + '%'}
+                </span>
               </div>
-              <div className="mt-1 text-[10px] font-medium leading-snug text-slate-600">{quote?.basis || marker.fallbackBasis}</div>
-              <div className="mt-1 text-[10px] text-slate-500">
-                {quote?.stale ? 'Último dato conservado · desactualizado' : timestamp ? 'Mercado: ' + formatTime(timestamp) : 'Esperando primera cotización'}
+              <div className="mt-0.5 whitespace-nowrap text-[14px] font-bold leading-tight tabular-nums text-[var(--astra-dark)]">
+                {typeof value === 'number' && Number.isFinite(value) ? formatNative(value, unit, quote.decimals ?? 2) : 'N/D'}
               </div>
-              <div className="mt-1 text-[10px] leading-snug text-slate-500">{quote?.note || marker.fallbackNote}</div>
-              <a href={sourceUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[10px] font-medium text-[var(--astra-orange)] hover:underline">
-                {quote?.source || 'Fuente de referencia'} <ExternalLink size={10} />
-              </a>
-            </article>
+              <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px] text-slate-500">
+                <span className="truncate">{typeof quote.usdPerMt === 'number' && Number.isFinite(quote.usdPerMt) ? formatUSDPerMt(quote.usdPerMt) : quote.stale ? 'Último dato' : 'Sin equivalente USD/MT'}</span>
+                <span className="shrink-0">{timestamp ? formatTime(timestamp) : ''}</span>
+              </div>
+            </a>
           );
         })}
+        {ordered.length === 0 && <div className="py-2 text-xs text-slate-500">Cargando referencias de mercado…</div>}
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-2 text-[10px] text-slate-500 sm:px-8">
-        <span>{hasError ? 'No se pudo refrescar el feed; se mantiene el último dato disponible.' : generatedAt ? 'Feed generado: ' + new Date(generatedAt).toLocaleString('es-CL') + ' · consulta cada 5 min.' : 'Consultando el feed de mercado…'}</span>
-        <span>Referencia indicativa, no oferta de proveedor. Validar producto, especificación, origen e Incoterm.</span>
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-3 pb-1.5 text-[9px] text-slate-500 sm:px-5">
+        <span>{generatedAt ? 'Feed: ' + new Date(generatedAt).toLocaleString('es-CL') + ' · actualización cada 15 min; lectura de app cada 1 min.' : 'Esperando el primer feed de precios.'}</span>
+        <span>UCO es indicativo (ULSD + spread de referencia), no oferta física. Valores en unidades originales y equivalencia aproximada USD/MT.</span>
       </div>
     </section>
   );
