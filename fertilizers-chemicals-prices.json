@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:50:56.125Z",
+  "generatedAt": "2026-10-11T07:51:35.002Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -89,20 +89,20 @@
     },
     {
       "id": "fert-ammonia",
-      "name": "Amoníaco · CFR",
-      "price": 525,
+      "name": "Amoníaco · CFR Tampa",
+      "price": 545,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1790942400,
-      "source": "Global Fertiliser Markets · 2 Oct 2026",
-      "sourceUrl": "https://getthewordout.com.au/press-release/press-release-weekly-update-global-fertiliser-markets-w-e-02-10-2026-global-fertiliser-markets-wait-on-india-as-china-releases-more-urea/",
-      "basis": "Published indicative range USD 500–550/MT CFR, dated 2 October 2026; displayed value is the range midpoint.",
-      "note": "Range: USD 500–550/MT CFR.",
+      "marketTime": 1791547200,
+      "source": "Green Markets · 9 Oct 2026",
+      "sourceUrl": "https://fertilizerpricing.com/market-watch-posts/",
+      "basis": "Green Markets reported the Tampa ammonia contract at USD 545/MT CFR on 9 October 2026.",
+      "note": "Assessment/contract reference CFR Tampa.",
       "stale": true,
-      "status": "Ref. · 02 Oct 2026"
+      "status": "Ref. · 09 Oct 2026"
     },
     {
       "id": "fert-dap",
@@ -140,20 +140,20 @@
     },
     {
       "id": "fert-mop",
-      "name": "MOP · CFR",
-      "price": 395,
+      "name": "MOP · FOB NOLA",
+      "price": 388.56,
       "unit": "USD/MT",
-      "decimals": 0,
+      "decimals": 2,
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1790942400,
-      "source": "Global Fertiliser Markets · 2 Oct 2026",
-      "sourceUrl": "https://getthewordout.com.au/press-release/press-release-weekly-update-global-fertiliser-markets-w-e-02-10-2026-global-fertiliser-markets-wait-on-india-as-china-releases-more-urea/",
-      "basis": "Published indicative range USD 390–400/MT CFR, dated 2 October 2026; displayed value is the range midpoint.",
-      "note": "Range: USD 390–400/MT CFR.",
+      "marketTime": 1791547200,
+      "source": "Green Markets · 9 Oct 2026",
+      "sourceUrl": "https://fertilizerpricing.com/market-watch-posts/",
+      "basis": "Green Markets reported USD 345–360/short ton FOB NOLA on 9 October 2026; displayed price is the midpoint converted to USD/MT (×1.102311).",
+      "note": "Source range: USD 345–360/short ton FOB NOLA.",
       "stale": true,
-      "status": "Ref. · 02 Oct 2026"
+      "status": "Ref. · 09 Oct 2026"
     },
     {
       "id": "fert-ammonium-sulfate",
