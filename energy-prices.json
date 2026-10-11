@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:37:45.816Z",
+  "generatedAt": "2026-10-11T07:38:20.194Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -47,15 +47,16 @@
       "unit": "USD/bbl",
       "decimals": 2,
       "usdPerMt": null,
-      "changePct": null,
+      "changePct": 1.0000000000000002,
       "relativePct": null,
       "marketTime": null,
       "source": "IATA / S&P Global Platts",
       "sourceUrl": "https://www.iata.org/en/publications/economics/fuel-monitor/",
-      "basis": "Último promedio global semanal visible en IATA Fuel Price Monitor: USD 187.34/bbl. Referencia de respaldo; confirmar publicación vigente al momento de negociar.",
-      "note": "Valor de respaldo del monitor público; la cotización física depende de región y fecha.",
-      "stale": true,
-      "status": "Última referencia pública localizada"
+      "basis": "Promedio global semanal de Jet Fuel publicado por IATA con datos de S&P Global Platts, expresado en USD/barril; benchmark de mercado, no oferta de Jet A-1 en un aeropuerto o puerto concreto.",
+      "note": "La referencia se actualiza semanalmente. Para Jet A-1 físico se requiere diferencial regional, terminal, especificación, fecha de entrega e Incoterm.",
+      "stale": false,
+      "status": "Promedio global semanal actualizado",
+      "currency": "USD"
     },
     {
       "id": "lng-gas",
