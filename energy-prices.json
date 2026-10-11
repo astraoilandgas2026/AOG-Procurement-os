@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:37:11.651Z",
+  "generatedAt": "2026-10-11T07:37:45.816Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -42,22 +42,20 @@
     },
     {
       "id": "jet-a1",
-      "name": "Jet A-1 / Jet Fuel (ULSD proxy)",
-      "price": 199.01280000000003,
+      "name": "Jet A-1 / Jet Fuel (promedio global)",
+      "price": 187.34,
       "unit": "USD/bbl",
       "decimals": 2,
-      "usdPerMt": 1486.4360800000002,
-      "changePct": 3.698516216571125,
+      "usdPerMt": null,
+      "changePct": null,
       "relativePct": null,
-      "marketTime": 1791579598,
-      "source": "Yahoo Finance",
-      "sourceUrl": "https://finance.yahoo.com/quote/HO=F/",
-      "basis": "Futuro NYMEX ULSD convertido de USD/galón a USD/barril (42 gal US/bbl); solo proxy direccional, no evaluación específica Jet A-1.",
-      "note": "Como contraste de mercado, IATA publica un promedio global semanal de Jet Fuel en USD/bbl; el Jet A-1 físico requiere diferencial por región, terminal, especificación y fecha.",
-      "stale": false,
-      "status": "Benchmark financiero actualizado",
-      "symbol": "HO=F",
-      "currency": "USD"
+      "marketTime": null,
+      "source": "IATA / S&P Global Platts",
+      "sourceUrl": "https://www.iata.org/en/publications/economics/fuel-monitor/",
+      "basis": "Último promedio global semanal visible en IATA Fuel Price Monitor: USD 187.34/bbl. Referencia de respaldo; confirmar publicación vigente al momento de negociar.",
+      "note": "Valor de respaldo del monitor público; la cotización física depende de región y fecha.",
+      "stale": true,
+      "status": "Última referencia pública localizada"
     },
     {
       "id": "lng-gas",

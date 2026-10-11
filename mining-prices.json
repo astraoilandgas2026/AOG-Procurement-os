@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:37:11.759Z",
+  "generatedAt": "2026-10-11T07:37:45.910Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -17,7 +17,7 @@
       "basis": "Hard coking coal FOB Australia: US$245/t en julio de 2026; benchmark indicativo de carbón coquizable, no precio de una carga Alabama/Colombia.",
       "note": "Referencia pública de julio de 2026. El producto de Astra figura con origen Colombia en el registro; el precio físico requiere calidad, origen y puerto confirmados.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Última referencia pública localizada"
     },
     {
       "id": "thermal-coal",
@@ -34,7 +34,7 @@
       "basis": "Carbón térmico australiano Newcastle alrededor de US$143/t según referencia publicada el 9-oct-2026.",
       "note": "Referencia de mercado Newcastle, no oferta física de un origen/grado específico. Ajustar por poder calorífico, azufre, cenizas, puerto e Incoterm.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Última referencia pública localizada"
     },
     {
       "id": "copper-concentrate",
