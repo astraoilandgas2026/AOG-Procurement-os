@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:20:12.894Z",
+  "generatedAt": "2026-10-11T08:20:59.176Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -45,8 +45,8 @@
       "usdPerMt": 841.6833667334669,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1791288000,
-      "source": "ABISA · cotação brasileira publicada 6-oct-2026",
+      "marketTime": 1790683200,
+      "source": "ABISA · cotação brasileira publicada 29-sep-2026",
       "sourceUrl": "https://abisa.com.br/cotacoes/cotacoes-2026",
       "symbol": "Ácido graxo de palma",
       "basis": "R$4,20/kg = R$4.200/MT; FOB Nordeste, condição publicada 6-oct-2026. Conversão indicativa a US$1 = R$4,99.",
