@@ -8,7 +8,8 @@ type MarkerQuote = {
   usdPerMt?: number | null;
   unit?: string;
   decimals?: number;
-  changePct?: number | null;\n  relativePct?: number | null;
+  changePct?: number | null;
+  relativePct?: number | null;
   marketTime?: number | null;
   source?: string;
   sourceUrl?: string;
@@ -103,9 +104,11 @@ export function FeedstockPriceTicker() {
         {ordered.map((quote) => {
           const value = quote.price;
           const unit = quote.unit || 'USD/MT';
-          const comparison = quote.relativePct;\n          const change = quote.changePct;
-          const ChangeIcon = change == null ? Minus : change > 0 ? TrendingUp : change < 0 ? TrendingDown : Minus;
-          const changeClass = change == null || change === 0 ? 'text-slate-400' : change > 0 ? 'text-emerald-700' : 'text-rose-700';
+          const comparison = quote.relativePct;
+          const change = quote.changePct;
+          const shownChange = typeof comparison === 'number' ? comparison : change;
+          const ChangeIcon = shownChange == null ? Minus : shownChange > 0 ? TrendingUp : shownChange < 0 ? TrendingDown : Minus;
+          const changeClass = shownChange == null || shownChange === 0 ? 'text-slate-400' : shownChange > 0 ? 'text-emerald-700' : 'text-rose-700';
           const timestamp = quote.marketTime;
           return (
             <a key={quote.id} href={quote.sourceUrl || '#'} target="_blank" rel="noreferrer" title={quote.note || quote.basis || quote.name}
