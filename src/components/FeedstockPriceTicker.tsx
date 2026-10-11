@@ -3,7 +3,7 @@ import { Activity, ExternalLink, RefreshCw } from 'lucide-react';
 
 type Marker = {
   id: string; label: string; basis: string; source: string; url: string;
-  status: 'live-proxy' | 'commercial' | 'no-public-benchmark'; symbol?: string;
+  status: 'market-proxy' | 'commercial' | 'no-public-benchmark'; symbol?: string;
 };
 type Quote = { price: number; timestamp: number };
 
@@ -11,7 +11,7 @@ const MARKERS: Marker[] = [
   { id: 'uco', label: 'UCO / AVU', basis: 'Cotización física directa', source: 'Argus UCO assessments', url: 'https://www.argusmedia.com/en/methodology/key-commodity-prices/argus-us-uco-price-assessments', status: 'commercial' },
   { id: 'fatty-acids', label: 'Ácidos grasos', basis: 'Sin benchmark público abierto comparable', source: 'Expana — vegetable oils market data', url: 'https://www.expanamarkets.com/markets/grains-oilseeds-fats/vegetable-oil-prices/', status: 'commercial' },
   { id: 'acid-oils', label: 'Aceites ácidos', basis: 'Cotización física según TFA / calidad', source: 'Expana — vegetable oils market data', url: 'https://www.expanamarkets.com/markets/grains-oilseeds-fats/vegetable-oil-prices/', status: 'commercial' },
-  { id: 'vegetable-oils', label: 'Aceites vegetales', basis: 'Proxy de futuros de aceite de soya; no es oferta física', source: 'CME soybean oil futures (ZL=F via Yahoo Finance)', url: 'https://finance.yahoo.com/quote/ZL=F/', status: 'live-proxy', symbol: 'ZL=F' },
+  { id: 'vegetable-oils', label: 'Aceites vegetales', basis: 'Proxy de futuros de aceite de soya; no es oferta física', source: 'CME soybean oil futures (ZL=F via Yahoo Finance)', url: 'https://finance.yahoo.com/quote/ZL=F/', status: 'market-proxy', symbol: 'ZL=F' },
   { id: 'degummed-oils', label: 'Aceites desgomados', basis: 'La referencia física requiere especificación y datos licenciados', source: 'Expana — vegetable oils market data', url: 'https://www.expanamarkets.com/markets/grains-oilseeds-fats/vegetable-oil-prices/', status: 'commercial' },
   { id: 'oleins', label: 'Oleínas', basis: 'Benchmark directo abierto no disponible', source: 'Expana — vegetable oils market data', url: 'https://www.expanamarkets.com/markets/grains-oilseeds-fats/vegetable-oil-prices/', status: 'commercial' },
   { id: 'off-spec', label: 'Fuera de especificación / otros', basis: 'No existe un precio único comparable sin especificación', source: 'Requiere composición, FFA/TFA, MIU y origen', url: 'https://www.argusmedia.com/en/', status: 'no-public-benchmark' },
@@ -68,7 +68,7 @@ export function FeedstockPriceTicker() {
         <div className="flex min-w-0 items-center gap-2">
           <Activity size={15} className="shrink-0 text-[var(--astra-orange)]" />
           <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-[var(--astra-dark)]">Feedstock price markers</span>
-          <span className="hidden text-[10px] text-slate-500 sm:inline">7 familias · USD/MT cuando la fuente lo permite</span>
+          <span className="hidden text-[10px] text-slate-500 sm:inline">7 familias · referencias de mercado, no ofertas físicas</span>
         </div>
         <button type="button" onClick={() => void refresh()} disabled={loading} className="flex shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-600 disabled:opacity-50" aria-label="Actualizar precios">
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Actualizar
@@ -83,7 +83,7 @@ export function FeedstockPriceTicker() {
               {quote ? (
                 <>
                   <div className="mt-1 text-lg font-bold tabular-nums text-[var(--astra-dark)]">{formatUSD(quote.price)}<span className="ml-1 text-[10px] font-medium text-slate-500">/MT</span></div>
-                  <div className="text-[10px] font-semibold text-amber-700">PROXY · aceite de soya</div>
+                  <div className="text-[10px] font-semibold text-amber-700">PROXY · futuro de aceite de soya</div>
                   <div className="mt-1 text-[10px] text-slate-500">Dato fuente: {formatTime(quote.timestamp)}</div>
                 </>
               ) : (
@@ -100,7 +100,7 @@ export function FeedstockPriceTicker() {
         })}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-2 text-[10px] text-slate-500 sm:px-8">
-        <span>{error ? 'Actualización fallida: ' + error + '. Se conservan los últimos datos cargados si existen.' : updatedAt ? 'Consulta actualizada: ' + new Date(updatedAt).toLocaleTimeString('es-CL') + '. Refresco automático cada 5 min mientras la app está abierta.' : 'Consultando fuente de mercado…'}</span>
+        <span>{error ? 'Actualización fallida: ' + error + '. Se conservan los últimos datos cargados si existen.' : updatedAt ? 'Consulta actualizada: ' + new Date(updatedAt).toLocaleTimeString('es-CL') + '. Consulta automática cada 5 min; la cotización puede tener retraso.' : 'Consultando fuente de mercado…'}</span>
         <span>Los proxies no son ofertas físicas ni precios de compra Astra.</span>
       </div>
     </section>
