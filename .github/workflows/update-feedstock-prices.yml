@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/fetch-prices.mjs'
+      - 'scripts/fetch-sector-prices.mjs'
       - '.github/workflows/update-feedstock-prices.yml'
   schedule:
     - cron: '*/15 * * * 1-5'
@@ -37,12 +38,14 @@ jobs:
           node-version: 20
       - name: Fetch public market benchmarks
         run: node source/scripts/fetch-prices.mjs price-data/prices.json
+      - name: Fetch public Energy and Mining benchmarks
+        run: node source/scripts/fetch-sector-prices.mjs price-data/energy-prices.json
       - name: Publish updated prices
         working-directory: price-data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add prices.json
+          git add prices.json energy-prices.json mining-prices.json
           if git diff --cached --quiet; then
             echo "No price data changes to publish."
           else
