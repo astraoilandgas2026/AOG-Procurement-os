@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:44:30.825Z",
+  "generatedAt": "2026-10-11T07:50:53.437Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -92,7 +92,7 @@
       "basis": "Sin benchmark diario gratuito verificable integrado en este marcador.",
       "note": "No se sustituye por el precio de crudo o gas natural: requiere índice regional o cotización física de propano.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Sin cotización pública comparable"
     },
     {
       "id": "n-butane",
@@ -109,7 +109,7 @@
       "basis": "Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.",
       "note": "Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Última referencia pública localizada"
     },
     {
       "id": "residual-fuel-oil",
@@ -126,7 +126,7 @@
       "basis": "Sin benchmark público gratuito homogéneo integrado para la especificación física ofertada.",
       "note": "No se usa ULSD como sustituto del fuel oil residual; se requiere azufre, viscosidad, origen y puerto.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Sin cotización pública comparable"
     },
     {
       "id": "asphalt-bitumen",
@@ -143,7 +143,7 @@
       "basis": "Sin benchmark diario gratuito global comparable integrado.",
       "note": "Precio según grado, penetración, origen, embalaje, puerto y especificación.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Sin cotización pública comparable"
     },
     {
       "id": "lubricants",
@@ -160,7 +160,7 @@
       "basis": "Sin benchmark único: depende del tipo de aceite base y paquete de aditivos.",
       "note": "Se requiere grado SAE/ISO, viscosidad, especificación y presentación para una referencia válida.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Sin cotización pública comparable"
     }
   ]
 }

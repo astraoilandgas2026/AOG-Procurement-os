@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:44:30.898Z",
+  "generatedAt": "2026-10-11T07:50:53.670Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -76,20 +76,20 @@
     },
     {
       "id": "steel-scrap",
-      "name": "Steel Scrap HMS 1&2",
-      "price": null,
+      "name": "Scrap ferroso · HMS 1/2 (80:20)",
+      "price": 404,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": null,
-      "source": "Sin benchmark público gratuito verificable",
-      "sourceUrl": "https://www.lme.com/en/Metals/Ferrous/LME-Steel-Scrap",
-      "basis": "Sin benchmark gratuito único integrado para HMS 1&2.",
-      "note": "El precio depende de origen, puerto, densidad, contaminación, inspección, tamaño de lote e Incoterm.",
+      "marketTime": 1791374400,
+      "source": "S&P Global Platts · SBB Steel Markets Daily · 7 Oct 2026",
+      "sourceUrl": "",
+      "basis": "Platts assessed HMS 1/2 80:20 CFR Turkey at USD 404/MT on 7 October 2026. Internal report: SD_20261007_261008_112545.pdf.",
+      "note": "Benchmark HMS 1/2 80:20 CFR Turkey.",
       "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta."
+      "status": "Platts · 07 Oct 2026"
     }
   ]
 }
