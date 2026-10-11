@@ -3,6 +3,7 @@ import { useNav, type ProcurementDomain } from '@/context/NavContext';
 import type { PageKey } from '@/types';
 import { InstallAppButton } from '@/components/InstallAppButton';
 import { FeedstockPriceTicker } from '@/components/FeedstockPriceTicker';
+import { MarketPriceTicker } from '@/components/MarketPriceTicker';
 import {
   Building2, Users, Package, DollarSign, Award, FileText, Newspaper,
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, Archive,
@@ -147,7 +148,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </nav>
         )}
-        {procurementDomain === "feedstock" && currentPage === "products" && <FeedstockPriceTicker />}
+        {currentPage === "products" && procurementDomain === "feedstock" && <FeedstockPriceTicker />}
+        {currentPage === "products" && procurementDomain === "energy_commodities" && <MarketPriceTicker sector="energy" />}
+        {currentPage === "products" && procurementDomain === "mining_commodities" && <MarketPriceTicker sector="mining" />}
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
           {procurementDomain ? children : <div className="mx-auto w-full max-w-7xl">{children}</div>}
         </main>
