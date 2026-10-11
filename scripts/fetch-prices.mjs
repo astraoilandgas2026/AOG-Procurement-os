@@ -186,6 +186,7 @@ const productMarkers = [
     ...(soyBenchmark || {}),
     id: 'vegetable-oils', name: 'Aceite de soya · FOB Paranaguá', price: vegetableOilPrice,
     unit: 'USD/MT', decimals: 0, usdPerMt: vegetableOilPrice, relativePct: null,
+    prevClose: null, changePct: null, prevUsdPerMt: null,
     marketTime: physicalSoyOil?.timestamp ?? null,
     source: physicalSoyOil?.provider || 'CommodityScope · sin dato físico actualizado',
     sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil',
