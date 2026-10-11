@@ -181,6 +181,70 @@ const physicalSoyOil = await commodityScopeBrazilSoyOil().catch((error) => {
 const vegetableOilPrice = physicalSoyOil?.price ?? null;
 const timestamp = (date) => Math.floor(Date.parse(date) / 1000);
 
+async function publicUcoBenchmark() {
+  const response = await fetch('https://cbonds.es/indexes/194209/', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('CBonds UCO HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
+  const i = text.search(/Used Cooking Oil/i);
+  const section = i >= 0 ? text.slice(i, i + 350) : '';
+  const match = section.match(/Used Cooking Oil\\s*([0-9]+[.,][0-9]+)\\s*USD\\s*\\/?\\s*Lbs\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/i)
+    || section.match(/([0-9]+[.,][0-9]+)\\s*USD\\s*\\/?\\s*Lbs\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/i);
+  if (!match) throw new Error('CBonds UCO index/date not parsed');
+  const price = Number(match[1].replace(',', '.'));
+  const [day, month, year] = match[2].split('/').map(Number);
+  const timestamp = Math.floor(Date.UTC(year, month - 1, day, 12) / 1000);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('CBonds UCO invalid');
+  return { price, timestamp, provider: 'CBonds index based on Fastmarkets UCO assessment' };
+}
+
+async function abisaSoyAcidBenchmark() {
+  const response = await fetch('https://abisa.com.br/cotacoes/cotacoes-2026', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('ABISA HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
+  const productIndex = text.search(/Ácido Graxo Bruto de Soja/i);
+  if (productIndex < 0) throw new Error('ABISA soybean acid fatty acid not found');
+  const prior = text.slice(Math.max(0, productIndex - 900), productIndex);
+  const dates = [...prior.matchAll(/(\\d{4})\\s*-\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/g)];
+  const dateText = dates.at(-1)?.[2] || '29/09/2026';
+  const section = text.slice(productIndex, productIndex + 180);
+  const priceMatch = section.match(/Ácido Graxo Bruto de Soja\\s+R?\\$?\\s*([0-9]+(?:[.,][0-9]+)?)/i);
+  if (!priceMatch) throw new Error('ABISA soybean acid price not parsed');
+  const priceBRLkg = Number(priceMatch[1].replace(',', '.'));
+  const [day, month, year] = dateText.split('/').map(Number);
+  return { priceBRLkg, timestamp: Math.floor(Date.UTC(year, month - 1, day, 12) / 1000), provider: 'ABISA Brazilian market quotation' };
+}
+
+async function mblionPalmOleinBenchmark() {
+  const response = await fetch('https://www.mblionoleo.com/', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('MBLion HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ').replace(/<style[\\s\\S]*?<\\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\\s+/g, ' ');
+  const priceMatch = text.match(/RBD Palm Olein\\s*(?:\\||:|USD)?\\s*([0-9]{3,4}(?:\\.[0-9]{2})?)/i);
+  if (!priceMatch) throw new Error('MBLion RBD palm olein price not parsed');
+  const price = Number(priceMatch[1]);
+  const dateMatch = text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+2026)\\s+FOB Malaysian Port/i) || text.match(/(\\d{1,2}\\s+[A-Za-z]+\\s+2026)/i);
+  const dateText = dateMatch?.[1] || '05 October 2026';
+  const timestamp = Math.floor(Date.parse(dateText + ' 12:00:00 UTC') / 1000);
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('MBLion olein quote invalid');
+  return { price, timestamp, provider: 'MBLion Oleo FOB Malaysian Port' };
+}
+
+const ucoBenchmark = await publicUcoBenchmark().catch((error) => {
+  console.log('UCO benchmark fallback 9-oct-2026: ' + String(error).slice(0, 100));
+  return { price: 0.705, timestamp: timestamp('2026-10-09T12:00:00Z'), provider: 'CBonds · último dato público verificado 9-oct-2026', fallback: true };
+});
+const acidBenchmark = await abisaSoyAcidBenchmark().catch((error) => {
+  console.log('ABISA acid benchmark fallback 29-sep-2026: ' + String(error).slice(0, 100));
+  return { priceBRLkg: 4.95, timestamp: timestamp('2026-09-29T12:00:00Z'), provider: 'ABISA · último dato verificado 29-sep-2026', fallback: true };
+});
+const brlPerUsd = await fxRate('USDBRL=X').catch(() => 4.99);
+const oleinBenchmark = await mblionPalmOleinBenchmark().catch((error) => {
+  console.log('MBLion olein benchmark fallback 5-oct-2026: ' + String(error).slice(0, 100));
+  return { price: 1132.50, timestamp: timestamp('2026-10-05T12:00:00Z'), provider: 'MBLion Oleo · último dato verificado 5-oct-2026', fallback: true };
+});
+
 const productMarkers = [
   {
     ...(soyBenchmark || {}),
@@ -195,12 +259,12 @@ const productMarkers = [
     status: physicalSoyOil?.fallback ? 'Último dato verificado' : physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
   },
   {
-    id: 'uco', name: 'UCO / AVU · FOB Brasil (estimación por paridad)', price: 0.705 * 2204.62262 * 0.90, usdPerMt: 0.705 * 2204.62262 * 0.90, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'Benchmark público UCO EE.UU. 9-oct + ajuste de origen supuesto',
-    sourceUrl: 'https://www.argusmedia.com/en/methodology/key-commodity-prices/argus-asian-uco-price-assessments',
-    basis: 'US$0,705/lb × 2.204,62 lb/MT = US$1.554/MT; ajuste de modelización −10% = US$1.399/MT FOB Brasil indicativo.',
-    note: 'ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. Benchmark de EE.UU. no es equivalente directo a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de usar comercialmente.',
-    relativePct: null, stale: true, status: 'Estimación por benchmark · baja confianza'
+    id: 'uco', name: 'UCO / AVU · FOB Brasil (estimación por paridad)', price: ucoBenchmark.price * 2204.62262 * 0.90, usdPerMt: ucoBenchmark.price * 2204.62262 * 0.90, unit: 'USD/MT', decimals: 0,
+    marketTime: ucoBenchmark.timestamp, source: ucoBenchmark.provider + ' + ajuste de origen supuesto',
+    sourceUrl: 'https://cbonds.es/indexes/194209/',
+    basis: 'Benchmark UCO US$/lb × 2.204,62 lb/MT; ajuste de modelización −10% para una referencia indicativa FOB Brasil.',
+    note: 'ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. El benchmark de EE.UU. no equivale directamente a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de uso comercial.',
+    relativePct: null, stale: true, status: ucoBenchmark.fallback ? 'Estimación · benchmark anterior' : 'Estimación por benchmark · baja confianza'
   },
   {
     id: 'fatty-acids', name: 'Ácido graxo de palma · FOB Nordeste Brasil', price: 4200 / 4.99, usdPerMt: 4200 / 4.99, unit: 'USD/MT', decimals: 0,
@@ -211,12 +275,12 @@ const productMarkers = [
     relativePct: null, stale: true, status: 'Referencia Brasil FOB · 6 oct.'
   },
   {
-    id: 'acid-oils', name: 'Aceites ácidos / soapstock · proxy FOB Brasil', price: ((4950 / 4.99) / 1.12) + 25, usdPerMt: ((4950 / 4.99) / 1.12) + 25, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-09-29T12:00:00Z'), source: 'ABISA · ácido graxo bruto de soja CIF-SP, 29-sep-2026; cálculo proxy',
+    id: 'acid-oils', name: 'Aceites ácidos / soapstock · proxy FOB Brasil', price: ((acidBenchmark.priceBRLkg * 1000 / brlPerUsd) / 1.12) + 25, usdPerMt: ((acidBenchmark.priceBRLkg * 1000 / brlPerUsd) / 1.12) + 25, unit: 'USD/MT', decimals: 0,
+    marketTime: acidBenchmark.timestamp, source: acidBenchmark.provider + ' · ácido graxo bruto de soja CIF-SP; cálculo proxy',
     sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo bruto de soja',
-    basis: 'R$4,95/kg = R$4.950/MT ÷ 4,99 BRL/USD ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto) ≈ US$912/MT.',
+    basis: 'Cotización ABISA en BRL/kg × 1.000 ÷ USDBRL ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto).',
     note: 'ESTIMACIÓN PROXY, no precio observado de soapstock. ABISA publica ácido graxo bruto de soja CIF-SP con condición de 12% ICMS; el cálculo elimina 12% como hipótesis y añade US$25/MT de logística supuesta para aproximar FOB. No equivale necesariamente a aceite ácido/soapstock (FFA, MIU, P, S y proceso pueden diferir). Validar con análisis y oferta de planta.',
-    relativePct: null, stale: true, status: 'Estimación proxy · baja confianza'
+    relativePct: null, stale: true, status: acidBenchmark.fallback ? 'Proxy · benchmark anterior' : 'Estimación proxy · baja confianza'
   },
   {
     id: 'degummed-oils', name: 'Aceite de soya desgomado · proxy FOB Paranaguá', price: vegetableOilPrice, usdPerMt: vegetableOilPrice, unit: 'USD/MT', decimals: 0,
@@ -227,12 +291,12 @@ const productMarkers = [
     relativePct: null, stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400), status: 'Proxy FOB Brasil · sin ajuste de grado'
   },
   {
-    id: 'oleins', name: 'Oleína de palma RBD · paridad indicativa FOB Brasil', price: 1132.50 + 35, usdPerMt: 1132.50 + 35, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo · FOB Malasia 5-oct-2026 + diferencial logístico supuesto',
+    id: 'oleins', name: 'Oleína de palma RBD · paridad indicativa FOB Brasil', price: oleinBenchmark.price + 35, usdPerMt: oleinBenchmark.price + 35, unit: 'USD/MT', decimals: 0,
+    marketTime: oleinBenchmark.timestamp, source: oleinBenchmark.provider + ' + diferencial logístico supuesto',
     sourceUrl: 'https://www.mblionoleo.com/', symbol: 'RBD Palm Olein',
-    basis: 'Benchmark FOB Malasia US$1.132,50/MT + diferencial supuesto US$35/MT = US$1.167,50/MT de paridad comparativa.',
+    basis: 'Benchmark FOB Malasia + diferencial supuesto US$35/MT = paridad comparativa; no es una oferta FOB Brasil.',
     note: 'ESTIMACIÓN DE PARIDAD, no cotización FOB Brasil. Los US$35/MT son una hipótesis de diferencial de flete entre orígenes hacia Rotterdam, no un flete confirmado; tampoco incluye coste de importar, impuestos, almacenaje o reexportar oleína a Brasil. Úsese solo como referencia comparativa, no como oferta brasileña ejecutable.',
-    relativePct: null, stale: true, status: 'Paridad estimada · benchmark Malasia 5 oct.'
+    relativePct: null, stale: true, status: oleinBenchmark.fallback ? 'Paridad · benchmark anterior' : 'Paridad estimada · benchmark Malasia'
   },
   {
     id: 'off-spec', name: 'Fuera de especificación · escenario de descuento', price: vegetableOilPrice != null ? vegetableOilPrice * 0.85 : null, usdPerMt: vegetableOilPrice != null ? vegetableOilPrice * 0.85 : null, unit: 'USD/MT', decimals: 0,
