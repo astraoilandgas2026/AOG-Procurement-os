@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:19:05.419Z",
+  "generatedAt": "2026-10-11T08:20:12.894Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -30,13 +30,13 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": 1791547200,
-      "source": "Benchmark público UCO EE.UU. 9-oct + ajuste de origen supuesto",
-      "sourceUrl": "https://www.argusmedia.com/en/methodology/key-commodity-prices/argus-asian-uco-price-assessments",
-      "basis": "US$0,705/lb × 2.204,62 lb/MT = US$1.554/MT; ajuste de modelización −10% = US$1.399/MT FOB Brasil indicativo.",
-      "note": "ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. Benchmark de EE.UU. no es equivalente directo a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de usar comercialmente.",
+      "source": "CBonds · último dato público verificado 9-oct-2026 + ajuste de origen supuesto",
+      "sourceUrl": "https://cbonds.es/indexes/194209/",
+      "basis": "Benchmark UCO US$/lb × 2.204,62 lb/MT; ajuste de modelización −10% para una referencia indicativa FOB Brasil.",
+      "note": "ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. El benchmark de EE.UU. no equivale directamente a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de uso comercial.",
       "relativePct": null,
       "stale": true,
-      "status": "Estimación por benchmark · baja confianza"
+      "status": "Estimación · benchmark anterior"
     },
     {
       "id": "fatty-acids",
@@ -58,15 +58,15 @@
     {
       "id": "acid-oils",
       "name": "Aceites ácidos / soapstock · proxy FOB Brasil",
-      "price": 910.6999713713138,
-      "usdPerMt": 910.6999713713138,
+      "price": 912.9777499684275,
+      "usdPerMt": 912.9777499684275,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1790683200,
-      "source": "ABISA · ácido graxo bruto de soja CIF-SP, 29-sep-2026; cálculo proxy",
+      "marketTime": 1791288000,
+      "source": "ABISA Brazilian market quotation · ácido graxo bruto de soja CIF-SP; cálculo proxy",
       "sourceUrl": "https://abisa.com.br/cotacoes/cotacoes-2026",
       "symbol": "Ácido graxo bruto de soja",
-      "basis": "R$4,95/kg = R$4.950/MT ÷ 4,99 BRL/USD ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto) ≈ US$912/MT.",
+      "basis": "Cotización ABISA en BRL/kg × 1.000 ÷ USDBRL ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto).",
       "note": "ESTIMACIÓN PROXY, no precio observado de soapstock. ABISA publica ácido graxo bruto de soja CIF-SP con condición de 12% ICMS; el cálculo elimina 12% como hipótesis y añade US$25/MT de logística supuesta para aproximar FOB. No equivale necesariamente a aceite ácido/soapstock (FFA, MIU, P, S y proceso pueden diferir). Validar con análisis y oferta de planta.",
       "relativePct": null,
       "stale": true,
@@ -97,14 +97,14 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": 1791201600,
-      "source": "MBLion Oleo · FOB Malasia 5-oct-2026 + diferencial logístico supuesto",
+      "source": "MBLion Oleo FOB Malaysian Port + diferencial logístico supuesto",
       "sourceUrl": "https://www.mblionoleo.com/",
       "symbol": "RBD Palm Olein",
-      "basis": "Benchmark FOB Malasia US$1.132,50/MT + diferencial supuesto US$35/MT = US$1.167,50/MT de paridad comparativa.",
+      "basis": "Benchmark FOB Malasia + diferencial supuesto US$35/MT = paridad comparativa; no es una oferta FOB Brasil.",
       "note": "ESTIMACIÓN DE PARIDAD, no cotización FOB Brasil. Los US$35/MT son una hipótesis de diferencial de flete entre orígenes hacia Rotterdam, no un flete confirmado; tampoco incluye coste de importar, impuestos, almacenaje o reexportar oleína a Brasil. Úsese solo como referencia comparativa, no como oferta brasileña ejecutable.",
       "relativePct": null,
       "stale": true,
-      "status": "Paridad estimada · benchmark Malasia 5 oct."
+      "status": "Paridad estimada · benchmark Malasia"
     },
     {
       "id": "off-spec",
