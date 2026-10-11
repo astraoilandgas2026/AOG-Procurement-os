@@ -111,7 +111,7 @@ export function FeedstockPriceTicker() {
                 <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{label}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
                   <ChangeIcon size={10} />
-                  {quote.id === 'vegetable-oils' ? 'FOB' : shownChange == null ? (quote.stale ? 'Ref.' : 'N/D') : Math.abs(shownChange).toFixed(1) + '%'}
+                  {quote.id === 'vegetable-oils' ? 'FOB' : quote.id === 'uco' ? 'MOD.' : typeof value !== 'number' ? 'N/D' : shownChange == null ? (quote.stale ? 'Ref.' : 'REF') : Math.abs(shownChange).toFixed(1) + '%'}
                 </span>
               </div>
               <div className="mt-1 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-[var(--astra-dark)] sm:text-[14px]">
