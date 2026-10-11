@@ -130,7 +130,7 @@ export function FeedstockPriceTicker() {
       </div>
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 px-3 pb-1.5 text-[9px] text-slate-500 sm:px-5">
         <span>{generatedAt ? 'Feed: ' + new Date(generatedAt).toLocaleString('es-CL') + ' · actualización cada 15 min; lectura de app cada 1 min.' : 'Esperando el primer feed de precios.'}</span>
-        <span>UCO es indicativo (ULSD + spread de referencia), no oferta física. Valores en unidades originales y equivalencia aproximada USD/MT.</span>
+        <span>Precios de referencia, no ofertas FOB comparables. El porcentaje indica diferencia frente al benchmark de soya; calidad, origen e Incoterm pueden cambiar el valor real.</span>
       </div>
     </section>
   );
