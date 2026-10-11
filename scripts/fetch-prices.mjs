@@ -195,12 +195,12 @@ const productMarkers = [
     status: physicalSoyOil?.fallback ? 'Último dato verificado' : physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
   },
   {
-    id: 'uco', name: 'UCO / AVU · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
-    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
-    sourceUrl: 'https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/',
-    basis: 'Base requerida: UCO/AVU exportable · FOB Brasil · USD/MT',
-    note: 'Se retiró el modelo ULSD + diferencial porque no demuestra un precio FOB Brasil. Se publicará una cifra cuando exista evaluación brasileña o cotización verificable de proveedor.',
-    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
+    id: 'uco', name: 'UCO / AVU · FOB Brasil (estimación por paridad)', price: 0.705 * 2204.62262 * 0.90, usdPerMt: 0.705 * 2204.62262 * 0.90, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'Benchmark público UCO EE.UU. 9-oct + ajuste de origen supuesto',
+    sourceUrl: 'https://www.argusmedia.com/en/methodology/key-commodity-prices/argus-asian-uco-price-assessments',
+    basis: 'US$0,705/lb × 2.204,62 lb/MT = US$1.554/MT; ajuste de modelización −10% = US$1.399/MT FOB Brasil indicativo.',
+    note: 'ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. Benchmark de EE.UU. no es equivalente directo a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de usar comercialmente.',
+    relativePct: null, stale: true, status: 'Estimación por benchmark · baja confianza'
   },
   {
     id: 'fatty-acids', name: 'Ácido graxo de palma · FOB Nordeste Brasil', price: 4200 / 4.99, usdPerMt: 4200 / 4.99, unit: 'USD/MT', decimals: 0,
@@ -211,12 +211,12 @@ const productMarkers = [
     relativePct: null, stale: true, status: 'Referencia Brasil FOB · 6 oct.'
   },
   {
-    id: 'acid-oils', name: 'Aceites ácidos / soapstock · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
-    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
-    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'aceite ácido / soapstock',
-    basis: 'Base requerida: aceite ácido vegetal o soapstock exportable · FOB Brasil · USD/MT',
-    note: 'No se usa PFAD FOB Malasia como sustituto: composición, origen y mercado distintos. Requiere precio brasileño específico por producto y análisis de calidad.',
-    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
+    id: 'acid-oils', name: 'Aceites ácidos / soapstock · proxy FOB Brasil', price: ((4950 / 4.99) / 1.12) + 25, usdPerMt: ((4950 / 4.99) / 1.12) + 25, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-09-29T12:00:00Z'), source: 'ABISA · ácido graxo bruto de soja CIF-SP, 29-sep-2026; cálculo proxy',
+    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'Ácido graxo bruto de soja',
+    basis: 'R$4,95/kg = R$4.950/MT ÷ 4,99 BRL/USD ÷ 1,12 (retiro fiscal supuesto) + US$25/MT (manejo/puerto supuesto) ≈ US$912/MT.',
+    note: 'ESTIMACIÓN PROXY, no precio observado de soapstock. ABISA publica ácido graxo bruto de soja CIF-SP con condición de 12% ICMS; el cálculo elimina 12% como hipótesis y añade US$25/MT de logística supuesta para aproximar FOB. No equivale necesariamente a aceite ácido/soapstock (FFA, MIU, P, S y proceso pueden diferir). Validar con análisis y oferta de planta.',
+    relativePct: null, stale: true, status: 'Estimación proxy · baja confianza'
   },
   {
     id: 'degummed-oils', name: 'Aceite de soya desgomado · proxy FOB Paranaguá', price: vegetableOilPrice, usdPerMt: vegetableOilPrice, unit: 'USD/MT', decimals: 0,
@@ -227,21 +227,20 @@ const productMarkers = [
     relativePct: null, stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400), status: 'Proxy FOB Brasil · sin ajuste de grado'
   },
   {
-    id: 'oleins', name: 'Oleína de palma RBD · FOB Brasil', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
-    marketTime: null, source: 'Sin benchmark público gratuito verificable para FOB Brasil',
-    sourceUrl: 'https://abisa.com.br/cotacoes/cotacoes-2026', symbol: 'RBD palm olein',
-    basis: 'Base requerida: oleína de palma RBD · FOB Brasil · USD/MT',
-    note: 'Se retira el benchmark FOB Malasia porque no representa nuestra base de compra. No se convierte un precio CIF Brasil ni un precio doméstico con impuestos en FOB exportación.',
-    relativePct: null, stale: true, status: 'Sin cotización FOB Brasil verificada'
+    id: 'oleins', name: 'Oleína de palma RBD · paridad indicativa FOB Brasil', price: 1132.50 + 35, usdPerMt: 1132.50 + 35, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo · FOB Malasia 5-oct-2026 + diferencial logístico supuesto',
+    sourceUrl: 'https://www.mblionoleo.com/', symbol: 'RBD Palm Olein',
+    basis: 'Benchmark FOB Malasia US$1.132,50/MT + diferencial supuesto US$35/MT = US$1.167,50/MT de paridad comparativa.',
+    note: 'ESTIMACIÓN DE PARIDAD, no cotización FOB Brasil. Los US$35/MT son una hipótesis de diferencial de flete entre orígenes hacia Rotterdam, no un flete confirmado; tampoco incluye coste de importar, impuestos, almacenaje o reexportar oleína a Brasil. Úsese solo como referencia comparativa, no como oferta brasileña ejecutable.',
+    relativePct: null, stale: true, status: 'Paridad estimada · benchmark Malasia 5 oct.'
   },
   {
-    id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
-    marketTime: null, source: 'Sin benchmark universal', sourceUrl: 'https://www.fastmarkets.com/insights/european-biofuel-feedstock-prices-fluctuate-significantly-in-2025-market-expects-more-volatility-next-year-2026-preview/',
-    symbol: null, basis: 'Precio depende del producto base y del análisis de laboratorio',
-    note: 'No existe un precio único responsable sin identificar material, FFA, humedad, impurezas, azufre, origen y especificación. No se inventa una cifra.',
-    relativePct: null, stale: true, status: 'Requiere especificación y análisis'
-  }
-];
+    id: 'off-spec', name: 'Fuera de especificación · escenario de descuento', price: vegetableOilPrice != null ? vegetableOilPrice * 0.85 : null, usdPerMt: vegetableOilPrice != null ? vegetableOilPrice * 0.85 : null, unit: 'USD/MT', decimals: 0,
+    marketTime: physicalSoyOil?.timestamp ?? null, source: 'Modelo de escenario: aceite de soya FOB Brasil menos 15%', sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil',
+    symbol: null, basis: 'Precio de referencia de aceite de soya FOB Brasil × 0,85; descuento supuesto de 15%.',
+    note: 'ESCENARIO ILUSTRATIVO, no benchmark universal ni precio de compra. Se aplica un descuento supuesto de 15% al aceite de soya de referencia solo para dar una cifra de trabajo; el descuento real puede ser menor, mayor o negativo según material, FFA, humedad, MIU, fósforo, azufre, color, trazabilidad y destino. Recalcular con ficha técnica y análisis de laboratorio.',
+    relativePct: null, stale: true, status: 'Escenario −15% · baja confianza'
+  }];
 
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify({
