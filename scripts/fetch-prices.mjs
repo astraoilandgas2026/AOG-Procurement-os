@@ -58,14 +58,31 @@ for (const def of definitions) {
     continue;
   }
 
+  if (symbol === 'FCPO=F') {
+    try {
+      const fx = await getQuote('USDMYR=X');
+      quote = { ...quote, price: quote.price / fx.price };
+    } catch {
+      if (def.fallbackSymbol) {
+        symbol = def.fallbackSymbol;
+        try { quote = await getQuote(symbol); } catch { quote = null; }
+      }
+    }
+  }
+  if (!quote) {
+    if (previous) instruments.push({ ...previous, stale: true, status: 'Último dato conservado; actualización fallida.' });
+    else instruments.push({ id: def.id, name: def.name, price: null, usdPerMt: null, unit: 'USD/MT', marketTime: null, source: def.source, sourceUrl: def.url, symbol: def.symbol, basis: def.basis, note: def.note, stale: true, status: 'Cotización no disponible' });
+    continue;
+  }
+
   let usdPerMt = quote.price * (symbol === 'FCPO=F' ? 1 : def.factor);
   let basis = def.basis;
   let source = def.source;
   let sourceUrl = def.url;
   let note = def.note;
   if (symbol === 'FCPO=F') {
-    basis = 'Cotización de contrato de palma · unidad reportada por la fuente; conversión pendiente de validar';
-    note = 'La unidad y conversión del contrato deben validarse antes de usarlo para valoración comercial.';
+    basis = 'Futuro de aceite de palma convertido de MYR/MT a USD/MT';
+    note = 'Benchmark financiero; no equivale a oleína física FOB ni a una oferta de proveedor.';
   } else if (symbol === 'ZL=F') {
     usdPerMt = quote.price * 22.0462262185;
     if (def.id === 'oleins') {
