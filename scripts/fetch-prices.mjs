@@ -214,6 +214,6 @@ await fs.writeFile(outputPath, JSON.stringify({
   generatedAt: new Date().toISOString(),
   delayMinutes: 15,
   instruments: productMarkers
-}, null, 2) + '\\n');
+}, null, 2) + '\n');
 const fresh = productMarkers.filter((x) => x.price != null && !x.stale).length;
 console.log('Marcadores de producto: ' + productMarkers.filter((x) => x.price != null).length + '/7 con referencia numérica; ' + fresh + ' con dato de mercado automático fresco.');
