@@ -25,16 +25,16 @@ async function iataJetFuel() {
   });
   if (!response.ok) throw new Error('IATA Jet Fuel Monitor HTTP ' + response.status);
   const html = await response.text();
-  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
-    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;|&#160;/gi, ' ')
     .replace(/&amp;/gi, '&')
-    .replace(/\\s+/g, ' ');
-  const priceMatch = text.match(/global average jet fuel price last week.{0,350}?\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/\\s*bbl/i);
+    .replace(/\s+/g, ' ');
+  const priceMatch = text.match(/global average jet fuel price last week.{0,350}?\$([\d,]+(?:\.\d+)?)\s*\/\s*bbl/i);
   if (!priceMatch) throw new Error('IATA weekly Jet Fuel USD/bbl quote not found');
   const price = Number(priceMatch[1].replace(/,/g, ''));
-  const changeMatch = text.match(/global average jet fuel price last week.{0,180}?(rose|fell|increased|decreased)\\s+([\\d.]+)%/i);
+  const changeMatch = text.match(/global average jet fuel price last week.{0,180}?(rose|fell|increased|decreased)\s+([\d.]+)%/i);
   let changePct = null;
   let prevClose = null;
   if (changeMatch) {
