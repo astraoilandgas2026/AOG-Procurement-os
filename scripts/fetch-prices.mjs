@@ -145,11 +145,75 @@ if (typeof ulsd?.usdPerMt === 'number' && Number.isFinite(ulsd.usdPerMt)) {
 }
 instruments.splice(1, 0, uco);
 
+const soyBenchmark = byId.soy_oil;
+const ulsdBenchmark = byId.ulsd;
+const vegetableOilPrice = typeof soyBenchmark?.usdPerMt === 'number' ? soyBenchmark.usdPerMt : null;
+const relative = (price) => typeof price === 'number' && vegetableOilPrice ? ((price / vegetableOilPrice) - 1) * 100 : null;
+const timestamp = (date) => Math.floor(Date.parse(date) / 1000);
+
+const productMarkers = [
+  {
+    ...(soyBenchmark || {}),
+    id: 'vegetable-oils', name: 'Aceites vegetales', price: vegetableOilPrice,
+    unit: 'USD/MT', decimals: 0, usdPerMt: vegetableOilPrice, relativePct: 0,
+    source: 'CBOT soybean oil futures · Yahoo Finance', sourceUrl: 'https://finance.yahoo.com/quote/ZL=F/',
+    basis: 'Futuro de aceite de soya CBOT convertido a USD/MT',
+    note: 'Benchmark financiero de aceite vegetal; no equivale a una oferta física FOB.',
+    status: 'Benchmark de mercado', stale: Boolean(soyBenchmark?.stale)
+  },
+  {
+    ...(byId.uco || {}),
+    id: 'uco', name: 'UCO / AVU · indicativo',
+    relativePct: relative(byId.uco?.usdPerMt),
+    note: 'Modelo indicativo ULSD + US$68/MT de diferencial de referencia observado al comparar índices públicos de UCO EE.UU. y ULSD el 9-oct-2026. No es cotización directa ni oferta FOB Brasil.',
+    status: 'Indicativo modelado', stale: Boolean(ulsdBenchmark?.stale)
+  },
+  {
+    id: 'fatty-acids', name: 'Ácidos grasos', price: 1280, usdPerMt: 1280, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo Malaysia · oleic acid 75% min',
+    sourceUrl: 'https://www.mblionoleo.com/', symbol: 'oleic acid 75% min',
+    basis: 'US$1,280/MT · referencia publicada 5-oct-2026; FOB Malaysia',
+    note: 'Referencia específica de ácido oleico 75% mínimo; no representa todas las mezclas de ácidos grasos.',
+    relativePct: relative(1280), stale: true, status: 'Última referencia pública localizada'
+  },
+  {
+    id: 'acid-oils', name: 'Aceites ácidos / PFAD', price: 1047.5, usdPerMt: 1047.5, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo Malaysia · PFAD',
+    sourceUrl: 'https://www.mblionoleo.com/', symbol: 'PFAD',
+    basis: 'US$1,047.50/MT · referencia publicada 5-oct-2026; FOB Malaysia',
+    note: 'Benchmark PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
+    relativePct: relative(1047.5), stale: true, status: 'Última referencia pública localizada'
+  },
+  {
+    id: 'degummed-oils', name: 'Aceites desgomados', price: 1196, usdPerMt: 1196, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-01T12:00:00Z'), source: 'Expert Market Research · Argentine FOB soybean oil',
+    sourceUrl: 'https://www.expertmarketresearch.com/price-forecast/rbd-soybean-oil-price-trends',
+    symbol: 'crude degummed soybean oil', basis: 'US$1,196/MT · Argentina FOB, octubre 2026',
+    note: 'Referencia publicada para aceite de soya crudo desgomado; fecha de mercado 1-oct-2026. No equivale a una oferta brasileña actual.',
+    relativePct: relative(1196), stale: true, status: 'Última referencia pública localizada'
+  },
+  {
+    id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1112.5, usdPerMt: 1112.5, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-06T12:00:00Z'), source: 'CommodityScope · RBD palm olein',
+    sourceUrl: 'https://commodityscope.com/prices/malaysia-rbd-palm-olein',
+    symbol: 'RBD palm olein', basis: 'US$1,112.50/MT · assessment FOB Malaysia, 6-oct-2026',
+    note: 'Assessment indicativo FOB Malaysia, no oferta física FOB Brasil. La comparación con soya es direccional porque difieren producto, origen y base comercial.',
+    relativePct: relative(1112.5), stale: true, status: 'Última evaluación pública localizada'
+  },
+  {
+    id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
+    marketTime: null, source: 'Sin benchmark universal', sourceUrl: 'https://www.fastmarkets.com/insights/european-biofuel-feedstock-prices-fluctuate-significantly-in-2025-market-expects-more-volatility-next-year-2026-preview/',
+    symbol: null, basis: 'Precio depende del producto base y del análisis de laboratorio',
+    note: 'No existe un precio único responsable sin identificar material, FFA, humedad, impurezas, azufre, origen y especificación. No se inventa una cifra.',
+    relativePct: null, stale: true, status: 'Requiere especificación y análisis'
+  }
+];
+
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify({
   generatedAt: new Date().toISOString(),
   delayMinutes: 15,
-  instruments
-}, null, 2) + '\n');
-const fresh = instruments.filter((x) => x.price != null && !x.stale).length;
-console.log('Actualizados ' + fresh + ' de ' + instruments.length + ' marcadores; precios nativos conservados y USD/MT convertidos cuando corresponde.');
+  instruments: productMarkers
+}, null, 2) + '\\n');
+const fresh = productMarkers.filter((x) => x.price != null && !x.stale).length;
+console.log('Marcadores de producto: ' + productMarkers.filter((x) => x.price != null).length + '/7 con referencia numérica; ' + fresh + ' con dato de mercado automático fresco.');
