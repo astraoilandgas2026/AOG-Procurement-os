@@ -218,12 +218,12 @@ const productMarkers = [
     relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
-    id: 'degummed-oils', name: 'Aceites desgomados', price: 1196, usdPerMt: 1196, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-01T12:00:00Z'), source: 'Expert Market Research · Argentine FOB soybean oil',
-    sourceUrl: 'https://www.expertmarketresearch.com/price-forecast/rbd-soybean-oil-price-trends',
-    symbol: 'crude degummed soybean oil', basis: 'US$1,196/MT · Argentina FOB, octubre 2026',
-    note: 'Referencia publicada para aceite de soya crudo desgomado; fecha de mercado 1-oct-2026. No equivale a una oferta brasileña actual.',
-    relativePct: null, stale: true, status: 'Última referencia pública localizada'
+    id: 'degummed-oils', name: 'Aceite desgomado (proxy de soya)', price: 1233.25, usdPerMt: 1233.25, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'CommodityScope · aceite de soya FOB Argentina',
+    sourceUrl: 'https://commodityscope.com/prices/argentina-soybean-oil',
+    symbol: 'CS-GRN-SBO-ARG', basis: 'US$1,233.25/MT · FOB Argentina · evaluación indicativa 9-oct-2026',
+    note: 'Proxy físico de aceite de soya a granel porque no se encontró evaluación pública diaria específica para aceite desgomado. No es oferta de grado desgomado ni oferta FOB Brasil.',
+    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Proxy de mercado físico'
   },
   {
     id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1137.5, usdPerMt: 1137.5, unit: 'USD/MT', decimals: 0,
@@ -231,7 +231,7 @@ const productMarkers = [
     sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals',
     symbol: 'RBD palm olein', basis: 'US$1,137.50/MT · FOB puertos de Malasia · 9-oct-2026',
     note: 'Referencia publicada para oleína de palma RBD; no es oferta FOB Brasil y no se calcula descuento frente a soya por diferencia de producto y origen.',
-    relativePct: null, stale: true, status: 'Última referencia pública localizada'
+    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Última referencia pública localizada'
   },
   {
     id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
