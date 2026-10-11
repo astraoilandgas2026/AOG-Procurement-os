@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-10-11T07:51:32.537Z",
+  "generatedAt": "2026-10-11T07:59:32.600Z",
   "delayMinutes": 15,
   "instruments": [
     {
       "id": "metallurgical-coal",
-      "name": "Alabama Metallurgical Coal (hard coking coal benchmark)",
-      "price": 245,
+      "name": "Carbón coquizable premium low-vol · FOB Australia",
+      "price": 271.1,
       "unit": "USD/MT",
-      "decimals": 0,
-      "usdPerMt": 245,
+      "decimals": 2,
+      "usdPerMt": 271.1,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1785499200,
-      "source": "IEA · Coal Mid-Year Update 2026",
-      "sourceUrl": "https://www.iea.org/reports/coal-mid-year-update-2026/prices",
-      "basis": "Hard coking coal FOB Australia: US$245/t en julio de 2026; benchmark indicativo de carbón coquizable, no precio de una carga Alabama/Colombia.",
-      "note": "Referencia pública de julio de 2026. El producto de Astra figura con origen Colombia en el registro; el precio físico requiere calidad, origen y puerto confirmados.",
+      "marketTime": 1791374400,
+      "source": "S&P Global Platts · TSI Raw Material Assessments · 7 Oct 2026",
+      "sourceUrl": "https://www.spglobal.com/energy/en",
+      "basis": "Platts TSI premium low-vol coking coal FOB Australia: USD 271.10/MT on 7 October 2026 (PLVHA00). This is a benchmark, not a physical Alabama-origin offer.",
+      "note": "Benchmark FOB Australia; adjust for origin, quality and delivery.",
       "stale": true,
       "status": "Última referencia pública localizada"
     },
@@ -38,7 +38,7 @@
     },
     {
       "id": "copper-concentrate",
-      "name": "Concentrado de cobre (30% Cu; valor bruto)",
+      "name": "Concentrado de cobre (30% Cu)",
       "price": 4426.000375626059,
       "unit": "USD/MT",
       "decimals": 0,
@@ -49,7 +49,7 @@
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/HG=F/",
       "basis": "Futuro COMEX Copper convertido de USD/lb a USD/tonelada métrica de concentrado teórico al 30% Cu: precio del cobre × 2,204.6226 lb/MT × 30%.",
-      "note": "Valor bruto teórico del metal contenido, no precio comercial neto del concentrado. No incluye pagabilidad, TC/RC, penalidades, humedad, flete, deducciones ni créditos por subproductos.",
+      "note": "Estimación del valor del cobre contenido, no precio neto comercial del concentrado; faltan pagabilidad, TC/RC, penalidades, humedad, flete y créditos por subproductos.",
       "stale": false,
       "status": "Benchmark financiero actualizado",
       "symbol": "HG=F",
@@ -76,7 +76,7 @@
     },
     {
       "id": "steel-scrap",
-      "name": "Scrap ferroso · HMS 1/2 (80:20)",
+      "name": "Scrap ferroso · HMS 1/2 (80:20) CFR Turquía",
       "price": 404,
       "unit": "USD/MT",
       "decimals": 0,
@@ -86,10 +86,27 @@
       "marketTime": 1791374400,
       "source": "S&P Global Platts · SBB Steel Markets Daily · 7 Oct 2026",
       "sourceUrl": "",
-      "basis": "Platts assessed HMS 1/2 80:20 CFR Turkey at USD 404/MT on 7 October 2026. Internal report: SD_20261007_261008_112545.pdf.",
-      "note": "Benchmark HMS 1/2 80:20 CFR Turkey.",
+      "basis": "Platts assessed HMS 1/2 80:20 CFR Turkey at USD 404/MT on 7 October 2026 (TS01011). Internal report: SD_20261007_261008_112545.pdf.",
+      "note": "Benchmark de importación de chatarra HMS 1/2 80:20.",
       "stale": true,
       "status": "Platts · 07 Oct 2026"
+    },
+    {
+      "id": "steel-scrap-steelradar",
+      "name": "Scrap ferroso · HMS 1/2 (80:20) CFR Turquía",
+      "price": 395,
+      "unit": "USD/MT",
+      "decimals": 0,
+      "usdPerMt": null,
+      "changePct": null,
+      "relativePct": null,
+      "marketTime": 1791547200,
+      "source": "SteelRadar · 9 Oct 2026",
+      "sourceUrl": "https://www.steelradar.com/en/haber/low-trading-volumes-keep-turkish-imported-scrap-prices-flat/",
+      "basis": "Public market report put HMS 1/2 80:20 CFR Turkey at USD 395/MT on 9 October 2026. Secondary market reference, distinct from Platts assessment.",
+      "note": "Second source check for the same HMS grade and basis.",
+      "stale": true,
+      "status": "SteelRadar · 09 Oct 2026"
     }
   ]
 }
