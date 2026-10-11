@@ -25,12 +25,34 @@ async function yahoo(symbol) {
   const price = Number(result?.meta?.regularMarketPrice);
   const timestamp = Number(result?.meta?.regularMarketTime);
   if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('Cotización no válida para ' + symbol);
-  return { price, timestamp, currency: result.meta.currency || '' };
+  return { price, timestamp, currency: result.meta.currency || '', provider: 'Yahoo Finance' };
 }
 
+async function stooq(symbol) {
+  const endpoint = 'https://stooq.com/q/l/?s=' + encodeURIComponent(symbol) + '&f=sd2t2c&h&e=csv';
+  const response = await fetch(endpoint);
+  if (!response.ok) throw new Error('Stooq HTTP ' + response.status + ' para ' + symbol);
+  const rows = (await response.text()).trim().split(/\r?\n/);
+  const fields = rows[1]?.split(',');
+  const price = Number(fields?.[3]);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('Stooq sin cotización para ' + symbol);
+  const parsed = fields?.[1] ? Date.parse(fields[1] + 'T' + (fields[2] || '00:00') + 'Z') : Date.now();
+  return { price, timestamp: Number.isFinite(parsed) ? Math.floor(parsed / 1000) : Math.floor(Date.now() / 1000), currency: '', provider: 'Stooq' };
+}
+
+const STOOQ_SYMBOLS = { 'ZL=F': 'zl.f', 'RS=F': 'rs.f', 'FCPO=F': 'fcpo.f', 'HO=F': 'ho.f', 'BZ=F': 'bz.f', 'CL=F': 'cl.f' };
 const quoteCache = new Map();
 async function getQuote(symbol) {
-  if (!quoteCache.has(symbol)) quoteCache.set(symbol, yahoo(symbol));
+  if (!quoteCache.has(symbol)) {
+    quoteCache.set(symbol, (async () => {
+      try { return await yahoo(symbol); }
+      catch (yahooError) {
+        const stooqSymbol = STOOQ_SYMBOLS[symbol];
+        if (!stooqSymbol) throw yahooError;
+        return stooq(stooqSymbol);
+      }
+    })());
+  }
   return quoteCache.get(symbol);
 }
 
@@ -89,24 +111,27 @@ for (const def of definitions) {
   if (symbol === 'FCPO=F') {
     usdPerMt = quote.price;
     basis = 'Futuro de aceite de palma convertido de MYR/MT a USD/MT';
-    source = 'Bursa Malaysia Palm Oil Futures';
+    source = 'Bursa Malaysia Palm Oil Futures via ' + quote.provider;
     sourceUrl = 'https://finance.yahoo.com/quote/FCPO=F/';
   } else if (symbol === 'RS=F') {
     usdPerMt = quote.price;
     basis = 'Futuro de canola convertido de CAD/MT a USD/MT · proxy oleaginoso';
-    source = 'ICE Canola Futures';
+    source = 'ICE Canola Futures via ' + quote.provider;
     sourceUrl = 'https://finance.yahoo.com/quote/RS=F/';
     if (def.id === 'oleins') note = 'La fuente de palma no respondió; se muestra canola como proxy alternativo, no como precio de oleína.';
   } else if (symbol === 'ZL=F') {
     usdPerMt = quote.price * 22.0462262185;
-    if (def.id === 'oleins') {
+    if (def.symbol !== 'ZL=F') {
       basis = 'Proxy alternativo: futuro de aceite de soya convertido a USD/MT';
-      source = 'CME Soybean Oil Futures (proxy alternativo)';
+      source = 'CME Soybean Oil Futures (proxy alternativo) via ' + quote.provider;
       sourceUrl = 'https://finance.yahoo.com/quote/ZL=F/';
-      note = 'La fuente de palma y el proxy de canola no respondieron; se muestra aceite de soya como proxy, no como precio de oleína.';
+      note = def.id === 'oleins'
+        ? 'Las fuentes de palma y canola no respondieron; se muestra aceite de soya como proxy, no como precio de oleína.'
+        : 'No respondió el benchmark específico; se muestra aceite de soya como proxy alternativo, no una cotización específica del producto.';
     }
   } else if (symbol === 'HO=F') {
     usdPerMt = quote.price * 313.7;
+    source = 'NYMEX ULSD Futures via ' + quote.provider;
   } else if (symbol === 'BZ=F' || symbol === 'CL=F') {
     usdPerMt = quote.price * 7.33;
   }
