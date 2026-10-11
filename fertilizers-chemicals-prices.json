@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-10-11T08:27:09.207Z",
+  "generatedAt": "2026-10-11T08:27:59.459Z",
   "delayMinutes": 15,
   "instruments": [
     {
       "id": "fert-tsp",
       "name": "TSP · referencia regional por validar",
-      "price": 766.15,
+      "price": 628.3,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1791547200,
-      "source": "Green Markets · TSP FOB NOLA, 9 Oct 2026",
-      "sourceUrl": "https://fertilizerpricing.com/market-watch-posts/",
-      "basis": "TSP FOB NOLA US$695/short ton convertido a US$766,15/MT. No es una cotización CFR Brasil/Argentina; sirve como referencia externa para calcular paridad regional.",
-      "note": "Pendiente contrastar con Argus Brasil CFR/inland Paranaguá o Rondonópolis y logística efectiva. No usar como precio entregado regional.",
+      "marketTime": 1790942400,
+      "source": "Estimación indexada: Argus TSP CFR Brasil + World Bank TSP US Gulf",
+      "sourceUrl": "https://worldtradepro.com/blog/what-is-triple-super-phosphate/",
+      "basis": "Estimación regional: Argus TSP CFR Brasil US$605/MT (26 Sep 2025) × índice World Bank TSP US Gulf Sep-2026/Sep-2025 (690/664,4) = aprox. US$628,30/MT CFR Brasil. Modelo de indexación, no nueva evaluación Argus.",
+      "note": "La base regional de Argus es antigua y se actualiza mediante un índice global; baja confianza. Sustituir por la evaluación TSP CFR Brasil de Argus/Platts más reciente cuando esté disponible.",
       "stale": true,
-      "status": "Benchmark externo · no precio regional"
+      "status": "CFR Brasil estimado · índice global"
     },
     {
       "id": "fert-urea",
@@ -35,6 +35,23 @@
       "note": "Evaluación indicativa, no oferta ejecutable. Contrastar con Argus Nitrogen y oferta por puerto/volumen.",
       "stale": true,
       "status": "CFR Brasil · 6 Oct 2026"
+    },
+    {
+      "id": "fert-ammonium-sulphate",
+      "name": "Sulfato de amonio estándar · CFR Brasil",
+      "price": 242.5,
+      "unit": "USD/MT",
+      "decimals": 1,
+      "usdPerMt": null,
+      "changePct": null,
+      "relativePct": null,
+      "marketTime": 1791547200,
+      "source": "CommodityScope · CFR Brasil, 9 Oct 2026",
+      "sourceUrl": "https://commodityscope.com/prices/ammonium-sulphate-standard-brazil",
+      "basis": "Evaluación diaria indicativa de sulfato de amonio estándar CFR Brasil: US$242,50/MT, rango US$241,50–243,50 el 9 Oct 2026.",
+      "note": "Indicativo, no oferta ejecutable; confirmar granulometría, contenido de N, volumen y puerto.",
+      "stale": true,
+      "status": "CFR Brasil · 9 Oct 2026"
     },
     {
       "id": "fert-ammonia",
@@ -90,19 +107,19 @@
     {
       "id": "fert-mop",
       "name": "MOP · referencia externa para paridad regional",
-      "price": 388.56,
+      "price": 355,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1791547200,
-      "source": "Green Markets · MOP FOB NOLA, 9 Oct 2026",
-      "sourceUrl": "https://fertilizerpricing.com/market-watch-posts/",
-      "basis": "MOP FOB NOLA US$345–360/short ton; midpoint convertido a US$388,56/MT. No es CFR Brasil/Argentina.",
-      "note": "Usar como benchmark externo para estimar paridad; reemplazar por Argus CFR Brasil o FOB inland Paranaguá/Rondonópolis cuando esté disponible.",
+      "marketTime": 1790078400,
+      "source": "IFDC Fertilizer Crisis Response Bulletin #30 · MOP CFR Brasil",
+      "sourceUrl": "https://ifdc.org/2026/09/22/fertilizer-crisis-response-bulletin-30/",
+      "basis": "Rango indicativo MOP Brasil CFR US$350–360/MT; midpoint US$355/MT, publicado 22 Sep 2026.",
+      "note": "Referencia regional indicativa, no oferta ejecutable. Confirmar grado granular 60–61% K2O, volumen y puerto.",
       "stale": true,
-      "status": "Benchmark externo · no precio regional"
+      "status": "CFR Brasil · 22 Sep 2026"
     },
     {
       "id": "chem-methanol",
