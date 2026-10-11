@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:59:35.029Z",
+  "generatedAt": "2026-10-11T08:00:15.544Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -89,7 +89,7 @@
     },
     {
       "id": "fert-mop",
-      "name": "MOP · FOB NOLA",
+      "name": "Potasa (MOP) · FOB Nueva Orleans",
       "price": 388.56,
       "unit": "USD/MT",
       "decimals": 2,
@@ -121,23 +121,6 @@
       "stale": false,
       "status": "Benchmark financiero actualizado",
       "currency": "USD"
-    },
-    {
-      "id": "chem-caustic-soda",
-      "name": "Soda cáustica",
-      "price": null,
-      "unit": "USD/MT",
-      "decimals": 0,
-      "usdPerMt": null,
-      "changePct": null,
-      "relativePct": null,
-      "marketTime": null,
-      "source": "Pendiente de referencia verificable",
-      "sourceUrl": "https://www.argusmedia.com/en/commodities/chemicals",
-      "basis": "La consulta pública no devolvió un valor verificable; se retiró el precio estimado de USD 450/MT.",
-      "note": "N/D hasta disponer de Argus, Platts o una cotización verificable.",
-      "stale": true,
-      "status": "N/D"
     },
     {
       "id": "chem-petrochemical-feedstock",

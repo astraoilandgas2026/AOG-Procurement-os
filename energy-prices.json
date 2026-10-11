@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:59:32.388Z",
+  "generatedAt": "2026-10-11T08:00:12.661Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -98,19 +98,19 @@
     {
       "id": "n-butane",
       "name": "Butano normal (n-butano) · Mont Belvieu",
-      "price": 585,
+      "price": null,
       "unit": "USD/MT",
       "decimals": 0,
-      "usdPerMt": 585,
+      "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
       "marketTime": null,
-      "source": "TradingView · NYMEX OPIS Normal Butane",
+      "source": "Sin benchmark público gratuito verificable",
       "sourceUrl": "https://es.tradingview.com/symbols/NYMEX-AD1!/",
-      "basis": "Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.",
-      "note": "Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.",
+      "basis": "Futuro OPIS Mont Belvieu Non-TET Normal Butane; convertido desde USD/gal a USD/MT usando una densidad aproximada de 4.86 lb/gal (453.6 gal/MT).",
+      "note": "Benchmark regional estadounidense de butano normal, no precio universal ni oferta física. El valor por tonelada es una conversión indicativa dependiente de la densidad y debe ajustarse a pureza, región, entrega e Incoterm.",
       "stale": true,
-      "status": "Última referencia pública localizada"
+      "status": "Sin cotización pública comparable"
     },
     {
       "id": "residual-fuel-oil",
