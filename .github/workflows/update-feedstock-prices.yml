@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add prices.json energy-prices.json mining-prices.json
+          git add prices.json energy-prices.json mining-prices.json fertilizers-chemicals-prices.json agricultural-prices.json
           if git diff --cached --quiet; then
             echo "No price data changes to publish."
           else
