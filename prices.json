@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:04:59.784Z",
+  "generatedAt": "2026-10-11T07:06:00.992Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -26,13 +26,13 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": 1791569999,
-      "source": "CME Soybean Oil Futures",
-      "sourceUrl": "https://finance.yahoo.com/quote/ZL=F/",
+      "source": "ICE Canola Futures",
+      "sourceUrl": "https://finance.yahoo.com/quote/RS=F/",
       "symbol": "ZL=F",
-      "basis": "Proxy bursátil de aceite de soya · USD/MT",
-      "note": "Referencia comparativa; no es una cotización específica de ácidos grasos.",
+      "basis": "Proxy bursátil de canola convertido a USD/MT",
+      "note": "Benchmark de aceite vegetal; no es una cotización específica de ácidos grasos.",
       "stale": false,
-      "status": "Proxy de mercado actualizado"
+      "status": "Proxy alternativo actualizado"
     },
     {
       "id": "acid-oils",
@@ -74,13 +74,13 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": 1791569999,
-      "source": "CME Soybean Oil Futures",
-      "sourceUrl": "https://finance.yahoo.com/quote/ZL=F/",
+      "source": "ICE Canola Futures",
+      "sourceUrl": "https://finance.yahoo.com/quote/RS=F/",
       "symbol": "ZL=F",
-      "basis": "Proxy bursátil de aceite de soya · USD/MT",
+      "basis": "Proxy bursátil de canola convertido a USD/MT",
       "note": "No incluye prima por desgomado, origen, calidad ni Incoterm.",
       "stale": false,
-      "status": "Proxy de mercado actualizado"
+      "status": "Proxy alternativo actualizado"
     },
     {
       "id": "oleins",
@@ -95,22 +95,22 @@
       "symbol": "ZL=F",
       "basis": "Proxy alternativo: futuro de aceite de soya convertido a USD/MT",
       "note": "La fuente de palma no respondió; se muestra aceite de soya como proxy, no como precio de oleína.",
-      "stale": false,
-      "status": "Proxy alternativo actualizado"
+      "stale": true,
+      "status": "Último dato conservado; actualización fallida."
     },
     {
       "id": "off-spec",
       "name": "Fuera de especificación / otros",
-      "price": 1499.5843073823698,
-      "usdPerMt": 1499.5843073823698,
+      "price": 1486.4360800000002,
+      "usdPerMt": 1486.4360800000002,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1791569999,
-      "source": "CME Soybean Oil Futures",
-      "sourceUrl": "https://finance.yahoo.com/quote/ZL=F/",
-      "symbol": "ZL=F",
-      "basis": "Proxy bursátil de aceite de soya · USD/MT",
-      "note": "No sustituye la evaluación de especificación, análisis de laboratorio ni descuento comercial.",
+      "marketTime": 1791579598,
+      "source": "NYMEX ULSD Futures",
+      "sourceUrl": "https://finance.yahoo.com/quote/HO=F/",
+      "symbol": "HO=F",
+      "basis": "Benchmark downstream de diésel ULSD convertido a USD/MT",
+      "note": "Referencia energética para comparación, no precio de compra de un residuo fuera de especificación.",
       "stale": false,
       "status": "Proxy de mercado actualizado"
     }
