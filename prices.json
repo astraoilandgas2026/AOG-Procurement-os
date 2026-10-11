@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:09:56.950Z",
+  "generatedAt": "2026-10-11T08:10:14.970Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -72,25 +72,25 @@
       "basis": "US$1,050/MT · FOB puertos de Malasia · 9-oct-2026",
       "note": "Precio publicado de PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.",
       "relativePct": null,
-      "stale": true,
+      "stale": false,
       "status": "Última referencia pública localizada"
     },
     {
       "id": "degummed-oils",
-      "name": "Aceites desgomados",
-      "price": 1196,
-      "usdPerMt": 1196,
+      "name": "Aceite desgomado (proxy de soya)",
+      "price": 1233.25,
+      "usdPerMt": 1233.25,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1790856000,
-      "source": "Expert Market Research · Argentine FOB soybean oil",
-      "sourceUrl": "https://www.expertmarketresearch.com/price-forecast/rbd-soybean-oil-price-trends",
-      "symbol": "crude degummed soybean oil",
-      "basis": "US$1,196/MT · Argentina FOB, octubre 2026",
-      "note": "Referencia publicada para aceite de soya crudo desgomado; fecha de mercado 1-oct-2026. No equivale a una oferta brasileña actual.",
+      "marketTime": 1791547200,
+      "source": "CommodityScope · aceite de soya FOB Argentina",
+      "sourceUrl": "https://commodityscope.com/prices/argentina-soybean-oil",
+      "symbol": "CS-GRN-SBO-ARG",
+      "basis": "US$1,233.25/MT · FOB Argentina · evaluación indicativa 9-oct-2026",
+      "note": "Proxy físico de aceite de soya a granel porque no se encontró evaluación pública diaria específica para aceite desgomado. No es oferta de grado desgomado ni oferta FOB Brasil.",
       "relativePct": null,
-      "stale": true,
-      "status": "Última referencia pública localizada"
+      "stale": false,
+      "status": "Proxy de mercado físico"
     },
     {
       "id": "oleins",
@@ -106,7 +106,7 @@
       "basis": "US$1,137.50/MT · FOB puertos de Malasia · 9-oct-2026",
       "note": "Referencia publicada para oleína de palma RBD; no es oferta FOB Brasil y no se calcula descuento frente a soya por diferencia de producto y origen.",
       "relativePct": null,
-      "stale": true,
+      "stale": false,
       "status": "Última referencia pública localizada"
     },
     {

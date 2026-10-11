@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:10:00.446Z",
+  "generatedAt": "2026-10-11T08:10:18.905Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -168,14 +168,13 @@
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": null,
+      "marketTime": 1791201600,
       "source": "MBLion Oleo Malaysia",
       "sourceUrl": "https://www.mblionoleo.com/",
-      "basis": "Precio indicativo FOB Malasia para ácido oleico 75% mínimo.",
-      "note": "Confirmar vigencia de la lista antes de negociar.",
-      "stale": false,
-      "status": "Referencia indicativa",
-      "currency": "USD"
+      "basis": "USD 1,280/MT, referencia visible en lista FOB Malasia de 5 octubre de 2026.",
+      "note": "Referencia indicativa.",
+      "stale": true,
+      "status": "Ref. · 05 Oct 2026"
     }
   ]
 }
