@@ -104,6 +104,45 @@ async function methanexMethanol() {
   return { price, prevClose: null, timestamp: null, currency: 'USD' };
 }
 
+async function freshdiCausticSoda() {
+  const response = await fetch('https://freshdi.com/market-insight/Caustic-Soda', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('Freshdi caustic soda HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
+  const match = text.match(/median USD\s*([\d,]+)(?:\s+per metric ton)?/i) || text.match(/\$\s*([\d,]+)\s+Caustic Soda price/i);
+  if (!match) throw new Error('Freshdi caustic soda median not found');
+  const price = Number(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(price) || price <= 0) throw new Error('Freshdi caustic soda quote invalid');
+  return { price, prevClose: null, timestamp: null, currency: 'USD' };
+}
+
+async function mblionOleicAcid() {
+  const response = await fetch('https://www.mblionoleo.com/', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('MBLion Oleo HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
+  const match = text.match(/Oleic Acid 75% Min\s*(?:➜|→|:|-)?\s*([\d,]+(?:\.[\d]+)?)/i);
+  if (!match) throw new Error('MBLion oleic acid 75% price not found');
+  const price = Number(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(price) || price <= 0) throw new Error('MBLion oleic acid quote invalid');
+  return { price, prevClose: null, timestamp: null, currency: 'USD' };
+}
+
+async function chemPriceBenzene() {
+  const response = await fetch('https://chempricehub.com/news/detail-market-trends-of-pure-benzene-in-asia-b7594.html', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('ChemPriceHub benzene HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
+  const match = text.match(/benzene prices in Asia were assessed at \$([\d,]+(?:\.[\d]+)?)\/mt FOB Korea on October 9/i);
+  if (!match) throw new Error('Latest FOB Korea benzene assessment not found');
+  const price = Number(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(price) || price <= 0) throw new Error('Benzene quote invalid');
+  return { price, prevClose: null, timestamp: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), currency: 'USD' };
+}
+
 async function bolsaSunflower() {
   const response = await fetch('https://www.bolsadecereales.com/precios-oficiales?lang=ingles', { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
   if (!response.ok) throw new Error('Bolsa de Cereales HTTP ' + response.status);
@@ -139,6 +178,12 @@ async function buildFile(fileName, definitions) {
       } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
     } else if (def.fetcher === 'methanex-methanol') {
       try { q = await methanexMethanol(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
+    } else if (def.fetcher === 'freshdi-caustic') {
+      try { q = await freshdiCausticSoda(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
+    } else if (def.fetcher === 'mblion-oleic') {
+      try { q = await mblionOleicAcid(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
+    } else if (def.fetcher === 'chemprice-benzene') {
+      try { q = await chemPriceBenzene(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
     } else if (def.fetcher === 'bolsa-sunflower') {
       try { q = await bolsaSunflower(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
     } else if (def.fetcher === 'tradingview-butane') {
@@ -164,7 +209,7 @@ async function buildFile(fileName, definitions) {
         changePct: prior != null && prior > 0 ? ((value - prior) / prior) * 100 : null,
         relativePct: null, marketTime: q.timestamp, source: def.source || 'Yahoo Finance',
         sourceUrl: def.sourceUrl, basis: def.basis,
-        note: def.note, stale: false, status: def.status || (def.fetcher === 'iata-jet-fuel' ? 'Promedio global semanal actualizado' : 'Benchmark financiero actualizado'),
+        note: def.note, stale: false, status: def.status || (def.fetcher === 'iata-jet-fuel' ? 'Promedio global semanal actualizado' : def.fetcher === 'fertilizerprice' ? 'Referencia minorista semanal actualizada' : 'Benchmark financiero actualizado'),
         symbol: def.symbol, currency: q.currency
       });
     } else if (previous && previous.unit === def.unit && previous.sourceUrl === def.sourceUrl && (typeof previous.price === 'number' || def.fallbackPrice == null)) {
@@ -210,16 +255,18 @@ const mining = [
 
 const fertilizerChemicals = [
   { id: 'fert-urea', name: 'Urea 46-0-0 (precio minorista EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'Urea', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense reportado en USD/short ton, convertido a USD/MT (×1.10231). No equivale a FOB/CFR internacional ni a una oferta para exportación.', note: 'Referencia semanal para dirección de mercado; ajustar por origen, grado, volumen, región e Incoterm.' },
+  { id: 'fert-uan32', name: 'UAN 32% N (precio minorista EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'UAN 32%', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; no es un precio FOB/CFR internacional.', note: 'Comparar solo con solución UAN 32% y misma base comercial.' },
   { id: 'fert-uan28', name: 'UAN 28% N (precio minorista EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'UAN 28%', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; no es un precio FOB/CFR internacional.', note: 'Comparar solo con solución UAN 28% y misma base comercial.' },
   { id: 'fert-ammonia', name: 'Amoníaco anhidro (82-0-0, EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'Anhydrous Ammonia', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; proxy regional, no benchmark CFR internacional.', note: 'No usar como precio de amoníaco industrial sin ajustar pureza, presión, almacenamiento y entrega.' },
   { id: 'fert-dap', name: 'DAP 18-46-0 (precio minorista EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'DAP', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; no es benchmark FOB/CFR internacional.', note: 'Comparar con DAP de la misma calidad y contenido nutricional.' },
+  { id: 'fert-map', name: 'MAP 11-52-0 (precio minorista EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'MAP', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; no es benchmark FOB/CFR internacional.', note: 'Comparar con MAP de la misma calidad y contenido nutricional.' },
   { id: 'fert-mop', name: 'Potasa MOP 0-0-60 (EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'Potash (MOP)', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT; proxy regional, no precio FOB Vancouver ni CFR Brasil.', note: 'Ajustar por origen, granularidad, contenido K2O, volumen y destino.' },
   { id: 'fert-ammonium-sulfate', name: 'Sulfato de amonio 21-0-0-24S (EE. UU.)', fetcher: 'fertilizerprice', sourceProduct: 'Ammonium Sulfate (AMS)', factor: 1.10231131, unit: 'USD/MT', decimals: 0, source: 'FertilizerPrice.com · referencia semanal EE. UU.', sourceUrl: 'https://fertilizerprice.com/', basis: 'Precio minorista estadounidense convertido de USD/short ton a USD/MT.', note: 'Referencia regional; ajustar por granulometría, concentración, origen y flete.' },
   { id: 'chem-methanol', name: 'Metanol (North America posted contract)', fetcher: 'methanex-methanol', unit: 'USD/MT', decimals: 0, source: 'Methanex · precio contractual publicado', sourceUrl: 'https://www.methanex.com/our-products/about-methanol/pricing/', basis: 'Precio contractual de referencia de Norteamérica publicado por Methanex para octubre de 2026; precio mensual, no evaluación spot diaria Argus/Platts.', note: 'Referencia contractual regional. Validar mes de vigencia, descuentos por cliente, fórmula contractual, volumen y entrega.', status: 'Precio contractual publicado (mensual)', fallbackPrice: 1450, fallbackUsdPerMt: 1450, fallbackTime: Math.floor(Date.parse('2026-09-29T12:00:00Z') / 1000), fallbackSource: 'Methanex · precio publicado octubre 2026', fallbackUrl: 'https://www.methanex.com/our-products/about-methanol/pricing/', fallbackBasis: 'Precio de referencia no descontado de Norteamérica: USD 1,450/MT, válido del 1 al 31 de octubre de 2026; respaldo público, no cotización spot.', fallbackNote: 'Dato mensual de respaldo. Confirmar publicación vigente y descuentos comerciales antes de negociar.' },
-  { id: 'chem-caustic-soda', name: 'Soda cáustica (Platts US FOB plant; referencia histórica)', unit: 'USD/MT', decimals: 0, fallbackPrice: 606, fallbackUsdPerMt: 606, fallbackTime: Math.floor(Date.parse('2026-05-26T12:00:00Z') / 1000), fallbackSource: 'S&P Global Platts · assessment publicado', fallbackUrl: 'https://www.spglobal.com/energy/en/pricing-benchmarks/our-methodology/subscriber-notes/052626-platts-corrects-may-19-us-domestic-chlor-alkali-prices', fallbackBasis: 'Platts corrigió el 26-may-2026 el assessment US FOB Plant de soda cáustica a USD 550/short ton; conversión matemática ≈ USD 606/MT. Referencia histórica, no vigente confirmada.', fallbackNote: 'Marcador histórico obsoleto hasta localizar una publicación pública más reciente. No utilizar como oferta negociable ni como precio vigente.', note: 'El benchmark comercial correcto depende de concentración (base seca), región, forma y contrato.' },
+  { id: 'chem-caustic-soda', name: 'Soda cáustica (mediana de ofertas FOB; referencia de mercado)', fetcher: 'freshdi-caustic', unit: 'USD/MT', decimals: 0, source: 'Freshdi · mediana de ofertas de mercado', sourceUrl: 'https://freshdi.com/market-insight/Caustic-Soda', basis: 'Mediana pública de ofertas de soda cáustica: USD 450/MT FOB; muestra de 14 ofertas, rango típico USD 420–750/MT, con datos a 9-oct-2026. No es assessment Argus/Platts.', note: 'Proxy de mercado basado en ofertas observadas; confirmar concentración (perlas/solución), región, pureza, lote e Incoterm.', status: 'Mediana pública de ofertas; actualización periódica', fallbackPrice: 450, fallbackUsdPerMt: 450, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'Freshdi · mediana de ofertas FOB', fallbackUrl: 'https://freshdi.com/market-insight/Caustic-Soda', fallbackBasis: 'Mediana pública de ofertas USD 450/MT FOB a 9-oct-2026; rango publicado USD 420–750/MT. Respaldo no contractual.', fallbackNote: 'Dato de mercado agregado, no cotización vinculante ni assessment Argus/Platts.' },
   { id: 'chem-petrochemical-feedstock', name: 'Feedstock petroquímico (Brent proxy; no es precio químico)', symbol: 'BZ=F', unit: 'USD/bbl', decimals: 2, source: 'ICE Brent futures · proxy de materia prima', sourceUrl: 'https://finance.yahoo.com/quote/BZ=F/', basis: 'Precio financiero de Brent usado únicamente como indicador de coste de feedstock petroquímico; no es cotización de benceno, metanol, polímero ni otro químico.', note: 'Sirve para dirección de costes de materia prima. Para valorar el químico final hay que añadir rendimientos, crack/spread, energía, conversión, flete, región y calidad.' },
-  { id: 'chem-benzene', name: 'Benceno (benchmark spot regional pendiente)', unit: 'USD/MT', decimals: 0, source: 'Argus / Platts · metodología de evaluación', sourceUrl: 'https://www.argusmedia.com/es/commodities/chemicals', basis: 'Argus y Platts publican evaluaciones regionales de benceno, pero el valor vigente no está expuesto gratuitamente de forma verificable en una fuente pública abierta.', note: 'Sin precio numérico para evitar presentar un proxy de crudo/nafta como si fuera benceno. Requiere el último Argus/Platts o cotización regional comparable.' },
-  { id: 'chem-fatty-acids', name: 'Ácidos grasos / oleoquímicos (referencia de materia prima)', unit: 'USD/MT', decimals: 0, source: 'Argus · Oleochemicals methodology', sourceUrl: 'https://www.argusmedia.com/es/commodities/chemicals', basis: 'Los ácidos grasos requieren una referencia por especie (palmiste/palma/soya), corte C16/C18, acidez, color y región. El precio del aceite vegetal no equivale al del ácido graso.', note: 'Usar la última evaluación Argus/Platts o aplicar un diferencial documentado sobre aceite de origen solo después de confirmar rendimiento, FFA, humedad, insaponificables y logística.' }
+  { id: 'chem-benzene', name: 'Benceno (FOB Corea; assessment público reciente)', fetcher: 'chemprice-benzene', unit: 'USD/MT', decimals: 0, source: 'ChemPriceHub citando evaluación Platts', sourceUrl: 'https://chempricehub.com/news/detail-market-trends-of-pure-benzene-in-asia-b7594.html', basis: 'Evaluación pública de benceno FOB Corea: USD 1,247/MT el 9-oct-2026; referencia regional asiática basada en datos de mercado reportados por Platts, no precio FOB América.', note: 'No extrapolar directamente a América Latina; ajustar por diferencial regional, pureza, ventana de carga, flete e Incoterm.', status: 'Assessment público regional actualizado', fallbackPrice: 1247, fallbackUsdPerMt: 1247, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'ChemPriceHub · evaluación Platts reportada', fallbackUrl: 'https://chempricehub.com/news/detail-market-trends-of-pure-benzene-in-asia-b7594.html', fallbackBasis: 'USD 1,247/MT FOB Corea a 9-oct-2026. Precio de referencia regional, no cotización para América.', fallbackNote: 'Referencia pública fechada; sustituir cuando haya nueva evaluación accesible.' },
+  { id: 'chem-fatty-acids', name: 'Ácido oleico 75% mínimo (FOB Malasia)', fetcher: 'mblion-oleic', unit: 'USD/MT', decimals: 0, source: 'MBLion Oleo Malaysia · precio indicativo público', sourceUrl: 'https://www.mblionoleo.com/', basis: 'Referencia pública de ácido oleico 75% mínimo FOB Malasia; la página muestra USD 1,280/MT. Indicador de oleoquímico regional, no necesariamente aplicable a otros cortes o calidades.', note: 'Confirmar fecha de publicación, FFA, color, composición C18, envase, lote y términos de entrega.', status: 'Referencia pública indicativa', fallbackPrice: 1280, fallbackUsdPerMt: 1280, fallbackTime: Math.floor(Date.parse('2026-10-05T12:00:00Z') / 1000), fallbackSource: 'MBLion Oleo Malaysia · FOB indicativo', fallbackUrl: 'https://www.mblionoleo.com/', fallbackBasis: 'Ácido oleico 75% mínimo: USD 1,280/MT; precio visible en el monitor público de MBLion Oleo, con lista FOB Malasia fechada 5-oct-2026.', fallbackNote: 'Referencia indicativa, no cotización vinculante; confirmar fecha y vigencia con el vendedor.' }
 ];
 
 const agriculture = [
