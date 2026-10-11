@@ -1,148 +1,139 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const output = process.argv[2] || 'prices.json';
-const outputPath = path.resolve(output);
+const outputPath = path.resolve(process.argv[2] || 'prices.json');
 const old = await fs.readFile(outputPath, 'utf8').then(JSON.parse).catch(() => ({ instruments: [] }));
 const oldById = new Map((old.instruments || []).map((item) => [item.id, item]));
+const UCO_SPREAD_USD_MT = Number.isFinite(Number(process.env.UCO_DIESEL_SPREAD_USD_MT))
+  && process.env.UCO_DIESEL_SPREAD_USD_MT !== ''
+  ? Number(process.env.UCO_DIESEL_SPREAD_USD_MT)
+  : 68; // Public cross-check on 2026-10-09: US UCO index $0.705/lb vs ULSD $4.7384/gal.
 
 const definitions = [
-  { id: 'uco', name: 'UCO / AVU', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite vegetal · USD/MT', note: 'No existe un futuro gratuito y líquido para UCO; no equivale a una oferta física de UCO.' },
-  { id: 'fatty-acids', name: 'Ácidos grasos', symbol: 'RS=F', fallbackSymbol: 'ZL=F', factor: 1, source: 'ICE Canola Futures', url: 'https://finance.yahoo.com/quote/RS=F/', basis: 'Proxy bursátil de canola convertido a USD/MT', note: 'Benchmark de aceite vegetal; no es una cotización específica de ácidos grasos.' },
-  { id: 'acid-oils', name: 'Aceites ácidos', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Proxy bursátil de aceite de soya · USD/MT', note: 'No representa el descuento por FFA, humedad, impurezas ni calidad del aceite ácido.' },
-  { id: 'vegetable-oils', name: 'Aceites vegetales', symbol: 'ZL=F', factor: 22.0462262185, source: 'CME Soybean Oil Futures', url: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'Futuro de aceite de soya CBOT convertido a USD/MT', note: 'Benchmark financiero; no equivale a aceite físico FOB.' },
-  { id: 'degummed-oils', name: 'Aceites desgomados', symbol: 'RS=F', fallbackSymbol: 'ZL=F', factor: 1, source: 'ICE Canola Futures', url: 'https://finance.yahoo.com/quote/RS=F/', basis: 'Proxy bursátil de canola convertido a USD/MT', note: 'No incluye prima por desgomado, origen, calidad ni Incoterm.' },
-  { id: 'oleins', name: 'Oleínas', symbol: 'FCPO=F', fallbackSymbol: 'RS=F', factor: 1, source: 'Bursa Malaysia Palm Oil Futures', url: 'https://finance.yahoo.com/quote/FCPO=F/', basis: 'Futuro de aceite de palma convertido a USD/MT', note: 'Si la fuente de palma no está disponible, se identifica el benchmark alternativo; no equivale a oleína física FOB.' },
-  { id: 'off-spec', name: 'Fuera de especificación / otros', symbol: 'HO=F', factor: 313.7, source: 'NYMEX ULSD Futures', url: 'https://finance.yahoo.com/quote/HO=F/', basis: 'Benchmark downstream de diésel ULSD convertido a USD/MT', note: 'Referencia energética para comparación, no precio de compra de un residuo fuera de especificación.' },
+  { id: 'soy_oil', name: 'Aceite de soya', symbol: 'ZL=F', stooq: 'zl.f', unit: '¢/lb', factor: 22.0462262185, decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/ZL=F/', basis: 'CBOT · futuro, cents/lb; USD/MT = ¢/lb × 22.046226', note: 'Futuro financiero, no oferta física FOB.' },
+  { id: 'ulsd', name: 'Diésel ULSD', symbol: 'HO=F', stooq: 'ho.f', unit: 'USD/gal', factor: 313.7, decimals: 4, sourceUrl: 'https://finance.yahoo.com/quote/HO=F/', basis: 'NYMEX · USD/gal; referencia equivalente aproximada USD/MT = precio × 313.7', note: 'La conversión por masa es aproximada; depende de densidad.' },
+  { id: 'canola', name: 'Canola', symbol: 'RS=F', stooq: 'rs.f', fx: 'USDCAD=X', unit: 'CAD/MT', factor: 1, decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/RS=F/', basis: 'ICE · CAD/MT convertido a USD/MT con USDCAD', note: 'Benchmark de canola; no se reutiliza el precio de soya si esta fuente falla.' },
+  { id: 'palm_oil', name: 'Aceite de palma', symbol: 'FCPO=F', stooq: 'fcpo.f', fx: 'USDMYR=X', unit: 'MYR/MT', factor: 1, decimals: 2, sourceUrl: 'https://www.bursamalaysia.com/market_information/derivatives_prices', basis: 'Bursa Malaysia · MYR/MT convertido a USD/MT con USDMYR', note: 'Si el símbolo público no responde, se marca desactualizado; no se sustituye por otro aceite.' },
+  { id: 'brent', name: 'Brent', symbol: 'BZ=F', stooq: 'bz.f', unit: 'USD/bbl', factor: 7.33, decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/BZ=F/', basis: 'ICE Brent · USD/bbl; conversión comparativa aproximada USD/MT = precio × 7.33', note: 'Equivalencia aproximada para comparación; no es una cotización de feedstock.' },
+  { id: 'wti', name: 'WTI', symbol: 'CL=F', stooq: 'cl.f', unit: 'USD/bbl', factor: 7.33, decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/CL=F/', basis: 'NYMEX WTI · USD/bbl; conversión comparativa aproximada USD/MT = precio × 7.33', note: 'Equivalencia aproximada para comparación; no es una cotización de feedstock.' },
 ];
 
 async function yahoo(symbol) {
-  const endpoint = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?range=5d&interval=1d';
-  const response = await fetch(endpoint, { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
-  if (!response.ok) throw new Error('Yahoo HTTP ' + response.status + ' para ' + symbol);
+  const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(symbol) + '?range=5d&interval=1d';
+  const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' } });
+  if (!response.ok) throw new Error('Yahoo HTTP ' + response.status + ' ' + symbol);
   const payload = await response.json();
   const result = payload?.chart?.result?.[0];
-  const price = Number(result?.meta?.regularMarketPrice);
-  const timestamp = Number(result?.meta?.regularMarketTime);
-  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('Cotización no válida para ' + symbol);
-  return { price, timestamp, currency: result.meta.currency || '', provider: 'Yahoo Finance' };
+  if (!result) throw new Error('Yahoo sin resultado ' + symbol);
+  const quote = result.indicators?.quote?.[0];
+  const price = Number(result.meta?.regularMarketPrice ?? quote?.close?.filter(Number.isFinite).at(-1));
+  const prevClose = Number(result.meta?.previousClose ?? result.meta?.chartPreviousClose);
+  const timestamp = Number(result.meta?.regularMarketTime ?? result.timestamp?.at(-1));
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('Cotización inválida ' + symbol);
+  return { price, prevClose: Number.isFinite(prevClose) && prevClose > 0 ? prevClose : null, timestamp, currency: result.meta?.currency || '', provider: 'Yahoo Finance' };
 }
 
 async function stooq(symbol) {
-  const endpoint = 'https://stooq.com/q/l/?s=' + encodeURIComponent(symbol) + '&f=sd2t2c&h&e=csv';
-  const response = await fetch(endpoint);
-  if (!response.ok) throw new Error('Stooq HTTP ' + response.status + ' para ' + symbol);
+  const url = 'https://stooq.com/q/l/?s=' + encodeURIComponent(symbol) + '&f=sd2t2c&h&e=csv';
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Stooq HTTP ' + response.status + ' ' + symbol);
   const rows = (await response.text()).trim().split(/\r?\n/);
   const fields = rows[1]?.split(',');
   const price = Number(fields?.[3]);
-  if (!Number.isFinite(price) || price <= 0) throw new Error('Stooq sin cotización para ' + symbol);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('Stooq sin cotización ' + symbol);
   const parsed = fields?.[1] ? Date.parse(fields[1] + 'T' + (fields[2] || '00:00') + 'Z') : Date.now();
-  return { price, timestamp: Number.isFinite(parsed) ? Math.floor(parsed / 1000) : Math.floor(Date.now() / 1000), currency: '', provider: 'Stooq' };
+  return { price, prevClose: null, timestamp: Number.isFinite(parsed) ? Math.floor(parsed / 1000) : Math.floor(Date.now() / 1000), currency: '', provider: 'Stooq' };
 }
 
-const STOOQ_SYMBOLS = { 'ZL=F': 'zl.f', 'RS=F': 'rs.f', 'FCPO=F': 'fcpo.f', 'HO=F': 'ho.f', 'BZ=F': 'bz.f', 'CL=F': 'cl.f' };
-const quoteCache = new Map();
-async function getQuote(symbol) {
-  if (!quoteCache.has(symbol)) {
-    quoteCache.set(symbol, (async () => {
+const cache = new Map();
+async function quote(symbol, stooqSymbol) {
+  const key = symbol + '|' + stooqSymbol;
+  if (!cache.has(key)) {
+    cache.set(key, (async () => {
       try { return await yahoo(symbol); }
-      catch (yahooError) {
-        const stooqSymbol = STOOQ_SYMBOLS[symbol];
-        if (!stooqSymbol) throw yahooError;
+      catch (first) {
+        if (!stooqSymbol) throw first;
         return stooq(stooqSymbol);
       }
     })());
   }
-  return quoteCache.get(symbol);
+  return cache.get(key);
+}
+
+async function fxRate(symbol) {
+  const q = await yahoo(symbol);
+  if (!Number.isFinite(q.price) || q.price <= 0) throw new Error('FX inválido ' + symbol);
+  return q.price;
 }
 
 const instruments = [];
+const byId = {};
 for (const def of definitions) {
   const previous = oldById.get(def.id);
-  let symbol = def.symbol;
-  let quote;
   try {
-    quote = await getQuote(symbol);
-  } catch (firstError) {
-    if (def.fallbackSymbol) {
-      symbol = def.fallbackSymbol;
-      try { quote = await getQuote(symbol); } catch {}
+    const q = await quote(def.symbol, def.stooq);
+    let usdPerMt = null;
+    if (def.id === 'soy_oil') usdPerMt = q.price * def.factor;
+    else if (def.id === 'ulsd') usdPerMt = q.price * def.factor;
+    else if (def.id === 'canola') usdPerMt = q.price / await fxRate(def.fx);
+    else if (def.id === 'palm_oil') usdPerMt = q.price / await fxRate(def.fx);
+    else if (def.id === 'brent' || def.id === 'wti') usdPerMt = q.price * def.factor;
+
+    const prevUsdPerMt = q.prevClose == null ? null :
+      def.id === 'soy_oil' ? q.prevClose * def.factor :
+      def.id === 'ulsd' ? q.prevClose * def.factor :
+      def.id === 'canola' || def.id === 'palm_oil' ? null :
+      q.prevClose * def.factor;
+
+    const changePct = q.prevClose != null ? ((q.price - q.prevClose) / q.prevClose) * 100 : null;
+    const item = {
+      id: def.id, name: def.name, symbol: def.symbol, price: q.price,
+      prevClose: q.prevClose, changePct, unit: def.unit, decimals: def.decimals,
+      usdPerMt, prevUsdPerMt, marketTime: q.timestamp, source: q.provider,
+      sourceUrl: def.sourceUrl, basis: def.basis, note: def.note, stale: false,
+      status: 'Actualizado'
+    };
+    instruments.push(item);
+    byId[def.id] = item;
+  } catch (error) {
+    if (previous) {
+      const item = { ...previous, stale: true, status: 'Último dato conservado; fuente sin respuesta.' };
+      instruments.push(item);
+      byId[def.id] = item;
+    } else {
+      const item = {
+        id: def.id, name: def.name, symbol: def.symbol, price: null, prevClose: null,
+        changePct: null, unit: def.unit, decimals: def.decimals, usdPerMt: null,
+        marketTime: null, source: 'Fuente no disponible', sourceUrl: def.sourceUrl,
+        basis: def.basis, note: 'Sin cotización verificable; no se inventa ni se sustituye por otro producto.',
+        stale: true, status: 'Cotización no disponible'
+      };
+      instruments.push(item);
+      byId[def.id] = item;
     }
   }
-
-  if (!quote) {
-    if (previous) instruments.push({ ...previous, stale: true, status: 'Último dato conservado; actualización fallida.' });
-    else instruments.push({
-      id: def.id, name: def.name, price: null, usdPerMt: null, unit: 'USD/MT',
-      marketTime: null, source: def.source, sourceUrl: def.url, symbol: def.symbol,
-      basis: def.basis, note: def.note, stale: true, status: 'Cotización no disponible'
-    });
-    continue;
-  }
-
-  if (symbol === 'FCPO=F' || symbol === 'RS=F') {
-    try {
-      const fx = await getQuote(symbol === 'FCPO=F' ? 'USDMYR=X' : 'USDCAD=X');
-      quote = { ...quote, price: quote.price / fx.price };
-    } catch {
-      if (def.fallbackSymbol) {
-        symbol = def.fallbackSymbol;
-        try {
-          quote = await getQuote(symbol);
-          if (symbol === 'RS=F') {
-            const fx = await getQuote('USDCAD=X');
-            quote = { ...quote, price: quote.price / fx.price };
-          }
-        } catch { quote = null; }
-      }
-    }
-  }
-  if (!quote) {
-    if (previous) instruments.push({ ...previous, stale: true, status: 'Último dato conservado; actualización fallida.' });
-    else instruments.push({ id: def.id, name: def.name, price: null, usdPerMt: null, unit: 'USD/MT', marketTime: null, source: def.source, sourceUrl: def.url, symbol: def.symbol, basis: def.basis, note: def.note, stale: true, status: 'Cotización no disponible' });
-    continue;
-  }
-
-  let usdPerMt = quote.price * def.factor;
-  let basis = def.basis;
-  let source = def.source;
-  let sourceUrl = def.url;
-  let note = def.note;
-  if (symbol === 'FCPO=F') {
-    usdPerMt = quote.price;
-    basis = 'Futuro de aceite de palma convertido de MYR/MT a USD/MT';
-    source = 'Bursa Malaysia Palm Oil Futures via ' + quote.provider;
-    sourceUrl = 'https://finance.yahoo.com/quote/FCPO=F/';
-  } else if (symbol === 'RS=F') {
-    usdPerMt = quote.price;
-    basis = 'Futuro de canola convertido de CAD/MT a USD/MT · proxy oleaginoso';
-    source = 'ICE Canola Futures via ' + quote.provider;
-    sourceUrl = 'https://finance.yahoo.com/quote/RS=F/';
-    if (def.id === 'oleins') note = 'La fuente de palma no respondió; se muestra canola como proxy alternativo, no como precio de oleína.';
-  } else if (symbol === 'ZL=F') {
-    usdPerMt = quote.price * 22.0462262185;
-    if (def.symbol !== 'ZL=F') {
-      basis = 'Proxy alternativo: futuro de aceite de soya convertido a USD/MT';
-      source = 'CME Soybean Oil Futures (proxy alternativo) via ' + quote.provider;
-      sourceUrl = 'https://finance.yahoo.com/quote/ZL=F/';
-      note = def.id === 'oleins'
-        ? 'Las fuentes de palma y canola no respondieron; se muestra aceite de soya como proxy, no como precio de oleína.'
-        : 'No respondió el benchmark específico; se muestra aceite de soya como proxy alternativo, no una cotización específica del producto.';
-    }
-  } else if (symbol === 'HO=F') {
-    usdPerMt = quote.price * 313.7;
-    source = 'NYMEX ULSD Futures via ' + quote.provider;
-  } else if (symbol === 'BZ=F' || symbol === 'CL=F') {
-    usdPerMt = quote.price * 7.33;
-  }
-
-  instruments.push({
-    id: def.id, name: def.name, price: usdPerMt, usdPerMt,
-    unit: 'USD/MT', decimals: 0, marketTime: quote.timestamp,
-    source, sourceUrl, symbol, basis, note, stale: false,
-    status: symbol === def.symbol ? 'Proxy de mercado actualizado' : 'Proxy alternativo actualizado'
-  });
 }
+
+const ulsd = byId.ulsd;
+let uco;
+if (typeof ulsd?.usdPerMt === 'number' && Number.isFinite(ulsd.usdPerMt)) {
+  const usdPerMt = ulsd.usdPerMt + UCO_SPREAD_USD_MT;
+  uco = {
+    id: 'uco', name: 'UCO / AVU indicativo', symbol: 'HO=F + spread', price: usdPerMt,
+    prevClose: null, changePct: null, unit: 'USD/MT', decimals: 0,
+    usdPerMt, marketTime: ulsd.marketTime, source: 'Modelo indicativo: ULSD + diferencial UCO',
+    sourceUrl: 'https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/',
+    basis: 'ULSD convertido a USD/MT + diferencial indicativo de US$' + UCO_SPREAD_USD_MT + '/MT',
+    note: 'Diferencial de referencia estimado a partir de índices públicos de UCO EE.UU. y ULSD del 9-oct-2026; no es una cotización directa ni equivale a FOB Brasil.',
+    stale: Boolean(ulsd.stale), status: 'Estimación indicativa, no oferta física'
+  };
+} else {
+  const previous = oldById.get('uco');
+  uco = previous
+    ? { ...previous, stale: true, status: 'ULSD no disponible; último indicativo conservado.' }
+    : { id: 'uco', name: 'UCO / AVU indicativo', symbol: 'ULSD + spread', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0, marketTime: null, source: 'Modelo indicativo', sourceUrl: 'https://www.fastmarkets.com/insights/fastmarkets-launches-used-cooking-oil-fob-amsterdam-rotterdam-antwerp-ghent/', basis: 'ULSD + diferencial de referencia', note: 'Sin ULSD actualizado; no se inventa el valor.', stale: true, status: 'Cotización no disponible' };
+}
+instruments.splice(1, 0, uco);
 
 await fs.mkdir(path.dirname(outputPath), { recursive: true });
 await fs.writeFile(outputPath, JSON.stringify({
@@ -150,4 +141,5 @@ await fs.writeFile(outputPath, JSON.stringify({
   delayMinutes: 15,
   instruments
 }, null, 2) + '\n');
-console.log('Actualizados ' + instruments.filter((x) => x.price != null && !x.stale).length + ' de ' + instruments.length + ' marcadores.');
+const fresh = instruments.filter((x) => x.price != null && !x.stale).length;
+console.log('Actualizados ' + fresh + ' de ' + instruments.length + ' marcadores; precios nativos conservados y USD/MT convertidos cuando corresponde.');
