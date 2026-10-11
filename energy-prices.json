@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:36:57.152Z",
+  "generatedAt": "2026-10-11T07:37:11.651Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -110,7 +110,7 @@
       "basis": "Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.",
       "note": "Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.",
       "stale": true,
-      "status": "Última referencia pública localizada"
+      "status": "Última referencia conservada; fuente automática sin respuesta."
     },
     {
       "id": "residual-fuel-oil",
