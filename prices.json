@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:13:36.521Z",
+  "generatedAt": "2026-10-11T07:13:51.977Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -25,10 +25,21 @@
     {
       "id": "uco",
       "name": "UCO / AVU · indicativo",
-      "relativePct": null,
+      "symbol": "HO=F + spread",
+      "price": 1554.4360800000002,
+      "prevClose": null,
+      "changePct": null,
+      "unit": "USD/MT",
+      "decimals": 0,
+      "usdPerMt": 1554.4360800000002,
+      "marketTime": 1791579598,
+      "source": "Modelo indicativo: ULSD + diferencial UCO",
+      "sourceUrl": "https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/",
+      "basis": "ULSD convertido a USD/MT + diferencial indicativo de US$68/MT",
       "note": "Modelo indicativo ULSD + US$68/MT de diferencial de referencia observado al comparar índices públicos de UCO EE.UU. y ULSD el 9-oct-2026. No es cotización directa ni oferta FOB Brasil.",
+      "stale": false,
       "status": "Indicativo modelado",
-      "stale": false
+      "relativePct": 3.6577985210700215
     },
     {
       "id": "fatty-acids",
