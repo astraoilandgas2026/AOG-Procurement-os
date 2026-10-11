@@ -46,6 +46,50 @@ async function iataJetFuel() {
   return { price, prevClose, timestamp: null, currency: 'USD' };
 }
 
+async function jkmLng() {
+  const response = await fetch('https://tradingeconomics.com/commodity/liquefied-natural-gas-japan-korea', {
+    headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' }
+  });
+  if (!response.ok) throw new Error('Trading Economics JKM HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
+    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\\s+/g, ' ');
+  const match = text.match(/LNG JKM rose to\\s*([0-9]+(?:\\.[0-9]+)?)\\s*USD\\/MMBTU on ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i)
+    || text.match(/([0-9]+(?:\\.[0-9]+)?)\\s*USD\\/MMBTU on ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i);
+  if (!match) throw new Error('JKM LNG USD/MMBtu assessment/date not found');
+  const price = Number(match[1]);
+  const timestamp = Math.floor(Date.parse(match[2] + ' 12:00:00 UTC') / 1000);
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('JKM LNG quote invalid');
+  return { price, prevClose: null, timestamp, currency: 'USD' };
+}
+
+async function asianLpgBenchmarks() {
+  const response = await fetch('https://asianoil.com/', {
+    headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' }
+  });
+  if (!response.ok) throw new Error('Asian Oil Intelligence LPG HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
+    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\\s+/g, ' ');
+  const dateMatch = text.match(/Market overview as of ([A-Za-z]+\\s+\\d{1,2},\\s+\\d{4})/i);
+  const timestamp = dateMatch ? Math.floor(Date.parse(dateMatch[1] + ' 12:00:00 UTC') / 1000) : null;
+  const propaneMatch = text.match(/Propane CP\\s*\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/MT/i);
+  const butaneMatch = text.match(/Butane CP\\s*\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/MT/i);
+  const result = {};
+  if (propaneMatch) result.propane = { price: Number(propaneMatch[1].replace(/,/g, '')), timestamp, currency: 'USD' };
+  if (butaneMatch) result.butane = { price: Number(butaneMatch[1].replace(/,/g, '')), timestamp, currency: 'USD' };
+  if (!result.propane || !result.butane) throw new Error('Propane/Butane CP prices not found');
+  return result;
+}
+
 async function eiaPropane() {
   const response = await fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPROPANEMBTX', {
     headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' }
@@ -194,6 +238,14 @@ async function buildFile(fileName, definitions) {
         q = quotes[(def.sourceProduct || '').toLowerCase()] || null;
         if (!q) throw new Error('Product not found: ' + def.sourceProduct);
       } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
+    } else if (def.fetcher === 'jkm-lng') {
+      try { q = await jkmLng(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
+    } else if (def.fetcher === 'asian-lpg') {
+      try {
+        const quotes = await asianLpgBenchmarks();
+        q = quotes[(def.sourceProduct || '').toLowerCase()] || null;
+        if (!q) throw new Error('LPG product not found: ' + def.sourceProduct);
+      } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
     } else if (def.fetcher === 'eia-propane') {
       try { q = await eiaPropane(); } catch (error) { console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140)); }
     } else if (def.fetcher === 'methanex-methanol') {
@@ -257,9 +309,9 @@ const energy = [
   { id: 'crude-oil', name: 'Petróleo crudo · Brent proxy (no FOB Brasil)', symbol: 'BZ=F', unit: 'USD/bbl', decimals: 2, fallbackPrice: 104.72, fallbackUsdPerMt: null, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'ICE Brent · último dato público 9 Oct 2026', fallbackUrl: 'https://commodityscope.com/prices', fallbackBasis: 'Futuro Brent USD/bbl como referencia global. No representa el diferencial físico de crudos brasileños Tupi/Mero ni un precio FOB terminal Brasil.', fallbackNote: 'Comparador de mercado. Para negociación física, aplicar diferencial de calidad y terminal con evaluación Platts/Argus del grado brasileño.', fallbackStatus: 'Benchmark global · no oferta FOB Brasil', source: 'ICE Brent futures · proxy global', sourceUrl: 'https://finance.yahoo.com/quote/BZ=F/', basis: 'ICE Brent USD/bbl; comparador global, no precio FOB Brasil.', note: 'No confundir con precio físico de Tupi/Mero.' },
   { id: 'en590-distillates', name: 'Diésel S10 / EN590 · proxy ULSD', symbol: 'HO=F', factor: 313.7, unit: 'USD/MT', decimals: 0, fallbackPrice: 940, fallbackUsdPerMt: 940, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'NYMEX ULSD · conversión aproximada de futuros', fallbackUrl: 'https://finance.yahoo.com/quote/HO=F/', fallbackBasis: 'Futuro ULSD NYMEX USD/gal × 313,7 para equivalencia aproximada USD/MT. No es una evaluación física EN590 FOB Brasil.', fallbackNote: 'Proxy financiero mientras no se automatice la lectura de los valores PPI/Platts Brasil. Para oferta, usar Platts FCA/DAP Brasil por puerto y especificación.', fallbackStatus: 'Proxy financiero · validar contra Platts Brasil', source: 'NYMEX ULSD futures · proxy', sourceUrl: 'https://finance.yahoo.com/quote/HO=F/', basis: 'USD/gal convertido aproximadamente a USD/MT; no es EN590 FOB Brasil.', note: 'Contrastar con Platts Brasil FCA/DAP S10.' },
   { id: 'jet-a1', name: 'Jet A-1 · referencia Jet Fuel global', fetcher: 'iata-jet-fuel', unit: 'USD/bbl', decimals: 2, fallbackPrice: 172.06, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'CommodityScope · Jet Kerosene FOB Singapur, 9 Oct 2026', fallbackUrl: 'https://commodityscope.com/prices', fallbackBasis: 'Benchmark FOB Singapur USD/bbl; referencia global, no precio físico Jet A-1 FOB Brasil.', fallbackNote: 'Comparador de mercado. Para Brasil, contrastar con PPI/Platts de QAV por puerto y ajustar especificación, origen y flete.', fallbackStatus: 'Benchmark global · no FOB Brasil', source: 'IATA / global jet fuel monitor', sourceUrl: 'https://www.iata.org/en/publications/economics/fuel-monitor/', basis: 'Promedio global semanal USD/bbl.', note: 'No representa cotización física Jet A-1 FOB Brasil.' },
-  { id: 'lng-gas', name: 'Gas natural · equivalente energético USD/MT (proxy Henry Hub)', symbol: 'NG=F', factor: 52, unit: 'USD/MT', decimals: 0, fallbackPrice: 157.04, fallbackUsdPerMt: 157.04, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'CommodityScope · Henry Hub, 9 Oct 2026; conversión energética aproximada', fallbackUrl: 'https://commodityscope.com/prices', fallbackBasis: 'Henry Hub es una referencia financiera de EE.UU. publicada en USD/MMBtu; conversión orientativa a USD/MT usando 52 MMBtu por tonelada métrica equivalente de gas/GNL. No es una cotización física de GNL ni incluye licuefacción, transporte o regasificación.', fallbackNote: 'El precio mostrado es el equivalente energético aproximado por tonelada métrica, no un precio de venta de GNL. Para contratos, confirmar poder calorífico, punto de entrega y costes logísticos.', fallbackStatus: 'Equivalente energético · proxy global, no oferta física', source: 'NYMEX Henry Hub futures · proxy convertido', sourceUrl: 'https://finance.yahoo.com/quote/NG=F/', basis: 'USD/MT equivalente usando 52 MMBtu/MT como factor aproximado; el benchmark de origen es USD/MMBtu.', note: 'Equivalente energético orientativo; no incluye licuefacción, flete ni regasificación.' },
-  { id: 'lpg-propane', name: 'Propano · Mont Belvieu proxy', fetcher: 'eia-propane', factor: 520.7, unit: 'USD/MT', decimals: 0, fallbackPrice: 580, fallbackTime: Math.floor(Date.parse('2026-07-01T12:00:00Z') / 1000), fallbackSource: 'Saudi Aramco OSP · julio 2026', fallbackUrl: 'https://www.reuters.com/business/energy/saudi-aramco-sonatrach-cut-lpg-prices-july-2026-07-01/', fallbackBasis: 'Último OSP público localizado: propano US$580/MT en julio de 2026. Es benchmark exportador internacional, no precio FOB Brasil.', fallbackNote: 'La fuente automática EIA/FRED devuelve Mont Belvieu en USD/gal y se convierte aproximadamente a USD/MT con 520,7 gal/MT. Confirmar con PPI de GLP ANP/Platts Brasil antes de negociar.', fallbackStatus: 'Proxy internacional · revisar vigencia', source: 'EIA/FRED Mont Belvieu propane · convertido aprox.', sourceUrl: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DPROPANEMBTX', basis: 'USD/gal convertido aproximadamente a USD/MT; proxy de EE.UU., no FOB Brasil.', note: 'Contrastar con PPI GLP de ANP/Platts Brasil.' },
-  { id: 'n-butane', name: 'n-Butano · OSP internacional de referencia', unit: 'USD/MT', decimals: 0, fallbackPrice: 600, fallbackUsdPerMt: 600, fallbackTime: Math.floor(Date.parse('2026-07-01T12:00:00Z') / 1000), fallbackSource: 'Saudi Aramco OSP · julio 2026', fallbackUrl: 'https://www.reuters.com/business/energy/saudi-aramco-sonatrach-cut-lpg-prices-july-2026-07-01/', fallbackBasis: 'Último OSP público localizado: butano US$600/MT en julio de 2026; benchmark exportador internacional, no precio brasileño.', fallbackNote: 'La referencia queda fechada como antigua y no debe usarse como oferta. Para Brasil, usar PPI GLP de ANP/Platts (mezcla 70% propano/30% butano) o cotización de butano puro.', fallbackStatus: 'Referencia anterior · julio 2026', sourceUrl: 'https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-de-paridade-de-importacao', basis: 'OSP internacional USD/MT; no es cotización de n-butano FOB Brasil.', note: 'Confirmar composición y precio brasileño antes de usar comercialmente.' },
+  { id: 'lng-gas', name: 'GNL · spot JKM Asia (equivalente USD/MT)', fetcher: 'jkm-lng', factor: 52, unit: 'USD/MT', decimals: 0, fallbackPrice: 1350.96, fallbackUsdPerMt: 1350.96, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'JKM LNG · 25,98 USD/MMBtu, 9 Oct 2026; conversión energética', fallbackUrl: 'https://tradingeconomics.com/commodity/liquefied-natural-gas-japan-korea', fallbackBasis: 'JKM es una referencia de GNL spot entregado en Asia, publicada en USD/MMBtu. Equivalencia indicativa: USD/MMBtu × 52 MMBtu/MT. No es Henry Hub ni una oferta física FOB Brasil; no sumar de nuevo licuefacción, flete o regasificación sin definir la base contractual.', fallbackNote: 'Precio por tonelada equivalente calculado desde el benchmark JKM de GNL (no gas de tubería). Confirmar puerto, ventana, calidad y base DES/FOB para una operación física.', fallbackStatus: 'JKM Asia · equivalente energético, no oferta FOB Brasil', source: 'Trading Economics · JKM LNG spot', sourceUrl: 'https://tradingeconomics.com/commodity/liquefied-natural-gas-japan-korea', basis: 'JKM USD/MMBtu × 52 MMBtu/MT; equivalencia energética aproximada de GNL.', note: 'GNL spot Asia; no comparar directamente con Henry Hub de gas de tubería ni con GLP propano/butano sin normalizar base y logística.' },
+  { id: 'lpg-propane', name: 'Propano · CP internacional (misma base que butano)', fetcher: 'asian-lpg', sourceProduct: 'propane', unit: 'USD/MT', decimals: 0, fallbackPrice: 625, fallbackUsdPerMt: 625, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'Asian Oil Intelligence · Propane CP, 9 Oct 2026', fallbackUrl: 'https://asianoil.com/', fallbackBasis: 'Precio CP de propano en USD/MT, misma familia de referencia que el butano CP para comparación orientativa. No es FOB Brasil ni una cotización contractual local.', fallbackNote: 'Comparar solo con igual periodo, contrato, origen y condiciones de entrega; confirmar con Argus/Platts o proveedor antes de negociar.', fallbackStatus: 'CP internacional · validar antes de negociar', source: 'Asian Oil Intelligence · Propane CP', sourceUrl: 'https://asianoil.com/', basis: 'Propane CP USD/MT; referencia internacional comparable con Butane CP.', note: 'No es precio brasileño; comparar con butano solo como benchmarks CP de la misma fuente.' },
+  { id: 'n-butane', name: 'n-Butano · CP internacional (misma base que propano)', fetcher: 'asian-lpg', sourceProduct: 'butane', unit: 'USD/MT', decimals: 0, fallbackPrice: 660, fallbackUsdPerMt: 660, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'Asian Oil Intelligence · Butane CP, 9 Oct 2026', fallbackUrl: 'https://asianoil.com/', fallbackBasis: 'Precio CP de butano en USD/MT, misma familia de referencia que el propano CP para comparación orientativa. No es FOB Brasil ni una cotización contractual local.', fallbackNote: 'El butano aparece por encima del propano en esta referencia concreta; la relación puede variar por mes, mercado y contrato. Confirmar con Argus/Platts o proveedor antes de negociar.', fallbackStatus: 'CP internacional · validar antes de negociar', source: 'Asian Oil Intelligence · Butane CP', sourceUrl: 'https://asianoil.com/', basis: 'Butane CP USD/MT; referencia internacional comparable con Propane CP.', note: 'No es precio brasileño; comparar con propano solo como benchmarks CP de la misma fuente.' },
   { id: 'residual-fuel-oil', name: 'Fuel oil residual 3,5% · HSFO Singapur', unit: 'USD/MT', decimals: 0, fallbackPrice: 739.84, fallbackUsdPerMt: 739.84, fallbackTime: Math.floor(Date.parse('2026-10-09T12:00:00Z') / 1000), fallbackSource: 'CommodityScope · HSFO 380 CST FOB Singapur, 9 Oct 2026', fallbackUrl: 'https://commodityscope.com/prices', fallbackBasis: 'HSFO 380 CST FOB Singapur USD/MT; referencia física internacional comparable por familia, no FOB Brasil.', fallbackNote: 'Ajustar por azufre, viscosidad, puerto y flete. No usar como oferta de fuel oil brasileño sin diferencial regional.', fallbackStatus: 'Benchmark físico internacional · 9 Oct 2026', sourceUrl: 'https://commodityscope.com/prices', basis: 'HSFO 380 CST FOB Singapur USD/MT.', note: 'Referencia internacional; verificar azufre/viscosidad y diferencial Brasil.' },
 ];
 
