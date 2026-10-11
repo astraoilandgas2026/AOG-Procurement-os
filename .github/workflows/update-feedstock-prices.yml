@@ -1,0 +1,46 @@
+name: Update feedstock price markers
+
+on:
+  schedule:
+    - cron: '*/15 * * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: feedstock-prices
+  cancel-in-progress: false
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout application source
+        uses: actions/checkout@v4
+        with:
+          path: source
+      - name: Checkout public price data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: price-data
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Fetch public market benchmarks
+        run: node source/scripts/fetch-prices.mjs price-data/prices.json
+      - name: Publish updated prices
+        working-directory: price-data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          if git diff --cached --quiet; then
+            echo "No price data changes to publish."
+          else
+            git commit -m "chore: refresh public feedstock price markers"
+            git push origin data
+          fi
