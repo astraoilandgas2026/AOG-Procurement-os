@@ -26,7 +26,7 @@ const LABELS: Record<string, string> = {
   uco: 'Aceite usado de cocina (UCO/AVU, indicativo)',
   'fatty-acids': 'Ácido oleico 75% mínimo (FOB Malasia)',
   'acid-oils': 'Destilado de ácidos grasos de palma (PFAD)',
-  'degummed-oils': 'Aceite crudo de soya desgomado (FOB Argentina)',
+  'degummed-oils': 'Aceite desgomado (proxy de soya FOB Argentina)',
   oleins: 'Oleína de palma RBD (FOB Malasia)',
   'off-spec': 'Producto fuera de especificación (sin precio único)',
 };
