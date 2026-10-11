@@ -70,36 +70,20 @@ const instruments = [];
 const byId = {};
 for (const def of definitions) {
   const previous = oldById.get(def.id);
-  try {
-    const q = await quote(def.symbol, def.stooq);
-    let usdPerMt = null;
-    if (def.id === 'soy_oil') usdPerMt = q.price * def.factor;
-    else if (def.id === 'ulsd') usdPerMt = q.price * def.factor;
-    else if (def.id === 'canola') usdPerMt = q.price / await fxRate(def.fx);
-    else if (def.id === 'palm_oil') usdPerMt = q.price / await fxRate(def.fx);
-    else if (def.id === 'brent' || def.id === 'wti') usdPerMt = q.price * def.factor;
+  let q = null;
+  try { q = await quote(def.symbol, def.stooq); } catch {}
 
-    const prevUsdPerMt = q.prevClose == null ? null :
-      def.id === 'soy_oil' ? q.prevClose * def.factor :
-      def.id === 'ulsd' ? q.prevClose * def.factor :
-      def.id === 'canola' || def.id === 'palm_oil' ? null :
-      q.prevClose * def.factor;
-
-    const changePct = q.prevClose != null ? ((q.price - q.prevClose) / q.prevClose) * 100 : null;
-    const item = {
-      id: def.id, name: def.name, symbol: def.symbol, price: q.price,
-      prevClose: q.prevClose, changePct, unit: def.unit, decimals: def.decimals,
-      usdPerMt, prevUsdPerMt, marketTime: q.timestamp, source: q.provider,
-      sourceUrl: def.sourceUrl, basis: def.basis, note: def.note, stale: false,
-      status: 'Actualizado'
-    };
-    instruments.push(item);
-    byId[def.id] = item;
-  } catch (error) {
+  if (!q) {
     if (previous) {
-      const item = { ...previous, stale: true, status: 'Último dato conservado; fuente sin respuesta.' };
-      instruments.push(item);
-      byId[def.id] = item;
+      let preserved = { ...previous, stale: true, status: 'Último dato conservado; fuente automática sin respuesta.' };
+      if (typeof previous.price === 'number' && def.fx) {
+        try {
+          const fx = await fxRate(def.fx);
+          preserved.usdPerMt = previous.price / fx;
+        } catch {}
+      }
+      instruments.push(preserved);
+      byId[def.id] = preserved;
     } else {
       const item = {
         id: def.id, name: def.name, symbol: def.symbol, price: null, prevClose: null,
@@ -111,7 +95,33 @@ for (const def of definitions) {
       instruments.push(item);
       byId[def.id] = item;
     }
+    continue;
   }
+
+  let usdPerMt = null;
+  if (def.id === 'soy_oil') usdPerMt = q.price * def.factor;
+  else if (def.id === 'ulsd') usdPerMt = q.price * def.factor;
+  else if (def.id === 'brent' || def.id === 'wti') usdPerMt = q.price * def.factor;
+  else if (def.fx) {
+    try { usdPerMt = q.price / await fxRate(def.fx); } catch { usdPerMt = null; }
+  }
+
+  let prevUsdPerMt = null;
+  if (q.prevClose != null) {
+    if (def.id === 'soy_oil' || def.id === 'ulsd' || def.id === 'brent' || def.id === 'wti') prevUsdPerMt = q.prevClose * def.factor;
+    else if (def.fx) {
+      try { prevUsdPerMt = q.prevClose / await fxRate(def.fx); } catch { prevUsdPerMt = null; }
+    }
+  }
+  const item = {
+    id: def.id, name: def.name, symbol: def.symbol, price: q.price,
+    prevClose: q.prevClose, changePct: q.prevClose != null ? ((q.price - q.prevClose) / q.prevClose) * 100 : null,
+    unit: def.unit, decimals: def.decimals, usdPerMt, prevUsdPerMt,
+    marketTime: q.timestamp, source: q.provider, sourceUrl: def.sourceUrl,
+    basis: def.basis, note: def.note, stale: false, status: 'Actualizado'
+  };
+  instruments.push(item);
+  byId[def.id] = item;
 }
 
 const ulsd = byId.ulsd;
