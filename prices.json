@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T08:00:33.004Z",
+  "generatedAt": "2026-10-11T08:08:40.012Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -39,7 +39,7 @@
       "note": "Modelo indicativo ULSD + US$68/MT de diferencial de referencia observado al comparar índices públicos de UCO EE.UU. y ULSD el 9-oct-2026. No es cotización directa ni oferta FOB Brasil.",
       "stale": false,
       "status": "Indicativo modelado",
-      "relativePct": 3.6577985210700215
+      "relativePct": null
     },
     {
       "id": "fatty-acids",
@@ -54,7 +54,7 @@
       "symbol": "oleic acid 75% min",
       "basis": "US$1,280/MT · referencia publicada 5-oct-2026; FOB Malaysia",
       "note": "Referencia específica de ácido oleico 75% mínimo; no representa todas las mezclas de ácidos grasos.",
-      "relativePct": -14.643011820100316,
+      "relativePct": null,
       "stale": true,
       "status": "Última referencia pública localizada"
     },
@@ -71,7 +71,7 @@
       "symbol": "PFAD",
       "basis": "US$1,047.50/MT · referencia publicada 5-oct-2026; FOB Malaysia",
       "note": "Benchmark PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.",
-      "relativePct": -30.14730850121491,
+      "relativePct": null,
       "stale": true,
       "status": "Última referencia pública localizada"
     },
@@ -88,7 +88,7 @@
       "symbol": "crude degummed soybean oil",
       "basis": "US$1,196/MT · Argentina FOB, octubre 2026",
       "note": "Referencia publicada para aceite de soya crudo desgomado; fecha de mercado 1-oct-2026. No equivale a una oferta brasileña actual.",
-      "relativePct": -20.24456416940623,
+      "relativePct": null,
       "stale": true,
       "status": "Última referencia pública localizada"
     },
@@ -105,7 +105,7 @@
       "symbol": "RBD palm olein",
       "basis": "US$1,112.50/MT · assessment FOB Malaysia, 6-oct-2026",
       "note": "Assessment indicativo FOB Malaysia, no oferta física FOB Brasil. La comparación con soya es direccional porque difieren producto, origen y base comercial.",
-      "relativePct": -25.81277394520437,
+      "relativePct": null,
       "stale": true,
       "status": "Última evaluación pública localizada"
     },
