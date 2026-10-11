@@ -143,7 +143,7 @@ if (typeof ulsd?.usdPerMt === 'number' && Number.isFinite(ulsd.usdPerMt)) {
     ? { ...previous, stale: true, status: 'ULSD no disponible; último indicativo conservado.' }
     : { id: 'uco', name: 'UCO / AVU indicativo', symbol: 'ULSD + spread', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0, marketTime: null, source: 'Modelo indicativo', sourceUrl: 'https://www.fastmarkets.com/insights/fastmarkets-launches-used-cooking-oil-fob-amsterdam-rotterdam-antwerp-ghent/', basis: 'ULSD + diferencial de referencia', note: 'Sin ULSD actualizado; no se inventa el valor.', stale: true, status: 'Cotización no disponible' };
 }
-instruments.splice(1, 0, uco);
+instruments.splice(1, 0, uco);\nbyId.uco = uco;
 
 const soyBenchmark = byId.soy_oil;
 const ulsdBenchmark = byId.ulsd;
