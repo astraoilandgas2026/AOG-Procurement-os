@@ -93,7 +93,7 @@ export function FeedstockPriceTicker() {
           <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Actualizar
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-2 px-3 pb-2 sm:flex sm:gap-2 sm:overflow-x-auto sm:overscroll-x-contain sm:px-5" style={{ scrollbarWidth: 'thin' }}>
+      <div className="flex gap-2 overflow-x-auto overscroll-x-contain px-3 pb-2 sm:gap-2 sm:px-5" style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
         {ordered.map((quote) => {
           const value = quote.price;
           const unit = quote.unit || 'USD/MT';
@@ -106,7 +106,7 @@ export function FeedstockPriceTicker() {
           const label = LABELS[quote.id] || quote.name;
           return (
             <a key={quote.id} href={quote.sourceUrl || '#'} target="_blank" rel="noreferrer" title={quote.note || quote.basis || label}
-              className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 transition-colors hover:border-slate-300 hover:bg-slate-50 sm:min-w-[190px] sm:max-w-[220px] sm:flex-1 sm:py-1.5">
+              className="w-[205px] min-w-[205px] shrink-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 transition-colors hover:border-slate-300 hover:bg-slate-50 sm:w-[210px] sm:min-w-[210px] sm:py-1.5">
               <div className="flex items-start justify-between gap-1.5">
                 <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{label}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
@@ -124,7 +124,7 @@ export function FeedstockPriceTicker() {
             </a>
           );
         })}
-        {ordered.length === 0 && <div className="col-span-2 py-2 text-xs text-slate-500 sm:col-span-1">Cargando referencias de mercado…</div>}
+        {ordered.length === 0 && <div className="py-2 text-xs text-slate-500">Cargando referencias de mercado…</div>}
       </div>
     </section>
   );
