@@ -66,6 +66,30 @@ async function fxRate(symbol) {
   return q.price;
 }
 
+
+async function commodityScopeBrazilSoyOil() {
+  const response = await fetch('https://commodityscope.com/prices', {
+    headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' }
+  });
+  if (!response.ok) throw new Error('CommodityScope prices HTTP ' + response.status);
+  const html = await response.text();
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&mdash;|&#8212;/gi, '—')
+    .replace(/&ndash;|&#8211;/gi, '–')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ');
+  const match = text.match(/Soybean Oil\s*[—–-]\s*Brazil\s+FOB Brazil Paranagua\s+\$([\d,]+(?:\.[\d]+)?)\s*\/mt\s+(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})/i);
+  if (!match) throw new Error('CommodityScope Brazil soybean oil physical assessment not found');
+  const price = Number(match[1].replace(/,/g, ''));
+  const timestamp = Math.floor(Date.parse(match[2] + ' 12:00:00 UTC') / 1000);
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(timestamp)) throw new Error('CommodityScope Brazil soybean oil assessment invalid');
+  return { price, timestamp, provider: 'CommodityScope indicative assessment', dateText: match[2] };
+}
+
 const instruments = [];
 const byId = {};
 for (const def of definitions) {
@@ -148,19 +172,24 @@ byId.uco = uco;
 
 const soyBenchmark = byId.soy_oil;
 const ulsdBenchmark = byId.ulsd;
-const vegetableOilPrice = typeof soyBenchmark?.usdPerMt === 'number' ? soyBenchmark.usdPerMt : null;
-const relative = (price) => typeof price === 'number' && vegetableOilPrice ? ((price / vegetableOilPrice) - 1) * 100 : null;
+const physicalSoyOil = await commodityScopeBrazilSoyOil().catch((error) => {
+  console.log('Referencia física de soya no disponible: ' + String(error).slice(0, 140));
+  return null;
+});
+const vegetableOilPrice = physicalSoyOil?.price ?? null;
 const timestamp = (date) => Math.floor(Date.parse(date) / 1000);
 
 const productMarkers = [
   {
     ...(soyBenchmark || {}),
-    id: 'vegetable-oils', name: 'Aceites vegetales', price: vegetableOilPrice,
-    unit: 'USD/MT', decimals: 0, usdPerMt: vegetableOilPrice, relativePct: 0,
-    source: 'CBOT soybean oil futures · Yahoo Finance', sourceUrl: 'https://finance.yahoo.com/quote/ZL=F/',
-    basis: 'Futuro de aceite de soya CBOT convertido a USD/MT',
-    note: 'Benchmark financiero de aceite vegetal; no equivale a una oferta física FOB.',
-    status: 'Benchmark de mercado', stale: Boolean(soyBenchmark?.stale)
+    id: 'vegetable-oils', name: 'Aceite de soya · FOB Paranaguá', price: vegetableOilPrice,
+    unit: 'USD/MT', decimals: 0, usdPerMt: vegetableOilPrice, relativePct: null,
+    marketTime: physicalSoyOil?.timestamp ?? null,
+    source: physicalSoyOil?.provider || 'CommodityScope · sin dato físico actualizado',
+    sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil',
+    symbol: 'CS-GRN-SBO-BRZ', basis: 'Aceite de soya · FOB Paranaguá, Brasil · USD/MT',
+    note: physicalSoyOil ? 'Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio FOB.' : 'No se pudo verificar la última evaluación física FOB Brasil. No se sustituye por el futuro CBOT ni se inventa un precio.',
+    status: physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil
   },
   {
     ...(byId.uco || {}),
@@ -178,11 +207,11 @@ const productMarkers = [
     relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
-    id: 'acid-oils', name: 'Aceites ácidos / PFAD', price: 1047.5, usdPerMt: 1047.5, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-05T12:00:00Z'), source: 'MBLion Oleo Malaysia · PFAD',
-    sourceUrl: 'https://www.mblionoleo.com/', symbol: 'PFAD',
-    basis: 'US$1,047.50/MT · referencia publicada 5-oct-2026; FOB Malaysia',
-    note: 'Benchmark PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
+    id: 'acid-oils', name: 'Aceites ácidos / PFAD', price: 1050, usdPerMt: 1050, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'MBLion Oleo Malaysia · cierre publicado 9-oct-2026',
+    sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals', symbol: 'PFAD',
+    basis: 'US$1,050/MT · FOB puertos de Malasia · 9-oct-2026',
+    note: 'Precio publicado de PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
     relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
@@ -194,12 +223,12 @@ const productMarkers = [
     relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
-    id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1112.5, usdPerMt: 1112.5, unit: 'USD/MT', decimals: 0,
-    marketTime: timestamp('2026-10-06T12:00:00Z'), source: 'CommodityScope · RBD palm olein',
-    sourceUrl: 'https://commodityscope.com/prices/malaysia-rbd-palm-olein',
-    symbol: 'RBD palm olein', basis: 'US$1,112.50/MT · assessment FOB Malaysia, 6-oct-2026',
-    note: 'Assessment indicativo FOB Malaysia, no oferta física FOB Brasil. La comparación con soya es direccional porque difieren producto, origen y base comercial.',
-    relativePct: null, stale: true, status: 'Última evaluación pública localizada'
+    id: 'oleins', name: 'Oleínas · RBD palm olein', price: 1137.5, usdPerMt: 1137.5, unit: 'USD/MT', decimals: 0,
+    marketTime: timestamp('2026-10-09T12:00:00Z'), source: 'MBLion Oleo Malaysia · cierre publicado 9-oct-2026',
+    sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals',
+    symbol: 'RBD palm olein', basis: 'US$1,137.50/MT · FOB puertos de Malasia · 9-oct-2026',
+    note: 'Referencia publicada para oleína de palma RBD; no es oferta FOB Brasil y no se calcula descuento frente a soya por diferencia de producto y origen.',
+    relativePct: null, stale: true, status: 'Última referencia pública localizada'
   },
   {
     id: 'off-spec', name: 'Fuera de especificación', price: null, usdPerMt: null, unit: 'USD/MT', decimals: 0,
