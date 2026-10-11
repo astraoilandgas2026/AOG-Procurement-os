@@ -192,7 +192,7 @@ const productMarkers = [
     sourceUrl: 'https://commodityscope.com/prices/brazil-soybean-oil',
     symbol: 'CS-GRN-SBO-BRZ', basis: 'Aceite de soya · FOB Paranaguá, Brasil · USD/MT',
     note: physicalSoyOil?.fallback ? 'Última evaluación física pública verificada: US$1,245.50/MT FOB Paranaguá, 9-oct-2026. Se muestra como referencia fechada porque la fuente automática no respondió; no es oferta ejecutable. El futuro CBOT (~US$1,500/MT) es otra base.' : 'Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio.',
-    status: physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
+    status: physicalSoyOil?.fallback ? 'Último dato verificado' : physicalSoyOil ? 'Referencia física indicativa' : 'Cotización física no disponible', stale: !physicalSoyOil || Boolean(physicalSoyOil.fallback) || (Date.now() / 1000 - physicalSoyOil.timestamp > 3 * 86400)
   },
   {
     ...(byId.uco || {}),
@@ -215,7 +215,7 @@ const productMarkers = [
     sourceUrl: 'https://my.linkedin.com/company/mblion-oleochemicals', symbol: 'PFAD',
     basis: 'US$1,050/MT · FOB puertos de Malasia · 9-oct-2026',
     note: 'Precio publicado de PFAD (destilado de ácidos grasos de palma); no es equivalente a todo aceite ácido de soya o soapstock.',
-    relativePct: null, stale: true, status: 'Última referencia pública localizada'
+    relativePct: null, stale: Date.now() / 1000 - timestamp('2026-10-09T12:00:00Z') > 3 * 86400, status: 'Última referencia pública localizada'
   },
   {
     id: 'degummed-oils', name: 'Aceite desgomado (proxy de soya)', price: 1233.25, usdPerMt: 1233.25, unit: 'USD/MT', decimals: 0,
