@@ -19,6 +19,33 @@ async function yahoo(symbol) {
   return { price, prevClose: Number.isFinite(prevClose) && prevClose > 0 ? prevClose : null, timestamp, currency: result.meta?.currency || '' };
 }
 
+async function iataJetFuel() {
+  const response = await fetch('https://www.iata.org/en/publications/economics/fuel-monitor/', {
+    headers: { 'User-Agent': 'Mozilla/5.0 AOG-ProcurementOS/1.0' }
+  });
+  if (!response.ok) throw new Error('IATA Jet Fuel Monitor HTTP ' + response.status);
+  const html = await response.text();
+  const text = html.replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')
+    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\\s+/g, ' ');
+  const priceMatch = text.match(/global average jet fuel price last week.{0,350}?\\$([\\d,]+(?:\\.\\d+)?)\\s*\\/\\s*bbl/i);
+  if (!priceMatch) throw new Error('IATA weekly Jet Fuel USD/bbl quote not found');
+  const price = Number(priceMatch[1].replace(/,/g, ''));
+  const changeMatch = text.match(/global average jet fuel price last week.{0,180}?(rose|fell|increased|decreased)\\s+([\\d.]+)%/i);
+  let changePct = null;
+  let prevClose = null;
+  if (changeMatch) {
+    const magnitude = Number(changeMatch[2]);
+    changePct = /fell|decreased/i.test(changeMatch[1]) ? -magnitude : magnitude;
+    if (Number.isFinite(price) && Number.isFinite(changePct) && 1 + changePct / 100 > 0) prevClose = price / (1 + changePct / 100);
+  }
+  if (!Number.isFinite(price) || price <= 0) throw new Error('IATA Jet Fuel quote invalid');
+  return { price, prevClose, timestamp: null, currency: 'USD' };
+}
+
 async function buildFile(fileName, definitions) {
   const filePath = path.join(outDir, fileName);
   const old = await fs.readFile(filePath, 'utf8').then(JSON.parse).catch(() => ({ instruments: [] }));
@@ -43,10 +70,10 @@ async function buildFile(fileName, definitions) {
         changePct: prior != null && prior > 0 ? ((value - prior) / prior) * 100 : null,
         relativePct: null, marketTime: q.timestamp, source: def.source || 'Yahoo Finance',
         sourceUrl: def.sourceUrl, basis: def.basis,
-        note: def.note, stale: false, status: 'Benchmark financiero actualizado',
+        note: def.note, stale: false, status: def.status || (def.fetcher === 'iata-jet-fuel' ? 'Promedio global semanal actualizado' : 'Benchmark financiero actualizado'),
         symbol: def.symbol, currency: q.currency
       });
-    } else if (previous && (typeof previous.price === 'number' || def.fallbackPrice == null)) {
+    } else if (previous && previous.unit === def.unit && previous.sourceUrl === def.sourceUrl && (typeof previous.price === 'number' || def.fallbackPrice == null)) {
       instruments.push({ ...previous, stale: true, status: 'Última referencia conservada; fuente automática sin respuesta.' });
     } else {
       instruments.push({
@@ -70,7 +97,7 @@ async function buildFile(fileName, definitions) {
 const energy = [
   { id: 'crude-oil', name: 'Petróleo crudo físico (Brent benchmark)', symbol: 'BZ=F', unit: 'USD/bbl', decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/BZ=F/', basis: 'Futuro ICE Brent en USD/barril; referencia global, no cotización de un grado físico específico.', note: 'El precio de Basrah, Olmeca u otro crudo depende de calidad, diferencial, origen, puerto e Incoterm.' },
   { id: 'en590-distillates', name: 'EN590 10 ppm / Destilados (ULSD proxy)', symbol: 'HO=F', factor: 42, unit: 'USD/bbl', decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/HO=F/', basis: 'Futuro NYMEX ULSD convertido de USD/galón a USD/barril (42 gal US/bbl); proxy de destilados.', note: 'Proxy financiero, no oferta física EN590 ni diferencial de calidad/origen. La equivalencia a USD/MT depende de densidad.', usdPerMtFactor: 313.7 / 42 },
-  { id: 'jet-a1', name: 'Jet A-1 / Jet Fuel (ULSD proxy)', symbol: 'HO=F', factor: 42, unit: 'USD/bbl', decimals: 2, sourceUrl: 'https://finance.yahoo.com/quote/HO=F/', basis: 'Futuro NYMEX ULSD convertido de USD/galón a USD/barril (42 gal US/bbl); solo proxy direccional, no evaluación específica Jet A-1.', note: 'Como contraste de mercado, IATA publica un promedio global semanal de Jet Fuel en USD/bbl; el Jet A-1 físico requiere diferencial por región, terminal, especificación y fecha.', usdPerMtFactor: 313.7 / 42 },
+  { id: 'jet-a1', name: 'Jet A-1 / Jet Fuel (promedio global)', fetcher: 'iata-jet-fuel', unit: 'USD/bbl', decimals: 2, source: 'IATA / S&P Global Platts', sourceUrl: 'https://www.iata.org/en/publications/economics/fuel-monitor/', basis: 'Promedio global semanal de Jet Fuel publicado por IATA con datos de S&P Global Platts, expresado en USD/barril; benchmark de mercado, no oferta de Jet A-1 en un aeropuerto o puerto concreto.', note: 'La referencia se actualiza semanalmente. Para Jet A-1 físico se requiere diferencial regional, terminal, especificación, fecha de entrega e Incoterm.', status: 'Promedio global semanal actualizado', fallbackPrice: 187.34, fallbackSource: 'IATA / S&P Global Platts', fallbackUrl: 'https://www.iata.org/en/publications/economics/fuel-monitor/', fallbackBasis: 'Último promedio global semanal visible en IATA Fuel Price Monitor: USD 187.34/bbl. Referencia de respaldo; confirmar publicación vigente al momento de negociar.', fallbackNote: 'Valor de respaldo del monitor público; la cotización física depende de región y fecha.' },
   { id: 'lng-gas', name: 'LNG / Gas natural (Henry Hub)', symbol: 'NG=F', unit: 'USD/MMBtu', decimals: 3, sourceUrl: 'https://finance.yahoo.com/quote/NG=F/', basis: 'Futuro Henry Hub en USD/MMBtu; referencia de gas natural de EE. UU., no precio de un cargamento LNG.', note: 'LNG entregado se valora por destino, ventana de entrega, fórmula contractual y coste de licuefacción/flete.' },
   { id: 'lpg-propane', name: 'LPG / Propano', unit: 'USD/MT', decimals: 0, sourceUrl: 'https://www.eia.gov/dnav/pet/pet_pri_wfr_dcus_nus_w.htm', basis: 'Sin benchmark diario gratuito verificable integrado en este marcador.', note: 'No se sustituye por el precio de crudo o gas natural: requiere índice regional o cotización física de propano.' },
   { id: 'n-butane', name: 'n-Butano (Mont Belvieu OPIS)', factor: 453.6, unit: 'USD/MT', decimals: 0, sourceUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', basis: 'Futuro OPIS Mont Belvieu Non-TET Normal Butane; convertido desde USD/gal a USD/MT usando una densidad aproximada de 4.86 lb/gal (453.6 gal/MT).', note: 'Benchmark regional estadounidense de butano normal, no precio universal ni oferta física. El valor por tonelada es una conversión indicativa dependiente de la densidad y debe ajustarse a pureza, región, entrega e Incoterm.', fallbackPrice: 585, fallbackUsdPerMt: 585, fallbackSource: 'TradingView · NYMEX OPIS Normal Butane', fallbackUrl: 'https://es.tradingview.com/symbols/NYMEX-AD1!/', fallbackBasis: 'Referencia indicativa del contrato OPIS Mont Belvieu Normal Butane de octubre de 2026: aproximadamente USD 1.29/gal, equivalente a cerca de USD 585/MT con densidad aproximada de 4.86 lb/gal. Valor de respaldo, no cotización spot física.', fallbackNote: 'Dato de respaldo basado en contrato de futuros listado; verificar el contrato activo y su fecha antes de usarlo para negociar.' },
