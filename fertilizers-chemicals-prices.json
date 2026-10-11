@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T07:43:33.733Z",
+  "generatedAt": "2026-10-11T07:43:50.892Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -144,6 +144,25 @@
       "note": "Marcador histórico obsoleto hasta localizar una publicación pública más reciente. No utilizar como oferta negociable ni como precio vigente.",
       "stale": true,
       "status": "Última referencia pública localizada"
+    },
+    {
+      "id": "chem-petrochemical-feedstock",
+      "name": "Feedstock petroquímico (Brent proxy; no es precio químico)",
+      "price": 104.72,
+      "unit": "USD/bbl",
+      "decimals": 2,
+      "usdPerMt": null,
+      "changePct": 4.116126466494333,
+      "relativePct": null,
+      "marketTime": 1791579598,
+      "source": "ICE Brent futures · proxy de materia prima",
+      "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
+      "basis": "Precio financiero de Brent usado únicamente como indicador de coste de feedstock petroquímico; no es cotización de benceno, metanol, polímero ni otro químico.",
+      "note": "Sirve para dirección de costes de materia prima. Para valorar el químico final hay que añadir rendimientos, crack/spread, energía, conversión, flete, región y calidad.",
+      "stale": false,
+      "status": "Benchmark financiero actualizado",
+      "symbol": "BZ=F",
+      "currency": "USD"
     },
     {
       "id": "chem-benzene",
