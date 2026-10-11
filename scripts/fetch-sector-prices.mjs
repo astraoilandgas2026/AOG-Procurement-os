@@ -55,7 +55,11 @@ async function buildFile(fileName, definitions) {
   for (const def of definitions) {
     const previous = oldById.get(def.id);
     let q = null;
-    if (def.symbol) {
+    if (def.fetcher === 'iata-jet-fuel') {
+      try { q = await iataJetFuel(); } catch (error) {
+        console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));
+      }
+    } else if (def.symbol) {
       try { q = await yahoo(def.symbol); } catch (error) {
         console.log('Fuente no disponible para ' + def.id + ': ' + String(error).slice(0, 140));
       }
