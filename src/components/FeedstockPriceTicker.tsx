@@ -24,10 +24,10 @@ const ORDER = ['vegetable-oils', 'uco', 'fatty-acids', 'acid-oils', 'degummed-oi
 const LABELS: Record<string, string> = {
   'vegetable-oils': 'Aceite de soya · FOB Paranaguá',
   uco: 'Aceite usado de cocina (UCO/AVU, indicativo)',
-  'fatty-acids': 'Ácido oleico 75% mínimo (FOB Malasia)',
-  'acid-oils': 'Destilado de ácidos grasos de palma (PFAD)',
-  'degummed-oils': 'Aceite desgomado (proxy de soya FOB Argentina)',
-  oleins: 'Oleína de palma RBD (FOB Malasia)',
+  'fatty-acids': 'Ácido graxo de palma · FOB Nordeste Brasil',
+  'acid-oils': 'Aceite ácido / soapstock · FOB Brasil',
+  'degummed-oils': 'Aceite de soya desgomado · proxy FOB Paranaguá',
+  oleins: 'Oleína de palma RBD · FOB Brasil',
   'off-spec': 'Producto fuera de especificación (sin precio único)',
 };
 const PRICES_URL = 'https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/prices.json';
