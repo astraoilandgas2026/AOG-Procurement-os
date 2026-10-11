@@ -82,7 +82,7 @@ async function fertilizerPrice() {
     if (!priceCell) continue;
     const price = Number(priceCell.replace(/[$,\s]/g, ''));
     const weekCell = cells.find((cell) => /^[+-]\$?[\d,]+(?:\.[\d]+)?$/.test(cell.replace(/\s/g, '')));
-    const weekDelta = weekCell ? Number(weekCell.replace(/[$,\s]/g, '').replace(/^\+/, '')) * (weekCell.trim().startsWith('-') ? -1 : 1) : null;
+    const weekDelta = weekCell ? Number(weekCell.replace(/[$,\s]/g, '')) : null;
     if (Number.isFinite(price) && price > 0) {
       const previous = weekDelta != null && Number.isFinite(weekDelta) ? price - weekDelta : null;
       result[product.toLowerCase()] = { price, prevClose: previous > 0 ? previous : null, timestamp: null, currency: 'USD' };
