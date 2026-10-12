@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T11:34:22.135Z",
+  "generatedAt": "2026-10-12T12:02:19.587Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -18,7 +18,7 @@
       "sourceUrl": "https://commodityscope.com/prices/brazil-soybean-oil",
       "basis": "Aceite de soya · FOB Paranaguá, Brasil · USD/MT",
       "note": "Evaluación indicativa de mercado físico; no es una oferta ejecutable. El futuro CBOT (~US$1.500/MT) es otra base y no debe confundirse con este precio.",
-      "stale": false,
+      "stale": true,
       "status": "Referencia física indicativa",
       "relativePct": null
     },
@@ -86,7 +86,7 @@
       "basis": "Proxy: aceite de soya FOB Paranaguá, Brasil · USD/MT; sin prima/descuento de grado desgomado.",
       "note": "Se usa el benchmark FOB Brasil de aceite de soya sin añadir un ajuste de calidad no verificado. No es una evaluación específica de aceite desgomado.",
       "relativePct": null,
-      "stale": false,
+      "stale": true,
       "status": "Proxy FOB Brasil · sin ajuste de grado"
     },
     {
