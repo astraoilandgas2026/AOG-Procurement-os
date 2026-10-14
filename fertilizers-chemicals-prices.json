@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T14:25:46.245Z",
+  "generatedAt": "2026-10-14T15:01:40.899Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -135,20 +135,20 @@
       "sourceUrl": "https://www.methanex.com/our-products/about-methanol/pricing/",
       "basis": "Precio contractual mensual publicado por Methanex; no spot regional.",
       "note": "Referencia contractual, no cotización spot Brasil/Argentina.",
-      "stale": true,
-      "status": "Última referencia conservada; fuente automática sin respuesta.",
+      "stale": false,
+      "status": "Benchmark financiero actualizado",
       "currency": "USD"
     },
     {
       "id": "chem-petrochemical-feedstock",
       "name": "Feedstock petroquímico · Brent proxy",
-      "price": 105.85,
+      "price": 105.72,
       "unit": "USD/bbl",
       "decimals": 2,
       "usdPerMt": null,
-      "changePct": 1.0790679908326923,
+      "changePct": 0.9549274255156608,
       "relativePct": null,
-      "marketTime": 1791987327,
+      "marketTime": 1791989493,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "Futuro ICE Brent USD/bbl; proxy de coste de materia prima, no precio de producto petroquímico terminado.",
