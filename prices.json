@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-14T02:08:26.536Z",
+  "generatedAt": "2026-10-14T02:43:29.538Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -97,14 +97,14 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": 1791201600,
-      "source": "MBLion Oleo FOB Malaysian Port + diferencial logístico supuesto",
+      "source": "MBLion Oleo · último dato verificado 5-oct-2026 + diferencial logístico supuesto",
       "sourceUrl": "https://www.mblionoleo.com/",
       "symbol": "RBD Palm Olein",
       "basis": "Benchmark FOB Malasia + diferencial supuesto US$35/MT = paridad comparativa; no es una oferta FOB Brasil.",
       "note": "ESTIMACIÓN DE PARIDAD, no cotización FOB Brasil. Los US$35/MT son una hipótesis de diferencial de flete entre orígenes hacia Rotterdam, no un flete confirmado; tampoco incluye coste de importar, impuestos, almacenaje o reexportar oleína a Brasil. Úsese solo como referencia comparativa, no como oferta brasileña ejecutable.",
       "relativePct": null,
       "stale": true,
-      "status": "Paridad estimada · benchmark Malasia"
+      "status": "Paridad · benchmark anterior"
     },
     {
       "id": "off-spec",
