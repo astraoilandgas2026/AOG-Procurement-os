@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T17:42:00.243Z",
+  "generatedAt": "2026-10-15T18:10:44.144Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -11,7 +11,7 @@
       "usdPerMt": null,
       "changePct": -0.750117205813419,
       "relativePct": null,
-      "marketTime": 1792085503,
+      "marketTime": 1792087221,
       "source": "ICE Brent futures · proxy global",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "ICE Brent USD/bbl; comparador global, no precio FOB Brasil.",
@@ -24,13 +24,13 @@
     {
       "id": "en590-distillates",
       "name": "Diésel S10 / EN590 · proxy ULSD",
-      "price": 1467.95915,
+      "price": 1463.97516,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": -0.9252201897019079,
+      "changePct": -1.1941056910569179,
       "relativePct": null,
-      "marketTime": 1792085518,
+      "marketTime": 1792087239,
       "source": "NYMEX ULSD futures · proxy",
       "sourceUrl": "https://finance.yahoo.com/quote/HO=F/",
       "basis": "USD/gal convertido aproximadamente a USD/MT; no es EN590 FOB Brasil.",
