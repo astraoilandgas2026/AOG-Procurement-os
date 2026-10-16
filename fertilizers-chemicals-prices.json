@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T02:30:11.391Z",
+  "generatedAt": "2026-10-16T03:02:06.917Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -142,13 +142,13 @@
     {
       "id": "chem-petrochemical-feedstock",
       "name": "Feedstock petroquímico · Brent proxy",
-      "price": 105.46,
+      "price": 105.49,
       "unit": "USD/bbl",
       "decimals": 2,
       "usdPerMt": null,
-      "changePct": -1.115799343647456,
+      "changePct": -1.087669948429452,
       "relativePct": null,
-      "marketTime": 1792117167,
+      "marketTime": 1792119104,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "Futuro ICE Brent USD/bbl; proxy de coste de materia prima, no precio de producto petroquímico terminado.",
