@@ -648,6 +648,32 @@ function SupplierDetail({
     }
   };
 
+  const openProductCreate = () => {
+    const domainIds: Record<string, string> = {
+      feedstock: 'bee5a6ba-32f9-4345-85c0-a9d0ad916e80',
+      energy_commodities: '78abd43e-d1d9-4a6c-9057-32e81852c782',
+      mining_commodities: 'ec7ffba2-9a36-41ea-bb3d-8ed5dcc0a292',
+      fertilizers_chemicals: '910b9579-4d41-4d80-b889-441ac259e1de',
+      agricultural_commodities: 'ab28a3fd-555a-47b0-9306-59259cc80a9a',
+    };
+    const domain = procurementDomain ?? 'feedstock';
+    setProductForm({
+      supplier_id: supplier.id,
+      domain_id: domainIds[domain],
+      name: domain === 'feedstock' ? 'UCO' : '',
+      feedstock_type: domain === 'feedstock' ? 'uco' : 'other',
+      commodity_category: domain === 'feedstock' ? 'feedstock' : '',
+      origin: supplier.country || '',
+      composition: '',
+      available_volume: '',
+      unit: 'MT',
+      verification_status: 'claimed',
+    });
+    setEditingProductId(null);
+    setProductError('');
+    setShowProductForm(true);
+  };
+
   const openProductEdit = (product: Product) => {
     const { id, created_at, updated_at, ...rest } = product;
     void id; void created_at; void updated_at;
@@ -658,14 +684,23 @@ function SupplierDetail({
   };
 
   const saveProduct = async () => {
-    if (!productForm || !editingProductId || !productForm.name.trim()) return;
+    if (!productForm || !productForm.name.trim()) return;
+    if (!editingProductId && !productForm.supplier_id) {
+      setProductError('No se pudo identificar el proveedor.');
+      return;
+    }
     setProductError('');
     try {
-      await getStore().products.update(editingProductId, productForm);
-      const saved = await getStore().products.getById(editingProductId);
-      if (!saved || saved.name !== productForm.name || saved.available_volume !== productForm.available_volume) {
-        throw new Error('El cambio de producto no pudo ser verificado después de guardarlo.');
+      if (editingProductId) {
+        await getStore().products.update(editingProductId, productForm);
+      } else {
+        await getStore().products.create(productForm);
       }
+      const savedProducts = await getStore().products.getBySupplier(supplier.id);
+      const saved = savedProducts.find(product =>
+        product.name === productForm.name && product.available_volume === productForm.available_volume
+      );
+      if (!saved) throw new Error('El producto no pudo ser verificado después de guardarlo.');
       setShowProductForm(false);
       setEditingProductId(null);
       setProductForm(null);
@@ -737,7 +772,7 @@ function SupplierDetail({
         )}
       </DetailSection>
 
-      <DetailSection title="4. Productos y Posiciones" action={<Button size="sm" variant="secondary" onClick={() => navigate('products')}><Plus size={14} /> Agregar producto</Button>}>
+      <DetailSection title="4. Productos y Posiciones" action={<Button size="sm" variant="secondary" onClick={openProductCreate}><Plus size={14} /> Agregar producto</Button>}>
         {!data.products.length ? <EmptyLine text="Sin productos registrados." /> : data.products.map(p => (
           <div key={p.id} className="rounded-lg border border-gray-100 p-3">
             <div className="flex items-start justify-between gap-2">
@@ -805,11 +840,11 @@ function SupplierDetail({
       <Modal
         open={showProductForm}
         onClose={() => setShowProductForm(false)}
-        title="Editar producto y posición"
+        title={editingProductId ? "Editar producto y posición" : "Agregar producto y posición"}
         footer={
           <>
             <Button variant="secondary" onClick={() => setShowProductForm(false)}>Cancelar</Button>
-            <Button onClick={saveProduct} disabled={!productForm?.name.trim()}>Guardar producto</Button>
+            <Button onClick={saveProduct} disabled={!productForm?.name.trim()}> {editingProductId ? 'Guardar cambios' : 'Crear producto'} </Button>
           </>
         }
       >
