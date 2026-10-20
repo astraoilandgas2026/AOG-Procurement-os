@@ -5,7 +5,7 @@ import { InstallAppButton } from '@/components/InstallAppButton';
 import { FeedstockPriceTicker } from '@/components/FeedstockPriceTicker';
 import { MarketPriceTicker } from '@/components/MarketPriceTicker';
 import {
-  Building2, Users, Package, DollarSign, Award, FileText, Newspaper,
+  Building2, Users, Package, DollarSign, Award, FileText, Newspaper, MapPinned,
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, Archive,
 } from 'lucide-react';
 
@@ -13,6 +13,7 @@ interface NavItem { key: PageKey; label: string; icon: ReactNode; group: string;
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'suppliers', label: 'Proveedores', icon: <Building2 size={17} />, group: 'Procurement' },
+  { key: 'brazil_sourcing_map', label: 'Mapa Sourcing Brasil', icon: <MapPinned size={17} />, group: 'Procurement' },
   { key: 'contacts', label: 'Contactos', icon: <Users size={17} />, group: 'Procurement' },
   { key: 'products', label: 'Productos', icon: <Package size={17} />, group: 'Procurement' },
   { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Comercial' },
@@ -29,6 +30,7 @@ const groups = ['Procurement', 'Comercial', 'Evidence & DD', 'Intelligence', 'As
 const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   dashboard: { title: 'Command Center', subtitle: 'Visión operativa de procurement e inteligencia comercial' },
   suppliers: { title: 'Proveedores', subtitle: 'Perfiles de inteligencia de proveedores' },
+  brazil_sourcing_map: { title: 'Mapa Sourcing Brasil', subtitle: 'Plantas, productos, evidencia geográfica y seguimiento comercial' },
   contacts: { title: 'Contactos', subtitle: 'Directorio de contactos de proveedores' },
   products: { title: 'Productos', subtitle: 'Familias y variantes comerciales normalizadas' },
   commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
