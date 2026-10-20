@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T21:03:26.137Z",
+  "generatedAt": "2026-10-20T21:43:38.101Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -45,7 +45,7 @@
       "usdPerMt": null,
       "changePct": 1.604852952468722,
       "relativePct": null,
-      "marketTime": 1792529554,
+      "marketTime": 1792529995,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/HG=F/",
       "basis": "Futuro COMEX Copper convertido de USD/lb a USD/tonelada métrica de concentrado teórico al 30% Cu: precio del cobre × 2,204.6226 lb/MT × 30%.",
