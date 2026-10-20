@@ -30,8 +30,8 @@ const PROSPECTS: Prospect[] = [
  {name:'Oleotrax Brasil',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Feedstock por confirmar',productGroups:[],iscc:'ISCC: no registrado',stage:'Seguimiento pendiente',notes:'Nombre comercial y ubicación por verificar'},
  {name:'Oleo Sul Ind. e Com. de Extratos Vegetais e Animais',city:'Nossa Senhora das Graças',state:'PR',locationStatus:'Antecedente por confirmar',products:'Por reconfirmar',productGroups:[],iscc:'ISCC: por confirmar',stage:'Relación por revisar',notes:'Conservar historial; reconfirmar ubicación'},
  {name:'H2 Oilio Carol',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Por confirmar',productGroups:[],iscc:'ISCC: por confirmar',stage:'Prospecto',notes:'Ficha por completar'},
- {name:'BioSul / Ademir Ankara',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Por confirmar',stage:'Contacto sin identificación suficiente',notes:'No asociar a empresas homónimas sin evidencia'},
- {name:'MG Oils',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Por confirmar',stage:'Prospecto',notes:'Ficha por completar'},
+ {name:'BioSul / Ademir Ankara',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Por confirmar',productGroups:[],iscc:'ISCC: por confirmar',stage:'Contacto sin identificación suficiente',notes:'No asociar a empresas homónimas sin evidencia'},
+ {name:'MG Oils',city:'',state:'',locationStatus:'Ubicación pendiente',products:'Por confirmar',productGroups:[],iscc:'ISCC: por confirmar',stage:'Prospecto',notes:'Ficha por completar'},
 ];
 const statusColor=(s:string)=>s.includes('pendiente')||s.includes('confirmar')?'bg-amber-50 text-amber-800':s.includes('evaluación')?'bg-orange-50 text-orange-800':'bg-emerald-50 text-emerald-800';
 export function BrazilSourcingMapPage(){
