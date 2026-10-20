@@ -488,6 +488,7 @@ export interface AppData {
 export type PageKey =
   | 'dashboard'
   | 'suppliers'
+  | 'brazil_sourcing_map'
   | 'contacts'
   | 'products'
 
