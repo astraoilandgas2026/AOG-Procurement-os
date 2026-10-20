@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T06:13:06.447Z",
+  "generatedAt": "2026-10-20T07:01:36.219Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -142,13 +142,13 @@
     {
       "id": "chem-petrochemical-feedstock",
       "name": "Feedstock petroquímico · Brent proxy",
-      "price": 110.72,
+      "price": 109.8,
       "unit": "USD/bbl",
       "decimals": 2,
       "usdPerMt": null,
-      "changePct": 4.531722054380662,
+      "changePct": 3.6631419939576997,
       "relativePct": null,
-      "marketTime": 1792476178,
+      "marketTime": 1792479028,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "Futuro ICE Brent USD/bbl; proxy de coste de materia prima, no precio de producto petroquímico terminado.",
@@ -185,13 +185,14 @@
       "usdPerMt": null,
       "changePct": null,
       "relativePct": null,
-      "marketTime": 1791201600,
+      "marketTime": null,
       "source": "MBLion Oleo Malaysia",
       "sourceUrl": "https://www.mblionoleo.com/",
-      "basis": "US$1.280/MT, referencia indicativa FOB Malasia de 5 Oct 2026.",
-      "note": "Referencia externa; confirmar vigencia antes de negociar.",
-      "stale": true,
-      "status": "Comparador externo · 5 Oct 2026"
+      "basis": "Precio indicativo FOB Malasia para ácido oleico 75% mínimo.",
+      "note": "Benchmark externo; no confundir con ácido graso de palma FOB Brasil.",
+      "stale": false,
+      "status": "Referencia indicativa",
+      "currency": "USD"
     }
   ]
 }
