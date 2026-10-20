@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getStore } from '@/data/store';
 import { useNav } from '@/context/NavContext';
-import { MapPin, Search, Building2, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Search, Building2, AlertTriangle, ExternalLink } from 'lucide-react';
 import type { Supplier, Contact, Product, CommercialOffer } from '@/types';
 
 type Prospect = { name:string; city:string; state:string; locationStatus:'Antecedente por confirmar'|'Dirección pública localizada'|'Ubicación pendiente'; products:string; stage:string; notes:string; lat?:number; lon?:number };
