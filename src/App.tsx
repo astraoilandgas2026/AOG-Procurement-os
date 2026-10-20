@@ -6,6 +6,7 @@ import type { PageKey } from '@/types';
 const PAGES: Record<PageKey, ComponentType> = {
   dashboard: lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage }))),
   suppliers: lazy(() => import('@/pages/SuppliersPage').then(m => ({ default: m.SuppliersPage }))),
+  brazil_sourcing_map: lazy(() => import('@/pages/BrazilSourcingMapPage').then(m => ({ default: m.BrazilSourcingMapPage }))),
   contacts: lazy(() => import('@/pages/ContactsPage').then(m => ({ default: m.ContactsPage }))),
   products: lazy(() => import('@/pages/ProductsPage').then(m => ({ default: m.ProductsPage }))),
   commercial: lazy(() => import('@/pages/CommercialPage').then(m => ({ default: m.CommercialPage }))),
