@@ -514,22 +514,33 @@ function DocumentPreview({ doc }: { doc: import('@/types').DocumentRecord }) {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      if (!doc.file_url) return;
-      if (doc.file_url.startsWith('http')) {
-        if (active) { setUrl(doc.file_url); setDownloadUrl(doc.file_url); }
-        return;
-      }
-      const client = getSupabaseClient();
-      if (!client) { if (active) setError('Supabase no disponible'); return; }
-      const [preview, download] = await Promise.all([
-        client.storage.from('documents').createSignedUrl(doc.file_url, 3600),
-        client.storage.from('documents').createSignedUrl(doc.file_url, 3600, { download: true }),
-      ]);
-      if (!active) return;
-      if (preview.error) setError(preview.error.message);
-      else {
-        setUrl(preview.data.signedUrl);
-        setDownloadUrl(download.error ? preview.data.signedUrl : download.data.signedUrl);
+      try {
+        setError('');
+        setUrl('');
+        setDownloadUrl('');
+        if (!doc.file_url) {
+          if (active) setError('Este registro no tiene un archivo vinculado.');
+          return;
+        }
+        if (doc.file_url.startsWith('http')) {
+          if (active) { setUrl(doc.file_url); setDownloadUrl(doc.file_url); }
+          return;
+        }
+        const client = getSupabaseClient();
+        if (!client) { if (active) setError('Supabase no disponible'); return; }
+        const [preview, download] = await Promise.all([
+          client.storage.from('documents').createSignedUrl(doc.file_url, 3600),
+          client.storage.from('documents').createSignedUrl(doc.file_url, 3600, { download: true }),
+        ]);
+        if (!active) return;
+        if (preview.error) {
+          setError(preview.error.message || 'No se pudo generar el enlace seguro del documento.');
+        } else {
+          setUrl(preview.data.signedUrl);
+          setDownloadUrl(download.error ? preview.data.signedUrl : download.data.signedUrl);
+        }
+      } catch (err) {
+        if (active) setError(err instanceof Error ? err.message : 'No se pudo abrir el documento.');
       }
     };
     void load();
