@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-22T06:15:00.088Z",
+  "generatedAt": "2026-10-22T07:10:12.594Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -39,13 +39,13 @@
     {
       "id": "copper-concentrate",
       "name": "Concentrado de cobre (30% Cu)",
-      "price": 4286.778457056232,
+      "price": 4267.26754685286,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": -0.8641786479045713,
+      "changePct": -1.3153869684918973,
       "relativePct": null,
-      "marketTime": 1792649095,
+      "marketTime": 1792652407,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/HG=F/",
       "basis": "Futuro COMEX Copper convertido de USD/lb a USD/tonelada métrica de concentrado teórico al 30% Cu: precio del cobre × 2,204.6226 lb/MT × 30%.",
