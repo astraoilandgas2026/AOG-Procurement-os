@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-22T21:15:07.624Z",
+  "generatedAt": "2026-10-22T21:51:01.907Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -39,11 +39,11 @@
     {
       "id": "copper-concentrate",
       "name": "Concentrado de cobre (30% Cu)",
-      "price": 4231.8833537721675,
+      "price": 4231.552660378889,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": -2.133680024472309,
+      "changePct": -2.141327623126346,
       "relativePct": null,
       "marketTime": 1792702795,
       "source": "Yahoo Finance",
