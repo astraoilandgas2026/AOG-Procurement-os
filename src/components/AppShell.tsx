@@ -19,9 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'commercial', label: 'Comercial', icon: <DollarSign size={17} />, group: 'Comercial' },
   { key: 'certifications', label: 'Certificaciones', icon: <Award size={17} />, group: 'Evidence & DD' },
   { key: 'documents', label: 'Documentos', icon: <FileText size={17} />, group: 'Evidence & DD' },
-  { key: 'due_diligence', label: 'Debida Diligencia', icon: <ShieldCheck size={17} />, group: 'Evidence & DD' },
   { key: 'intelligence_reports', label: 'Intelligence Reports', icon: <Newspaper size={17} />, group: 'Intelligence' },
-  { key: 'newspapers', label: 'Diarios', icon: <Newspaper size={17} />, group: 'Intelligence' },
   { key: 'astra_documentation', label: 'Documentación Astra', icon: <Archive size={17} />, group: 'Astra' },
 ];
 
@@ -36,14 +34,12 @@ const PAGE_TITLES: Record<PageKey, { title: string; subtitle: string }> = {
   commercial: { title: 'Comercial', subtitle: 'Ofertas comerciales y precios' },
   certifications: { title: 'Certificaciones', subtitle: 'Seguimiento de certificaciones y evidencia' },
   documents: { title: 'Documentos', subtitle: 'Gestión de evidencia y documentos' },
-  due_diligence: { title: 'Debida Diligencia', subtitle: 'Verificación y riesgos' },
   logistics: { title: 'Logística', subtitle: 'Preparación logística y exportación' },
   timeline: { title: 'Cronología', subtitle: 'Historial de interacciones con proveedores' },
   follow_ups: { title: 'Seguimientos', subtitle: 'Acciones pendientes y próximos pasos' },
   intelligence: { title: 'Mapa de Inteligencia', subtitle: 'Mapa de relaciones e inteligencia' },
   astra_documentation: { title: 'Documentación Astra', subtitle: 'Documentación corporativa oficial y versiones vigentes' },
   intelligence_reports: { title: 'Intelligence Reports', subtitle: 'Biblioteca central de informes de mercado y publicaciones autorizadas' },
-  newspapers: { title: 'Diarios', subtitle: 'Prensa económica y global, artículos y señales relevantes para Astra' },
 };
 
 const DOMAIN_META: Record<ProcurementDomain, { label: string; icon: ReactNode }> = {
