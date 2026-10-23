@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T03:16:26.128Z",
+  "generatedAt": "2026-10-23T04:03:14.097Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -142,13 +142,13 @@
     {
       "id": "chem-petrochemical-feedstock",
       "name": "Feedstock petroquímico · Brent proxy",
-      "price": 113.81,
+      "price": 113.62,
       "unit": "USD/bbl",
       "decimals": 2,
       "usdPerMt": null,
-      "changePct": 3.8886353263350117,
+      "changePct": 3.7151985394796965,
       "relativePct": null,
-      "marketTime": 1792724762,
+      "marketTime": 1792727306,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "Futuro ICE Brent USD/bbl; proxy de coste de materia prima, no precio de producto petroquímico terminado.",
@@ -170,11 +170,10 @@
       "marketTime": 1791547200,
       "source": "Evaluación pública basada en Platts · 9 Oct 2026",
       "sourceUrl": "https://chempricehub.com/news/detail-market-trends-of-pure-benzene-in-asia-b7594.html",
-      "basis": "Evaluación publicada FOB Corea: US$1.247/MT el 9 Oct 2026.",
+      "basis": "US$1.247/MT FOB Corea, 9 Oct 2026.",
       "note": "Referencia regional asiática, no Brasil/Argentina.",
-      "stale": false,
-      "status": "Platts · 09 Oct 2026",
-      "currency": "USD"
+      "stale": true,
+      "status": "Comparador externo · 9 Oct 2026"
     },
     {
       "id": "chem-fatty-acids",
