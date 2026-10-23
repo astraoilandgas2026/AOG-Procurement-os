@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T17:24:28.025Z",
+  "generatedAt": "2026-10-23T17:57:10.460Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -148,7 +148,7 @@
       "usdPerMt": null,
       "changePct": 1.7708808763121844,
       "relativePct": null,
-      "marketTime": 1792775623,
+      "marketTime": 1792777616,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/BZ=F/",
       "basis": "Futuro ICE Brent USD/bbl; proxy de coste de materia prima, no precio de producto petroquímico terminado.",
