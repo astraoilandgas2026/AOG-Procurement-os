@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T13:00:36.057Z",
+  "generatedAt": "2026-11-10T20:25:51.195Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -39,13 +39,13 @@
     {
       "id": "copper-concentrate",
       "name": "Concentrado de cobre (30% Cu)",
-      "price": 4171.6971561956625,
+      "price": 4146.564458306572,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": 0.9361497839654429,
+      "changePct": 0.32805248839814743,
       "relativePct": null,
-      "marketTime": 1794315024,
+      "marketTime": 1794341701,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/HG=F/",
       "basis": "Futuro COMEX Copper convertido de USD/lb a USD/tonelada métrica de concentrado teórico al 30% Cu: precio del cobre × 2,204.6226 lb/MT × 30%.",
@@ -58,13 +58,13 @@
     {
       "id": "aluminium",
       "name": "Aluminium (benchmark aluminio)",
-      "price": 3140,
+      "price": 3112.25,
       "unit": "USD/MT",
       "decimals": 0,
       "usdPerMt": null,
-      "changePct": -2.173066438196121,
+      "changePct": -3.0376197523171586,
       "relativePct": null,
-      "marketTime": 1794311500,
+      "marketTime": 1794340959,
       "source": "Yahoo Finance",
       "sourceUrl": "https://finance.yahoo.com/quote/ALI=F/",
       "basis": "Futuro de aluminio USD/MT si el símbolo está disponible; verificar contrato y mercado de referencia.",
