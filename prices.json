@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T00:47:31.454Z",
+  "generatedAt": "2026-11-11T07:31:29.402Z",
   "delayMinutes": 15,
   "instruments": [
     {
@@ -92,11 +92,11 @@
     {
       "id": "oleins",
       "name": "Oleína de palma RBD · paridad indicativa FOB Brasil",
-      "price": 1177.5,
-      "usdPerMt": 1177.5,
+      "price": 1100,
+      "usdPerMt": 1100,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1791979200,
+      "marketTime": 1794398400,
       "source": "MBLion Oleo FOB Malaysian Port + diferencial logístico supuesto",
       "sourceUrl": "https://www.mblionoleo.com/",
       "symbol": "RBD Palm Olein",
