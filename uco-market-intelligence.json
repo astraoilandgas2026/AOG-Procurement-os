@@ -45,34 +45,6 @@
       "url": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/",
       "spec": "Punto de mercado publicado; no se presenta como serie diaria oficial",
       "note": "Fastmarkets publicó este punto junto con UCO bulk FOB China a $1,188/MT."
-    },
-    {
-      "id": "nwe-fob-oct",
-      "market": "Europa NWE",
-      "basis": "FOB NWE · promedio octubre",
-      "price": 1394.89,
-      "currency": "USD",
-      "unit": "MT",
-      "date": "2026-10-31",
-      "source": "General Index — October 2026 pricing analysis",
-      "confidence": "Media",
-      "url": "https://www.general-index.com/",
-      "spec": "Promedio mensual reportado; base NWE",
-      "note": "Promedio de octubre, no evaluación puntual ARA ni cotización del 24-Nov."
-    },
-    {
-      "id": "nwe-cif-oct",
-      "market": "Europa NWE",
-      "basis": "CIF NWE · promedio octubre",
-      "price": 1287.61,
-      "currency": "USD",
-      "unit": "MT",
-      "date": "2026-10-31",
-      "source": "General Index — October 2026 pricing analysis",
-      "confidence": "Media",
-      "url": "https://www.general-index.com/",
-      "spec": "Promedio mensual reportado; base NWE",
-      "note": "Promedio de octubre, no evaluación puntual ARA ni cotización del 24-Nov."
     }
   ],
   "historical": [
