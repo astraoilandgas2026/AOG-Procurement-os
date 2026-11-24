@@ -1,0 +1,151 @@
+{
+  "asOf": "2026-11-24",
+  "title": "UCO — Market Intelligence",
+  "latestPublicData": "2026-11-02",
+  "note": "No se encontró un print público abierto y verificable del assessment diario de UCO CIF ARA ni de China FOB para el 24-Nov-2026. Los valores se muestran con su fecha real y no como cotización de hoy.",
+  "assessments": [
+    {
+      "id": "china-bulk",
+      "market": "China",
+      "basis": "FOB China · bulk",
+      "price": 1175,
+      "currency": "USD",
+      "unit": "MT",
+      "date": "2026-11-02",
+      "source": "Fastmarkets — corrección oficial del assessment",
+      "confidence": "Alta",
+      "url": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
+      "spec": "Bulk; lote y calidad según metodología Fastmarkets",
+      "note": "Evaluación corregida y publicada el 3-Nov; corresponde al 2-Nov."
+    },
+    {
+      "id": "china-flexi",
+      "market": "China",
+      "basis": "FOB China · flexitank",
+      "price": 1115,
+      "currency": "USD",
+      "unit": "MT",
+      "date": "2026-11-02",
+      "source": "Fastmarkets — corrección oficial del assessment",
+      "confidence": "Alta",
+      "url": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
+      "spec": "Flexitank; no equiparar con bulk",
+      "note": "Evaluación corregida y publicada el 3-Nov; corresponde al 2-Nov."
+    },
+    {
+      "id": "ara-cif",
+      "market": "Europa ARA",
+      "basis": "CIF ARA · UCO bulk",
+      "price": 1310,
+      "currency": "USD",
+      "unit": "MT",
+      "date": "2026-10-19",
+      "source": "Fastmarkets — análisis de flujos y economía comercial",
+      "confidence": "Media",
+      "url": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/",
+      "spec": "Punto de mercado publicado; no se presenta como serie diaria oficial",
+      "note": "Fastmarkets publicó este punto junto con UCO bulk FOB China a $1,188/MT."
+    }
+  ],
+  "historical": [
+    {
+      "date": "2022-06",
+      "label": "Máximo histórico reportado en Europa",
+      "price": 1850,
+      "currency": "EUR",
+      "unit": "MT",
+      "basis": "UCO ARA / Europa · referencia regional",
+      "source": "Transport & Environment / Stratas Advisors (2024)",
+      "url": "https://uploads.transportenvironment.org/production/files/TE_UCO-Study_Stratas_11062024.pdf?dm=1718620717",
+      "note": "Casi €1,850/MT en junio de 2022. Referencia histórica regional; no equiparar directamente con benchmarks USD posteriores."
+    },
+    {
+      "date": "2023-12",
+      "label": "Nivel bajo reportado en Europa",
+      "price": 900,
+      "currency": "EUR",
+      "unit": "MT",
+      "basis": "UCO Europa · referencia regional",
+      "source": "Transport & Environment / Stratas Advisors (2024)",
+      "url": "https://uploads.transportenvironment.org/production/files/TE_UCO-Study_Stratas_11062024.pdf?dm=1718620717",
+      "note": "Por debajo de €900/MT en diciembre de 2023. La cifra es aproximada y no constituye una serie CIF ARA diaria."
+    },
+    {
+      "date": "2024-03",
+      "label": "Mínimo 2024",
+      "price": 885,
+      "currency": "USD",
+      "unit": "MT",
+      "basis": "UCO CIF ARA",
+      "source": "Fastmarkets · 14-Jan-2025",
+      "url": "https://www.fastmarkets.com/insights/uco-prices-reach-two-year-high-in-2024-increases-to-continue-in-2025-amid-demand/",
+      "note": "Mínimo de 2024 citado por Fastmarkets; la evaluación alcanzó $1,070/MT en diciembre."
+    },
+    {
+      "date": "2024-12",
+      "label": "Máximo 2024",
+      "price": 1070,
+      "currency": "USD",
+      "unit": "MT",
+      "basis": "UCO CIF ARA",
+      "source": "Fastmarkets · 14-Jan-2025",
+      "url": "https://www.fastmarkets.com/insights/uco-prices-reach-two-year-high-in-2024-increases-to-continue-in-2025-amid-demand/",
+      "note": "Subida del 21% frente al mínimo de marzo de 2024."
+    },
+    {
+      "date": "2025-03-25",
+      "label": "Rango evaluado FOB ARA",
+      "price": 1240,
+      "currency": "USD",
+      "unit": "MT",
+      "basis": "UCO FOB ARA · rango $1,235–1,245",
+      "source": "Argus Biofuels · 25-Mar-2025",
+      "url": "https://view.argusmedia.com/rs/584-BUW-606/images/Argus%20Biofuels%20%282025-03-25%29.pdf?version=0",
+      "note": "Midpoint aritmético del rango Argus $1,235–1,245/MT; se conserva explícitamente el rango original en la base."
+    },
+    {
+      "date": "2026-09-10",
+      "label": "Operaciones reportadas CIF ARA bulk",
+      "price": 1370,
+      "currency": "USD",
+      "unit": "MT",
+      "basis": "UCO CIF ARA · rango $1,365–1,375",
+      "source": "Fastmarkets · 15-Sep-2026",
+      "url": "https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/",
+      "note": "Midpoint del rango de operaciones reportadas para bulk. Contenedor CIF ARA fue $1,300–1,305/MT; no mezclar ambos modos."
+    }
+  ],
+  "tradeFlows": [
+    {
+      "label": "Exportaciones UCO China",
+      "value": "2.57 Mt",
+      "period": "Ene–Ago 2026",
+      "detail": "+55% interanual",
+      "source": "Fastmarkets / datos aduaneros",
+      "url": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/"
+    },
+    {
+      "label": "Destino Europa",
+      "value": "850 kt",
+      "period": "Ene–Ago 2026",
+      "detail": "33% de exportaciones chinas",
+      "source": "Fastmarkets / datos aduaneros",
+      "url": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/"
+    },
+    {
+      "label": "Recepción Países Bajos",
+      "value": "534 kt",
+      "period": "Ene–Ago 2026",
+      "detail": "Principal destino europeo citado",
+      "source": "Fastmarkets / datos aduaneros",
+      "url": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/"
+    }
+  ],
+  "internalTarget": {
+    "price": 750,
+    "currency": "USD",
+    "unit": "MT",
+    "basis": "Objetivo interno de compra Astra; no benchmark de mercado",
+    "status": "Pendiente de netback, calidad, certificación, flete y coste total"
+  }
+}
