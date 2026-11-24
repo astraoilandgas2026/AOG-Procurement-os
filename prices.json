@@ -24,19 +24,19 @@
     },
     {
       "id": "uco",
-      "name": "UCO · CIF ARA (último dato público fechado)",
-      "price": 1310,
-      "usdPerMt": 1310,
+      "name": "UCO / AVU · FOB Brasil (estimación por paridad)",
+      "price": 1398.83305239,
+      "usdPerMt": 1398.83305239,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": null,
-      "source": "Fastmarkets · punto público de mercado 19-oct-2026",
-      "sourceUrl": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/",
-      "basis": "UCO bulk · CIF Amsterdam-Rotterdam-Antwerp · USD/MT · dato publicado 19-oct-2026.",
-      "note": "Último punto público localizado para ARA en esta actualización; NO es cotización del 24-Nov. Fastmarkets publicó $1,310/MT CIF ARA junto con $1,188/MT bulk FOB China. La serie diaria oficial requiere acceso al assessment.",
+      "marketTime": 1791547200,
+      "source": "CBonds · último dato público verificado 9-oct-2026 + ajuste de origen supuesto",
+      "sourceUrl": "https://cbonds.es/indexes/194209/",
+      "basis": "Benchmark UCO US$/lb × 2.204,62 lb/MT; ajuste de modelización −10% para una referencia indicativa FOB Brasil.",
+      "note": "ESTIMACIÓN, no cotización brasileña. El −10% es una hipótesis provisional de origen/calidad/logística, no un diferencial observado. El benchmark de EE.UU. no equivale directamente a UCO RED/ISCC FOB Straits; confirmar FFA, MIU, azufre, trazabilidad e ISCC antes de uso comercial.",
       "relativePct": null,
       "stale": true,
-      "status": "Último dato público · 19 Oct 2026"
+      "status": "Estimación · benchmark anterior"
     },
     {
       "id": "fatty-acids",
@@ -122,38 +122,6 @@
       "relativePct": null,
       "stale": true,
       "status": "Escenario −15% · baja confianza"
-    },
-    {
-      "id": "uco-china-bulk",
-      "name": "UCO · FOB China bulk",
-      "price": 1175,
-      "usdPerMt": 1175,
-      "unit": "USD/MT",
-      "decimals": 0,
-      "marketTime": null,
-      "source": "Fastmarkets · assessment corregido 2-Nov-2026",
-      "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
-      "basis": "FOB China · bulk · USD/MT · assessment 2-Nov-2026.",
-      "note": "Valor confirmado por corrección oficial de Fastmarkets publicada 3-Nov-2026. No es precio del 24-Nov.",
-      "stale": true,
-      "status": "Último dato público · 2 Nov 2026",
-      "relativePct": null
-    },
-    {
-      "id": "uco-china-flexi",
-      "name": "UCO · FOB China flexitank",
-      "price": 1115,
-      "usdPerMt": 1115,
-      "unit": "USD/MT",
-      "decimals": 0,
-      "marketTime": null,
-      "source": "Fastmarkets · assessment corregido 2-Nov-2026",
-      "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
-      "basis": "FOB China · flexitank · USD/MT · assessment 2-Nov-2026.",
-      "note": "Valor confirmado por corrección oficial de Fastmarkets publicada 3-Nov-2026. Distinto de bulk; no mezclar con CIF ARA.",
-      "stale": true,
-      "status": "Último dato público · 2 Nov 2026",
-      "relativePct": null
     }
   ]
 }
