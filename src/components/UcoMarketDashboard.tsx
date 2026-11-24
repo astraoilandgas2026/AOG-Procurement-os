@@ -6,7 +6,7 @@ type HistoryPoint = { date:string; label:string; price:number; currency:string; 
 type MarketData = { asOf:string; title:string; latestPublicData:string; note:string; assessments:Assessment[]; historical:HistoryPoint[]; tradeFlows:{label:string;value:string;period:string;detail:string;source:string;url:string}[]; internalTarget:{price:number;currency:string;unit:string;basis:string;status:string} };
 const DATA_URL='https://raw.githubusercontent.com/astraoilandgas2026/AOG-Procurement-os/data/uco-market-intelligence.json';
 const money=(v:number,c:string)=>new Intl.NumberFormat('en-US',{style:'currency',currency:c,maximumFractionDigits:0}).format(v);
-const dateLabel=(v:string)=>v.length===7?v:new Date(v+'T12:00:00Z').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});
+const dateLabel=(v:string)=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v)?new Date(v+'T12:00:00Z').toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}):v;
 
 export function UcoMarketDashboard(){
  const [data,setData]=useState<MarketData|null>(null);
