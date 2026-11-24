@@ -82,10 +82,10 @@
       "price": 1850,
       "currency": "EUR",
       "unit": "MT",
-      "basis": "UCO Europa · referencia regional",
+      "basis": "UCO ARA / Europa · referencia regional",
       "source": "Transport & Environment / Stratas Advisors (2024)",
-      "url": "https://www.transportenvironment.org/",
-      "note": "Casi €1,850/MT; no es una serie CIF ARA homogénea."
+      "url": "https://uploads.transportenvironment.org/production/files/TE_UCO-Study_Stratas_11062024.pdf?dm=1718620717",
+      "note": "Casi €1,850/MT en junio de 2022. Referencia histórica regional; no equiparar directamente con benchmarks USD posteriores."
     },
     {
       "date": "2023-12",
@@ -95,74 +95,52 @@
       "unit": "MT",
       "basis": "UCO Europa · referencia regional",
       "source": "Transport & Environment / Stratas Advisors (2024)",
-      "url": "https://www.transportenvironment.org/",
-      "note": "Por debajo de €900/MT; no es directamente comparable con referencias USD/MT posteriores."
+      "url": "https://uploads.transportenvironment.org/production/files/TE_UCO-Study_Stratas_11062024.pdf?dm=1718620717",
+      "note": "Por debajo de €900/MT en diciembre de 2023. La cifra es aproximada y no constituye una serie CIF ARA diaria."
     },
     {
       "date": "2024-03",
-      "label": "Mínimo Fastmarkets reportado",
+      "label": "Mínimo 2024",
       "price": 885,
       "currency": "USD",
       "unit": "MT",
       "basis": "UCO CIF ARA",
-      "source": "Fastmarkets",
-      "url": "https://www.fastmarkets.com/agriculture/biofuels-and-feedstocks/used-cooking-oil-prices/",
-      "note": "Mínimo citado para marzo de 2024."
+      "source": "Fastmarkets · 14-Jan-2025",
+      "url": "https://www.fastmarkets.com/insights/uco-prices-reach-two-year-high-in-2024-increases-to-continue-in-2025-amid-demand/",
+      "note": "Mínimo de 2024 citado por Fastmarkets; la evaluación alcanzó $1,070/MT en diciembre."
     },
     {
       "date": "2024-12",
-      "label": "Máximo de casi dos años",
+      "label": "Máximo 2024",
       "price": 1070,
       "currency": "USD",
       "unit": "MT",
       "basis": "UCO CIF ARA",
-      "source": "Fastmarkets",
-      "url": "https://www.fastmarkets.com/insights/",
-      "note": "Nivel reportado en diciembre de 2024."
+      "source": "Fastmarkets · 14-Jan-2025",
+      "url": "https://www.fastmarkets.com/insights/uco-prices-reach-two-year-high-in-2024-increases-to-continue-in-2025-amid-demand/",
+      "note": "Subida del 21% frente al mínimo de marzo de 2024."
     },
     {
-      "date": "2025-03-24",
-      "label": "Pico YTD 2025",
-      "price": 1250,
+      "date": "2025-03-25",
+      "label": "Rango evaluado FOB ARA",
+      "price": 1240,
       "currency": "USD",
       "unit": "MT",
-      "basis": "UCO FOB ARA",
-      "source": "Argus",
-      "url": "https://www.argusmedia.com/en/commodities/bioenergy",
-      "note": "Pico del assessment FOB ARA el 24-Mar-2025."
+      "basis": "UCO FOB ARA · rango $1,235–1,245",
+      "source": "Argus Biofuels · 25-Mar-2025",
+      "url": "https://view.argusmedia.com/rs/584-BUW-606/images/Argus%20Biofuels%20%282025-03-25%29.pdf?version=0",
+      "note": "Midpoint aritmético del rango Argus $1,235–1,245/MT; se conserva explícitamente el rango original en la base."
     },
     {
-      "date": "2025-YTD",
-      "label": "Promedio YTD 2025",
-      "price": 1203.92,
+      "date": "2026-09-10",
+      "label": "Operaciones reportadas CIF ARA bulk",
+      "price": 1370,
       "currency": "USD",
       "unit": "MT",
-      "basis": "UCO FOB ARA",
-      "source": "Argus",
-      "url": "https://www.argusmedia.com/en/commodities/bioenergy",
-      "note": "Promedio YTD publicado en 2025; no confundir con CIF ARA."
-    },
-    {
-      "date": "2025-05-30",
-      "label": "Mínimo 2025 citado",
-      "price": 1030,
-      "currency": "USD",
-      "unit": "MT",
-      "basis": "UCO CIF ARA",
-      "source": "Fastmarkets",
-      "url": "https://www.fastmarkets.com/agriculture/biofuels-and-feedstocks/used-cooking-oil-prices/",
-      "note": "Mínimo citado el 30-May-2025."
-    },
-    {
-      "date": "2025-09-26",
-      "label": "Referencia CIF ARA",
-      "price": 1200,
-      "currency": "USD",
-      "unit": "MT",
-      "basis": "UCO CIF ARA",
-      "source": "Fastmarkets",
-      "url": "https://www.fastmarkets.com/agriculture/biofuels-and-feedstocks/used-cooking-oil-prices/",
-      "note": "Nivel reportado el 26-Sep-2025."
+      "basis": "UCO CIF ARA · rango $1,365–1,375",
+      "source": "Fastmarkets · 15-Sep-2026",
+      "url": "https://www.fastmarkets.com/insights/european-uco-and-animal-fat-prices-jump-on-strong-demand-and-geopolitical-tensions/",
+      "note": "Midpoint del rango de operaciones reportadas para bulk. Contenedor CIF ARA fue $1,300–1,305/MT; no mezclar ambos modos."
     }
   ],
   "tradeFlows": [
