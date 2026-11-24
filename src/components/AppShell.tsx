@@ -4,6 +4,7 @@ import type { PageKey } from '@/types';
 import { InstallAppButton } from '@/components/InstallAppButton';
 import { FeedstockPriceTicker } from '@/components/FeedstockPriceTicker';
 import { MarketPriceTicker } from '@/components/MarketPriceTicker';
+import { UcoMarketDashboard } from '@/components/UcoMarketDashboard';
 import {
   Building2, Users, Package, DollarSign, Award, FileText, Newspaper, MapPinned,
   ShieldCheck, Truck, Clock, CheckSquare, Network, Droplets, Fuel, Pickaxe, FlaskConical, Wheat, Archive,
@@ -152,6 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {currentPage === "products" && procurementDomain === "fertilizers_chemicals" && <MarketPriceTicker sector="fertilizers_chemicals" />}
         {currentPage === "products" && procurementDomain === "agricultural_commodities" && <MarketPriceTicker sector="agriculture" />}
         <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {currentPage === "intelligence_reports" && procurementDomain === "feedstock" && <UcoMarketDashboard />}
           {procurementDomain ? children : <div className="mx-auto w-full max-w-7xl">{children}</div>}
         </main>
       </div>
