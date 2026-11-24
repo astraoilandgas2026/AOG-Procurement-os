@@ -20,10 +20,12 @@ type MarkerQuote = {
 };
 type PricesFile = { generatedAt?: string | null; delayMinutes?: number; instruments?: MarkerQuote[] };
 
-const ORDER = ['vegetable-oils', 'uco', 'fatty-acids', 'acid-oils', 'degummed-oils', 'oleins', 'off-spec'];
+const ORDER = ['vegetable-oils', 'uco', 'uco-china-bulk', 'uco-china-flexi', 'fatty-acids', 'acid-oils', 'degummed-oils', 'oleins', 'off-spec'];
 const LABELS: Record<string, string> = {
   'vegetable-oils': 'Aceite de soya · FOB Paranaguá',
-  uco: 'Aceite usado de cocina (UCO/AVU, indicativo)',
+  uco: 'UCO · CIF ARA (último dato público)',
+  'uco-china-bulk': 'UCO · FOB China bulk',
+  'uco-china-flexi': 'UCO · FOB China flexitank',
   'fatty-acids': 'Ácido graxo de palma · FOB Nordeste Brasil',
   'acid-oils': 'Aceite ácido / soapstock · FOB Brasil',
   'degummed-oils': 'Aceite de soya desgomado · proxy FOB Paranaguá',
@@ -114,7 +116,7 @@ export function FeedstockPriceTicker() {
                 <span className="min-w-0 whitespace-normal break-words text-[11px] font-semibold leading-tight text-slate-700 sm:text-[10px]">{label}</span>
                 <span className={`flex shrink-0 items-center gap-0.5 text-[10px] font-semibold ${changeClass}`}>
                   <ChangeIcon size={10} />
-                  {quote.id === 'vegetable-oils' ? 'FOB' : quote.id === 'uco' ? 'MOD.' : typeof value !== 'number' ? 'N/D' : shownChange == null ? (quote.stale ? 'Ref.' : 'REF') : Math.abs(shownChange).toFixed(1) + '%'}
+                  {quote.id === 'vegetable-oils' ? 'FOB' : typeof value !== 'number' ? 'N/D' : shownChange == null ? (quote.stale ? 'Ref.' : 'REF') : Math.abs(shownChange).toFixed(1) + '%'}
                 </span>
               </div>
               <div className="mt-1 whitespace-nowrap text-[15px] font-bold leading-tight tabular-nums text-[var(--astra-dark)] sm:text-[14px]">
