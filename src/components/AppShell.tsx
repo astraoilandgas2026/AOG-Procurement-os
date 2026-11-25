@@ -147,6 +147,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </nav>
         )}
+        {currentPage === "dashboard" && procurementDomain && (
+          <section aria-label="Panel central de índices de mercado" className="shrink-0 space-y-2 border-b border-[var(--astra-border)] bg-slate-50/60 py-2">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-[var(--astra-dark)] sm:px-5">Market Indices · Vista global</div>
+            <FeedstockPriceTicker />
+            <MarketPriceTicker sector="energy" />
+            <MarketPriceTicker sector="mining" />
+            <MarketPriceTicker sector="fertilizers_chemicals" />
+            <MarketPriceTicker sector="agriculture" />
+          </section>
+        )}
         {currentPage === "products" && procurementDomain === "feedstock" && <FeedstockPriceTicker />}
         {currentPage === "products" && procurementDomain === "energy_commodities" && <MarketPriceTicker sector="energy" />}
         {currentPage === "products" && procurementDomain === "mining_commodities" && <MarketPriceTicker sector="mining" />}
