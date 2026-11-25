@@ -1,25 +1,25 @@
 {
-  "generatedAt": "2026-11-24T23:39:28.458Z",
+  "generatedAt": "2026-11-25T00:36:00Z",
   "delayMinutes": 15,
   "instruments": [
     {
       "id": "vegetable-oils",
       "name": "Aceite de soya · FOB Paranaguá",
       "symbol": "CS-GRN-SBO-BRZ",
-      "price": 1245.5,
+      "price": 1077.75,
       "prevClose": null,
       "changePct": null,
       "unit": "USD/MT",
       "decimals": 0,
-      "usdPerMt": 1245.5,
+      "usdPerMt": 1077.75,
       "prevUsdPerMt": null,
-      "marketTime": 1791547200,
-      "source": "CommodityScope · último dato verificado 9-oct-2026",
-      "sourceUrl": "https://commodityscope.com/prices/brazil-soybean-oil",
-      "basis": "Aceite de soya · FOB Paranaguá, Brasil · USD/MT",
-      "note": "Última evaluación física pública verificada: US$1,245.50/MT FOB Paranaguá, 9-oct-2026. Se muestra como referencia fechada porque la fuente automática no respondió; no es oferta ejecutable. El futuro CBOT (~US$1,500/MT) es otra base.",
-      "stale": true,
-      "status": "Último dato verificado",
+      "marketTime": 1795449600,
+      "source": "CommodityScope · evaluación diaria 23-Nov-2026",
+      "sourceUrl": "https://commodityscope.com/markets/soybean-oil-brazil-paranagua-fob",
+      "basis": "Aceite de soya · FOB Paranaguá, Brasil · USD/MT; rango 1,064.50–1,099.50.",
+      "note": "Midpoint de evaluación indicativa; no es oferta ejecutable. Sustituye la referencia obsoleta de 9-Oct.",
+      "stale": false,
+      "status": "Evaluación pública · 23 Nov 2026",
       "relativePct": null
     },
     {
@@ -30,13 +30,13 @@
       "unit": "USD/MT",
       "decimals": 0,
       "marketTime": null,
-      "source": "Fastmarkets · punto público de mercado 19-oct-2026",
-      "sourceUrl": "https://www.fastmarkets.com/insights/europe-takes-chinas-used-cooking-oil-the-us-takes-australias-tallow/",
-      "basis": "UCO bulk · CIF Amsterdam-Rotterdam-Antwerp · USD/MT · dato publicado 19-oct-2026.",
-      "note": "Último punto público localizado para ARA en esta actualización; NO es cotización del 24-Nov. Fastmarkets publicó $1,310/MT CIF ARA junto con $1,188/MT bulk FOB China. La serie diaria oficial requiere acceso al assessment.",
+      "source": "Fastmarkets · evaluación pública 19-Oct-2026",
+      "sourceUrl": "https://www.fastmarkets.com/insights/fastmarkets-launches-used-cooking-oil-bulk-cif-amsterdam-rotterdam-antwerp-ara-assessment/",
+      "basis": "UCO bulk · CIF ARA · USD/MT · valor público 19-Oct-2026; especificación metodológica FFA ≤5%, MIU ≤2%, IV ≥70, S ≤50 ppm; mínimo 2,000 MT.",
+      "note": "No se ha encontrado el número abierto de la evaluación más reciente; se conserva como dato histórico y stale.",
       "relativePct": null,
-      "stale": true,
-      "status": "Último dato público · 19 Oct 2026"
+      "stale": false,
+      "status": "Último valor público localizado · 19 Oct 2026"
     },
     {
       "id": "fatty-acids",
@@ -53,7 +53,7 @@
       "note": "Referencia comercial real comunicada por el usuario; no es un índice público ni debe compararse con ácido oleico 75%, PFAD u otro ácido graso hasta confirmar que la especificación coincide.",
       "relativePct": null,
       "stale": true,
-      "status": "Oferta reportada · validar condiciones"
+      "status": "Oferta comercial reportada · vigencia por reconfirmar"
     },
     {
       "id": "acid-oils",
@@ -70,24 +70,24 @@
       "note": "Se sustituye el proxy anterior de US$913/MT porque era un cálculo indirecto de ácido graso bruto de soja, no una cotización de soapstock. US$540/MT es la referencia comercial reportada por el usuario, no una evaluación pública independiente.",
       "relativePct": null,
       "stale": true,
-      "status": "Oferta reportada · validar especificación"
+      "status": "Oferta comercial reportada · vigencia por reconfirmar"
     },
     {
       "id": "degummed-oils",
       "name": "Aceite de soya desgomado · proxy FOB Paranaguá",
-      "price": 1245.5,
-      "usdPerMt": 1245.5,
+      "price": 1077.75,
+      "usdPerMt": 1077.75,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": 1791547200,
-      "source": "CommodityScope · último dato verificado 9-oct-2026",
-      "sourceUrl": "https://commodityscope.com/prices/brazil-soybean-oil",
+      "marketTime": 1795449600,
+      "source": "CommodityScope · aceite de soya FOB Paranaguá, 23-Nov-2026",
+      "sourceUrl": "https://commodityscope.com/markets/soybean-oil-brazil-paranagua-fob",
       "symbol": "CS-GRN-SBO-BRZ",
-      "basis": "Proxy: aceite de soya FOB Paranaguá, Brasil · USD/MT; sin prima/descuento de grado desgomado.",
-      "note": "Se usa el benchmark FOB Brasil de aceite de soya sin añadir un ajuste de calidad no verificado. No es una evaluación específica de aceite desgomado.",
+      "basis": "Proxy aceite de soya FOB Paranaguá; no existe ajuste de grado desgomado en esta serie.",
+      "note": "No es una evaluación específica de aceite desgomado. No añadir prima/descuento no verificado.",
       "relativePct": null,
-      "stale": true,
-      "status": "Proxy FOB Brasil · sin ajuste de grado"
+      "stale": false,
+      "status": "Proxy FOB Brasil · 23 Nov 2026"
     },
     {
       "id": "oleins",
@@ -104,7 +104,7 @@
       "note": "ESTIMACIÓN DE PARIDAD, no cotización FOB Brasil. Los US$35/MT son una hipótesis de diferencial de flete entre orígenes hacia Rotterdam, no un flete confirmado; tampoco incluye coste de importar, impuestos, almacenaje o reexportar oleína a Brasil. Úsese solo como referencia comparativa, no como oferta brasileña ejecutable.",
       "relativePct": null,
       "stale": true,
-      "status": "Paridad estimada · benchmark Malasia"
+      "status": "Estimación/paridad histórica · no actualizar sin oferta comparable"
     },
     {
       "id": "off-spec",
@@ -121,7 +121,7 @@
       "note": "ESCENARIO ILUSTRATIVO, no benchmark universal ni precio de compra. Se aplica un descuento supuesto de 15% al aceite de soya de referencia solo para dar una cifra de trabajo; el descuento real puede ser menor, mayor o negativo según material, FFA, humedad, MIU, fósforo, azufre, color, trazabilidad y destino. Recalcular con ficha técnica y análisis de laboratorio.",
       "relativePct": null,
       "stale": true,
-      "status": "Escenario −15% · baja confianza"
+      "status": "Estimación/paridad histórica · no actualizar sin oferta comparable"
     },
     {
       "id": "uco-china-bulk",
@@ -130,13 +130,13 @@
       "usdPerMt": 1175,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": null,
-      "source": "Fastmarkets · assessment corregido 2-Nov-2026",
+      "marketTime": 1793635200,
+      "source": "Fastmarkets · assessment 2-Nov-2026",
       "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
-      "basis": "FOB China · bulk · USD/MT · assessment 2-Nov-2026.",
-      "note": "Valor confirmado por corrección oficial de Fastmarkets publicada 3-Nov-2026. No es precio del 24-Nov.",
-      "stale": true,
-      "status": "Último dato público · 2 Nov 2026",
+      "basis": "UCO bulk · FOB China · USD/MT · 2-Nov-2026.",
+      "note": "No se localizó una evaluación pública abierta más reciente. Se mantiene fechada, no vigente al 24-Nov.",
+      "stale": false,
+      "status": "Última evaluación pública localizada · 2 Nov",
       "relativePct": null
     },
     {
@@ -146,13 +146,13 @@
       "usdPerMt": 1115,
       "unit": "USD/MT",
       "decimals": 0,
-      "marketTime": null,
-      "source": "Fastmarkets · assessment corregido 2-Nov-2026",
+      "marketTime": 1793635200,
+      "source": "Fastmarkets · assessment 2-Nov-2026",
       "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
-      "basis": "FOB China · flexitank · USD/MT · assessment 2-Nov-2026.",
-      "note": "Valor confirmado por corrección oficial de Fastmarkets publicada 3-Nov-2026. Distinto de bulk; no mezclar con CIF ARA.",
-      "stale": true,
-      "status": "Último dato público · 2 Nov 2026",
+      "basis": "UCO flexitank · FOB China · USD/MT · 2-Nov-2026.",
+      "note": "No se localizó una evaluación pública abierta más reciente. Se mantiene fechada, no vigente al 24-Nov.",
+      "stale": false,
+      "status": "Última evaluación pública localizada · 2 Nov",
       "relativePct": null
     }
   ]
