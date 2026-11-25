@@ -35,8 +35,8 @@
       "basis": "UCO bulk · CIF ARA · USD/MT · valor público 19-Oct-2026; especificación metodológica FFA ≤5%, MIU ≤2%, IV ≥70, S ≤50 ppm; mínimo 2,000 MT.",
       "note": "No se ha encontrado el número abierto de la evaluación más reciente; se conserva como dato histórico y stale.",
       "relativePct": null,
-      "stale": false,
-      "status": "Último valor público localizado · 19 Oct 2026"
+      "stale": true,
+      "status": "Último dato público · 19 Oct 2026 · no es precio actual"
     },
     {
       "id": "fatty-acids",
@@ -135,8 +135,8 @@
       "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
       "basis": "UCO bulk · FOB China · USD/MT · 2-Nov-2026.",
       "note": "No se localizó una evaluación pública abierta más reciente. Se mantiene fechada, no vigente al 24-Nov.",
-      "stale": false,
-      "status": "Última evaluación pública localizada · 2 Nov",
+      "stale": true,
+      "status": "Último dato público · 2 Nov 2026 · no es precio actual",
       "relativePct": null
     },
     {
@@ -151,8 +151,8 @@
       "sourceUrl": "https://www.fastmarkets.com/insights/correction-to-used-cooking-oil-fob-china-price-publication-date/",
       "basis": "UCO flexitank · FOB China · USD/MT · 2-Nov-2026.",
       "note": "No se localizó una evaluación pública abierta más reciente. Se mantiene fechada, no vigente al 24-Nov.",
-      "stale": false,
-      "status": "Última evaluación pública localizada · 2 Nov",
+      "stale": true,
+      "status": "Último dato público · 2 Nov 2026 · no es precio actual",
       "relativePct": null
     }
   ]
